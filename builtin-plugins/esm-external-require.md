@@ -1,25 +1,25 @@
-# ESM External Require Plugin
+# ESM 外部 require 插件
 
-The `esmExternalRequirePlugin` is a built-in Rolldown plugin that converts CommonJS `require()` calls for external dependencies into ESM `import` statements, ensuring compatibility in environments that don't support the Node.js module API.
+`esmExternalRequirePlugin` 是 Rolldown 的内置插件，可将针对外部依赖的 CommonJS `require()` 调用转换为 ESM `import` 语句，从而兼容不支持 Node.js 模块 API 的环境。
 
-:::tip NOTE
-This plugin sets `resolveId.meta.order` to `'pre'` to ensure external requires are resolved before other plugins. Additionally, it sets `enforce: 'pre'` by default for Vite compatibility.
+::: tip 注意
+该插件会把 `resolveId.meta.order` 设置为 `'pre'`，确保外部 require 先于其他插件解析。此外，为兼容 Vite，它默认设置 `enforce: 'pre'`。
 :::
 
-## Why This Is Needed
+## 为什么需要此插件
 
-When bundling code with Rolldown, `require()` calls for external dependencies are not automatically converted to ESM imports to preserve the semantics of `require()`. While Rolldown injects `require` function when `platform: 'node'` is set, it does so by generating code like:
+使用 Rolldown 打包代码时，为保留 `require()` 的语义，针对外部依赖的 `require()` 调用不会自动转换为 ESM import。设置 `platform: 'node'` 后，Rolldown 虽然会注入 `require` 函数，但实现方式是生成以下代码：
 
 ```js
 import { createRequire } from 'node:module';
 var __require = createRequire(import.meta.url);
 ```
 
-However, this approach relies on the Node.js module API, which isn't available in some environments. This approach is also problematic for libraries that are expected to be bundled later, as this code is difficult to be analyzed and transformed by bundlers.
+但是，这种方式依赖 Node.js 模块 API，而某些环境并不提供该 API。对于之后还会再次打包的库，这种方式同样存在问题，因为打包器很难分析和转换这段代码。
 
-## Usage
+## 用法
 
-Import and use the plugin from Rolldown's experimental exports:
+从 Rolldown 的插件导出入口导入并使用该插件：
 
 ```js
 import { defineConfig } from 'rolldown';
@@ -39,70 +39,70 @@ export default defineConfig({
 });
 ```
 
-:::warning The plugin must own its externals
-List each module in this plugin's `external` option or in the top-level `external` option, never both. Top-level `external` wins during resolution, so the plugin skips duplicated modules entirely. The build succeeds with a warning while the output keeps calling `require()` on the external module at runtime.
+::: warning 外部模块必须由该插件负责
+每个模块只能列在该插件的 `external` 选项或顶层 `external` 选项之一，不能同时出现。解析时顶层 `external` 优先，因此插件会完全跳过重复模块。构建会成功但发出警告，而输出在运行时仍会对外部模块调用 `require()`。
 :::
 
-## Options
+## 选项
 
 ### `external`
 
-Type: `(string | RegExp)[]`
+类型：`(string | RegExp)[]`
 
-Defines which dependencies should be treated as external. When the output format is ESM, their `require()` calls will be converted to `import` statements. For non-ESM output formats, the dependencies will be marked as external but the `require()` calls will remain unchanged.
+定义应视为外部模块的依赖。输出格式为 ESM 时，针对它们的 `require()` 调用会转换为 `import` 语句。使用非 ESM 输出格式时，这些依赖仍会标记为外部模块，但 `require()` 调用保持不变。
 
 ### `skipDuplicateCheck`
 
-Type: `boolean`
-Default: `false`
+类型：`boolean`
+默认值：`false`
 
-When enabled, skips checking for duplicate externals between this plugin and the top-level `external` option. This can improve build performance when you're confident there are no duplicates.
+启用后，跳过检查该插件与顶层 `external` 选项之间的重复外部模块。如果确定不存在重复项，可以借此提高构建性能。
 
 ```javascript
 esmExternalRequirePlugin({
   external: ['react', 'vue'],
-  skipDuplicateCheck: true, // Skip duplicate check for better performance
+  skipDuplicateCheck: true, // 跳过重复检查以提高性能
 });
 ```
 
-## Duplicate External Detection
+## 检测重复的外部模块
 
-By default, the plugin checks if any externals you specify are also configured in the top-level `external` option. If duplicates are found, you'll see a warning:
+默认情况下，插件会检查指定的外部模块是否也配置在顶层 `external` 选项中。如果发现重复项，会看到以下警告：
 
 ```
 Found 2 duplicate external: `react`, `vue`. Remove them from top-level `external` as they're already handled by 'builtin:esm-external-require' plugin.
 ```
 
-Treat this warning as a correctness signal. The plugin leaves duplicated modules untouched: the top-level `external` option takes priority, so the output still contains the raw `require()` calls this plugin is meant to convert. Remove the duplicates from top-level `external`. Nothing is lost: the plugin marks its own modules as external anyway.
+请把此警告视为正确性问题的信号。插件不会处理重复模块：顶层 `external` 选项具有更高优先级，因此输出中仍会保留本应由该插件转换的原始 `require()` 调用。请从顶层 `external` 中移除重复项。这不会丢失任何配置，因为插件本身也会把所负责的模块标记为外部模块。
 
-`skipDuplicateCheck: true` doesn't make duplicates work. It only silences the warning, so enable it only when you're certain no module appears in both places.
+`skipDuplicateCheck: true` 并不能让重复配置正常工作，它只会隐藏警告。因此，只有确定没有模块同时出现在两处时才应启用。
 
-## Limitations
+## 限制
 
-Since this plugin changes `require()` calls to `import` statements, there are some semantic differences after bundling:
+由于该插件会把 `require()` 调用改为 `import` 语句，打包后存在一些语义差异：
 
-- resolution is now based on `import` behavior, not `require` behavior
-  - For example, `import` condition is used instead of `require` condition
-- The values may be different from the original `require()` calls, especially for modules with default exports.
+- 解析基于 `import` 而非 `require` 的行为。
+  - 例如，会使用 `import` 条件而不是 `require` 条件。
+- 得到的值可能与原始 `require()` 调用不同，尤其是包含默认导出的模块。
 
-## How It Works
+## 工作原理
 
-This plugin intercepts `require()` calls for dependencies specified in the option and creates virtual facade modules that:
+该插件会拦截针对选项中指定依赖的 `require()` 调用，并创建虚拟门面模块来：
 
-1. Import the dependency using ESM `import * as m from '...'`
-2. Re-export it using `module.exports = m` for CommonJS compatibility
-3. Replace the original `require()` with the virtual module reference
+1. 使用 ESM `import * as m from '...'` 导入依赖。
+2. 使用 `module.exports = m` 重新导出，以兼容 CommonJS。
+3. 将原始 `require()` 替换为对虚拟模块的引用。
 
-For non-external `require()` calls, Rolldown automatically wraps them and converts them into ESM imports.
+对于非外部模块的 `require()` 调用，Rolldown 会自动包装并转换为 ESM import。
 
 ```js
-// Input code
+// 输入代码
 const react = require('react');
 
-// Transformed output
+// 转换后的输出
 const react = require('builtin:esm-external-require-react');
 
-// Virtual module: builtin:esm-external-require-react
+// 虚拟模块：builtin:esm-external-require-react
 import * as m from 'react';
 module.exports = m;
 ```

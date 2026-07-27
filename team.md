@@ -92,22 +92,22 @@ const members = [
 ]
 </script>
 
-# Team
+# 团队
 
-The team members work full time on the Rolldown project and are responsible for its development, maintenance, and community engagement.
+团队成员全职参与 Rolldown 项目，负责项目开发、维护和社区建设。
 
 <VPTeamMembers size="small" :members="members" />
 
-## Past Contributors
+## 过往贡献者
 
-You can find the past team members and other people who significantly contributed to Rolldown over the years on the [acknowledgements](./acknowledgements.md) page.
+你可以在[致谢](./acknowledgements.md)页面中找到历任团队成员，以及多年来为 Rolldown 作出重要贡献的其他人士。
 
-## Join Us!
+## 加入我们
 
-Rolldown is still in early stage. We have a lot of ground to cover, and we won't be able to do this without the help from community contributors. We are also actively looking for more team members with long term commitment in improving JavaScript tooling with Rust.
+Rolldown 仍处于早期阶段，还有许多工作要做，而这一切离不开社区贡献者的帮助。我们也在积极寻找更多愿意长期投入、使用 Rust 改进 JavaScript 工具链的团队成员。
 
-### Useful Links
+### 实用链接
 
 - [GitHub](https://github.com/rolldown/rolldown)
-- [Contribution Guide](/contribution-guide/)
-- [Discord Chat](https://chat.rolldown.rs)
+- [贡献指南](/contribution-guide/)
+- [Discord 交流群](https://chat.rolldown.rs)

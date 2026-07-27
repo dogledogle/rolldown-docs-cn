@@ -1,0 +1,17 @@
+packages:
+  - .
+
+allowBuilds:
+  better-sqlite3: true
+  esbuild: true
+  sharp: true
+  vue-demi: true
+  workerd: true
+
+# Kept for pnpm 10. pnpm 11 reads `allowBuilds` instead.
+onlyBuiltDependencies:
+  - better-sqlite3
+  - esbuild
+  - sharp
+  - vue-demi
+  - workerd

@@ -1,108 +1,108 @@
-# External Modules
+# 外部模块
 
-When a module is marked as external, Rolldown will not bundle it. Instead, the `import` or `require` statement is preserved in the output, and the module is expected to be available at runtime.
+模块被标记为外部模块后，Rolldown 不会将其打包，而是在输出中保留 `import` 或 `require` 语句，并假定该模块在运行时可用。
 
 ```js
-// input
+// 输入
 import lodash from 'lodash';
 console.log(lodash);
 
-// output (lodash is external)
+// 输出（lodash 是外部模块）
 import lodash from 'lodash';
 console.log(lodash);
 ```
 
-This page explains how externals work end-to-end: how a module becomes external, how its import path is determined in the output, and how the relevant options and plugin hooks interact.
+本页完整解释外部模块的工作方式：模块如何成为外部模块、如何确定它在输出中的导入路径，以及相关选项和插件钩子如何交互。
 
-## How a Module Becomes External
+## 模块如何成为外部模块
 
-There are three ways a module can be marked as external:
+可以通过三种方式将模块标记为外部模块：
 
-1. **The [`external`](/reference/InputOptions.external) option** — a config-level pattern (string, regex, array, or function) that tests each import specifier. See the [option reference](/reference/InputOptions.external) for pattern syntax, examples, and caveats.
+1. **[`external`](https://rolldown.rs/reference/InputOptions.external) 选项**：配置级模式（字符串、正则表达式、数组或函数），用于测试每个导入说明符。模式语法、示例和注意事项请参阅[选项参考](https://rolldown.rs/reference/InputOptions.external)。
 
-2. **A plugin's `resolveId` hook** — a plugin can return `{ id, external: true }` (or `"relative"` / `"absolute"`) to explicitly mark a module as external. A plugin can also `return false` to mark the raw specifier as external with the same normalization as the `external` option.
+2. **插件的 `resolveId` 钩子**：插件可以返回 `{ id, external: true }`（或 `"relative"` / `"absolute"`），明确将模块标记为外部模块。插件也可以 `return false`，使用与 `external` 选项相同的规范化方式将原始说明符标记为外部模块。
 
-3. **Unresolved modules** — if no plugin or the internal resolver can find a module and the `external` option matches the specifier, Rolldown treats it as external rather than throwing an error.
+3. **无法解析的模块**：如果插件和内部解析器都找不到模块，但 `external` 选项匹配该说明符，Rolldown 会将其视为外部模块，而不是抛出错误。
 
-## The Full Resolution Flow
+## 完整解析流程
 
-Here is the step-by-step process Rolldown follows when it encounters an import:
+Rolldown 遇到导入时会依次执行以下步骤：
 
-### 1. First `external` check
+### 1. 第一次 `external` 检查
 
-The raw import specifier (e.g. `'./utils'`, `'lodash'`) is tested against the [`external`](/reference/InputOptions.external) option with `isResolved: false`. If it matches, the module is marked as external immediately — **plugins and the internal resolver are skipped entirely**.
+使用 `isResolved: false`，根据 [`external`](https://rolldown.rs/reference/InputOptions.external) 选项测试原始导入说明符（例如 `'./utils'`、`'lodash'`）。如果匹配，会立即将模块标记为外部模块，**完全跳过插件和内部解析器**。
 
-### 2. Plugin `resolveId`
+### 2. 插件 `resolveId`
 
-If the first check did not match, plugins get a chance to resolve the import:
+如果第一次检查未匹配，插件将有机会解析导入：
 
-| Plugin return value                   | Effect                                                                            |
+| 插件返回值                            | 效果                                                                              |
 | ------------------------------------- | --------------------------------------------------------------------------------- |
-| `return false`                        | External. Uses the raw specifier as the module ID (same normalization as step 1). |
-| `return { id, external: true }`       | External. Uses `id` as the module ID.                                             |
-| `return { id, external: "relative" }` | External. Path is **always** relativized (overrides config).                      |
-| `return { id, external: "absolute" }` | External. Path is **always** kept verbatim (overrides config).                    |
-| `return { id }` (no `external`)       | Resolved, continue to step 3 with the resolved ID.                                |
-| `return null`                         | No plugin handled it, fall through to step 3.                                     |
+| `return false`                        | 外部模块。使用原始说明符作为模块 ID（与步骤 1 采用相同规范化方式）。              |
+| `return { id, external: true }`       | 外部模块。使用 `id` 作为模块 ID。                                                 |
+| `return { id, external: "relative" }` | 外部模块。路径**始终**转换为相对路径（覆盖配置）。                                |
+| `return { id, external: "absolute" }` | 外部模块。路径**始终**原样保留（覆盖配置）。                                      |
+| `return { id }`（没有 `external`）    | 已解析，使用解析后的 ID 继续步骤 3。                                              |
+| `return null`                         | 没有插件处理，进入步骤 3。                                                        |
 
-### 3. Internal resolver
+### 3. 内部解析器
 
-Rolldown's built-in resolver tries to find the module on disk.
+Rolldown 的内置解析器尝试在磁盘上查找模块。
 
-### 4. Second `external` check
+### 4. 第二次 `external` 检查
 
-The resolved ID (e.g. `'/project/node_modules/vue/dist/vue.runtime.esm-bundler.js'`) is tested against the [`external`](/reference/InputOptions.external) option with `isResolved: true`. If it matches, the specifier is marked as external.
+使用 `isResolved: true`，根据 [`external`](https://rolldown.rs/reference/InputOptions.external) 选项测试解析后的 ID（例如 `'/project/node_modules/vue/dist/vue.runtime.esm-bundler.js'`）。如果匹配，会将该说明符标记为外部模块。
 
-### 5. Output path determination
+### 5. 确定输出路径
 
-Regardless of which step marked the module as external (first check, plugin, or second check), [`makeAbsoluteExternalsRelative`](/reference/InputOptions.makeAbsoluteExternalsRelative) applies uniformly to determine the import path in the output:
+无论在哪一步将模块标记为外部模块（第一次检查、插件或第二次检查），都会统一应用 [`makeAbsoluteExternalsRelative`](https://rolldown.rs/reference/InputOptions.makeAbsoluteExternalsRelative)，确定输出中的导入路径：
 
-- **Bare specifiers** (e.g. `'lodash'`, `'node:fs'`) — appear as-is when matched on the first check. If matched on the second check (resolved path), the full resolved path appears instead (see the [caveat about `/node_modules/`](/reference/InputOptions.external#avoid-node-modules-for-npm-packages)).
+- **裸说明符**（例如 `'lodash'`、`'node:fs'`）：在第一次检查中匹配时会原样输出。如果在第二次检查（解析后的路径）中匹配，则会输出完整解析路径（参阅[有关 `/node_modules/` 的注意事项](https://rolldown.rs/reference/InputOptions.external#avoid-node-modules-for-npm-packages)）。
 
-- **Relative and absolute specifiers** — two things happen:
-  1. **Resolve-time normalization** — for the first check and `return false`, when `makeAbsoluteExternalsRelative` is enabled (which it is by default), relative specifiers (the **original import specifier**) are normalized to absolute paths by resolving against the importer's directory. This ensures that `'./utils'` imported from different directories correctly maps to different external modules. For the second check and `return { id, external: true }`, the **resolved module ID** is already absolute.
+- **相对和绝对说明符**：会进行两项处理：
+  1. **解析时规范化**：对于第一次检查和 `return false`，启用 `makeAbsoluteExternalsRelative`（默认启用）后，会相对于导入方目录解析相对说明符（即**原始导入说明符**），并将其规范化为绝对路径。这样，从不同目录导入的 `'./utils'` 会正确映射到不同的外部模块。对于第二次检查和 `return { id, external: true }`，**解析后的模块 ID** 已经是绝对路径。
 
-  2. **Render-time output** — absolute resolved module IDs may be converted back to relative paths from the output chunk's location (e.g. `'/project/src/utils.js'` → `'./utils.js'`). Whether this happens depends on the `makeAbsoluteExternalsRelative` value and whether the original import specifier was relative.
+  2. **渲染时输出**：绝对的已解析模块 ID 可能会从输出代码块所在位置转换回相对路径（例如 `'/project/src/utils.js'` → `'./utils.js'`）。是否转换取决于 `makeAbsoluteExternalsRelative` 的值，以及原始导入说明符是否为相对路径。
 
-Plugin overrides (`external: "relative"` / `"absolute"`) bypass this logic entirely. See the [`makeAbsoluteExternalsRelative` reference](/reference/InputOptions.makeAbsoluteExternalsRelative) for how each value controls this behavior, with examples.
+插件覆盖值（`external: "relative"` / `"absolute"`）会完全跳过这套逻辑。各个值如何控制此行为及相关示例，请参阅 [`makeAbsoluteExternalsRelative` 参考](https://rolldown.rs/reference/InputOptions.makeAbsoluteExternalsRelative)。
 
-## Special Cases
+## 特殊情况
 
-### Data URLs
+### Data URL
 
-Specifiers with a valid `data:` URL (e.g. `data:text/javascript,export default 42`) with a supported file format are handled by Rolldown's internal dataurl plugin which **bundles the inline content**. They are not automatically treated as external.
+包含有效 `data:` URL（例如 `data:text/javascript,export default 42`）且文件格式受支持的说明符，由 Rolldown 内部 dataurl 插件处理；该插件会**打包内联内容**。它们不会自动视为外部模块。
 
-However, other `data:` URLs are treated as external automatically unless it's handled by a custom plugin.
+其他 `data:` URL 会自动视为外部模块，除非由自定义插件处理。
 
-### HTTP URLs
+### HTTP URL
 
-Specifiers starting with `http://`, `https://`, or `//` are **automatically treated as external** regardless of the `external` option, unless it's handled by a custom plugin. These IDs are emitted as-is and not affected by `makeAbsoluteExternalsRelative`.
+以 `http://`、`https://` 或 `//` 开头的说明符，无论 `external` 选项如何配置，都会**自动视为外部模块**，除非由自定义插件处理。这些 ID 会原样输出，不受 `makeAbsoluteExternalsRelative` 影响。
 
 ```js
 import lib from 'https://cdn.example.com/lib.js';
-// Always external, emitted as-is
+// 始终为外部模块，原样输出
 ```
 
-## Unused Imports Are Removed
+## 移除未使用的导入
 
-If nothing uses an import from an external module, Rolldown removes it.
+如果从外部模块导入的内容没有任何用途，Rolldown 会将其移除。
 
 ```js
-// input
+// 输入
 import { used, unused } from 'ext-pkg';
 console.log(used);
 
-// output
+// 输出
 import { used } from 'ext-pkg';
 console.log(used);
 ```
 
-Note that even if every import is removed, the statement itself usually stays. External modules are assumed to have side effects, so it becomes a bare `import 'ext-pkg';`. The statement goes away completely only when the external module is also marked side-effect-free.
+请注意，即使所有导入项都被移除，语句本身通常仍会保留。外部模块被假定具有副作用，因此语句会变为裸导入 `import 'ext-pkg';`。只有外部模块也被标记为无副作用时，语句才会完全消失。
 
-::: warning Difference from bundled modules
+::: warning 与已打包模块的区别
 
-If a bundled module does not actually export `unused`, Rolldown emits a `MISSING_EXPORT` error at build time, whether or not the import is used.
+如果已打包模块实际没有导出 `unused`，无论是否使用该导入项，Rolldown 都会在构建时生成 `MISSING_EXPORT` 错误。
 
-For external modules, Rolldown does not know what exports exist, so it cannot check. If `unused` does not exist, importing it would throw at runtime, and removing the import removes that error along with it. Causing a semantic change without any message is normally a bad idea, but Rolldown makes an exception here. An unused import usually comes from dead code elimination, either Rolldown's own or a plugin's, rather than being written by hand, so the error is rarely the one you intended to see.
+对于外部模块，Rolldown 不知道存在哪些导出项，因此无法检查。如果 `unused` 不存在，导入它会在运行时抛出错误，而移除该导入也会一并消除错误。通常，在没有任何提示的情况下改变语义并不妥当，但 Rolldown 在这里作了例外处理。未使用的导入通常来自 Rolldown 自身或插件执行的无用代码消除，而不是手写代码，因此这个错误很少是你真正想看到的错误。
 
 :::

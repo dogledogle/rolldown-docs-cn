@@ -1,38 +1,38 @@
-# Repo Structure
+# 仓库结构
 
-This document outlines the structure of the repository and the purpose of each directory.
+本文概述仓库结构以及各目录的用途。
 
 # `/crates`
 
-We store all the Rust crates in this directory.
+所有 Rust crate 都存放在此目录中。
 
-- `/bench` Benchmark programs for Rust side of the project.
-- `/rolldown` Core logic of rolldown the bundler.
-- `/rolldown_binding` Glue code that binds the core logic to the Node.js.
+- `/bench`：项目 Rust 端的基准测试程序。
+- `/rolldown`：Rolldown 打包器的核心逻辑。
+- `/rolldown_binding`：将核心逻辑绑定到 Node.js 的粘合代码。
 
 # `/packages`
 
-We store all the Node.js packages in this directory.
+所有 Node.js 包都存放在此目录中。
 
-- `/rolldown` Node.js package for the project.
-- `/bench` Benchmark programs for Node.js side of the project.
-- `/rollup-tests` Adapter for running rollup tests with rolldown.
-- `/vite-tests` Script to run Vite's own test suite with local rolldown, on a throwaway clone of the shared root `/vite` checkout.
+- `/rolldown`：项目的 Node.js 包。
+- `/bench`：项目 Node.js 端的基准测试程序。
+- `/rollup-tests`：使用 Rolldown 运行 Rollup 测试的适配器。
+- `/vite-tests`：使用本地 Rolldown 运行 Vite 自有测试套件的脚本；测试在共享根目录 `/vite` 检出的临时克隆上执行。
 
 # `/vite`
 
-The single Vite checkout shared by the dev-server test harness (`packages/test-dev-server`) and `packages/vite-tests`: a gitignored clone of [vitejs/vite](https://github.com/vitejs/vite) at the latest `rolldown-canary` rebased onto the latest `main`, created by `just setup-vite`. It must stay unpatched: never edit Vite source files inside it.
+开发服务器测试框架（`packages/test-dev-server`）和 `packages/vite-tests` 共用的唯一 Vite 检出目录。它由 `just setup-vite` 创建，是一个被 Git 忽略的 [vitejs/vite](https://github.com/vitejs/vite) 克隆，其中最新的 `rolldown-canary` 已变基到最新 `main`。此目录必须保持未修改状态，切勿编辑其中的 Vite 源文件。
 
 # `/examples`
 
-This directory contains examples of how to use `rolldown` in Node.js for various scenarios.
+此目录包含在 Node.js 中针对不同场景使用 `rolldown` 的示例。
 
 # `/scripts`
 
-This directory contains scripts that are used to automate various tasks for the project.
+此目录包含用于自动化项目各项任务的脚本。
 
 # `/web`
 
-This directory contains some websites related to the project.
+此目录包含与项目相关的站点。
 
-- `/docs` Documentation for the project.
+- `/docs`：项目文档。

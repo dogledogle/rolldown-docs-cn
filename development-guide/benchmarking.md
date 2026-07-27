@@ -1,32 +1,32 @@
-# Benchmarking
+# 基准测试
 
-## Setup
+## 准备工作
 
-Before running the benchmarks, set up the necessary fixtures with:
+运行基准测试前，请使用以下命令准备所需的测试夹具：
 
 ```shell
-# in project root
+# 在项目根目录中
 just setup-bench
 ```
 
-## Benchmarking in Rust
+## Rust 基准测试
 
-`bench-rust` will build the Rust code automatically, so you don't need to build yourself.
+`bench-rust` 会自动构建 Rust 代码，无需手动构建。
 
 ```shell
-# in project root
+# 在项目根目录中
 just bench-rust
 ```
 
-## Benchmarking in Node.js
+## Node.js 基准测试
 
-Make sure to build the Node.js bindings in release mode:
+请先确保以 release 模式构建 Node.js 绑定：
 
 ```shell
 just build-rolldown-release
 ```
 
-Then run
+然后运行：
 
 ```sh
 just bench-node

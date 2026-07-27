@@ -1,35 +1,35 @@
-# Lazy Barrel Optimization
+# 惰性聚合模块优化
 
-Lazy barrel is an optimization feature that enhances build performance by avoiding compilation of unused re-export modules in side-effect-free [barrel modules](/glossary/barrel-module).
+惰性聚合模块是一项优化功能，它会避免编译无副作用[聚合模块](/glossary/barrel-module)中未使用的重新导出模块，从而提高构建性能。
 
-## Why use Lazy Barrel
+## 为什么使用惰性聚合模块
 
-Large component libraries like [Ant Design](https://ant.design/) use barrel modules extensively. When you import just one component, the bundler traditionally compiles thousands of modules, most of which are unused.
+[Ant Design](https://ant.design/) 等大型组件库广泛使用聚合模块。即使只导入一个组件，传统打包器也会编译数千个模块，而其中绝大多数并未使用。
 
-Here's a real-world example importing only `Button` from antd:
+下面是一个实际示例，只从 antd 导入 `Button`：
 
 ```js
 import { Button } from 'antd';
 Button;
 ```
 
-| Metric               | Without lazy barrel | With lazy barrel |
+| 指标                 | 不使用惰性聚合模块  | 使用惰性聚合模块 |
 | -------------------- | ------------------- | ---------------- |
-| Modules compiled     | 2986                | 250              |
-| Build time (macOS)   | ~65ms               | ~28ms            |
-| Build time (Windows) | ~210ms              | ~50ms            |
+| 编译的模块数         | 2986                | 250              |
+| 构建时间（macOS）    | 约 65ms             | 约 28ms          |
+| 构建时间（Windows）  | 约 210ms            | 约 50ms          |
 
-By enabling lazy barrel, Rolldown reduces the number of compiled modules by **92%** and speeds up the build by **2-4x**.
+启用惰性聚合模块后，Rolldown 可将编译模块数减少 **92%**，并使构建速度提高 **2～4 倍**。
 
 ::: tip
-You can reproduce this benchmark using the [lazy-barrel example](https://github.com/rolldown/benchmarks/tree/main/examples/lazy-barrel).
+可以使用 [lazy-barrel 示例](https://github.com/rolldown/benchmarks/tree/main/examples/lazy-barrel)复现该基准测试。
 :::
 
-## How Lazy Barrel works
+## 惰性聚合模块的工作原理
 
-When enabled, Rolldown analyzes which exports are actually used and only compiles those modules. The unused re-export modules are skipped, significantly improving build performance for large codebases with many barrel modules.
+启用后，Rolldown 会分析实际使用了哪些导出项，只编译对应模块，并跳过未使用的重新导出模块。对于包含大量聚合模块的大型代码库，这能显著提高构建性能。
 
-### Basic example
+### 基本示例
 
 ```js
 // barrel/index.js
@@ -41,23 +41,23 @@ import { a } from './barrel';
 console.log(a);
 ```
 
-With lazy barrel optimization:
+使用惰性聚合模块优化后：
 
-- `barrel/index.js` is loaded and analyzed
-- Only `a.js` is compiled since `a` is imported
-- `b.js` is **not** compiled since `b` is not used
+- 加载并分析 `barrel/index.js`。
+- 由于导入了 `a`，只编译 `a.js`。
+- 由于未使用 `b`，**不编译** `b.js`。
 
-## Supported export patterns
+## 支持的导出模式
 
-Lazy barrel optimization works with various export patterns:
+惰性聚合模块优化支持多种导出模式：
 
-### Star re-exports
+### 星号重新导出
 
 ```js
 export * from './components';
 ```
 
-### Named re-exports
+### 命名重新导出
 
 ```js
 export { Component } from './Component';
@@ -66,33 +66,33 @@ export { default as Button } from './Button';
 export { Button as default } from './Button';
 ```
 
-### Namespace re-exports
+### 命名空间重新导出
 
 ```js
 export * as ns from './module';
 ```
 
-### Import-then-export patterns
+### 先导入再导出模式
 
 ```js
-// Equivalent to `export { a } from './a'`
+// 等同于 `export { a } from './a'`
 import { a } from './a';
 export { a };
 
-// Equivalent to `export { a as default } from './a'`
+// 等同于 `export { a as default } from './a'`
 import { a } from './a';
 export { a as default };
 
-// Equivalent to `export * as ns from './module'`
+// 等同于 `export * as ns from './module'`
 import * as ns from './module';
 export { ns };
 
-// Equivalent to `export { default as b } from './b'`
+// 等同于 `export { default as b } from './b'`
 import b from './b';
 export { b };
 ```
 
-### Mixed exports
+### 混合导出
 
 ```js
 export { a } from './a';
@@ -101,18 +101,18 @@ export * from './others';
 export * from './more';
 ```
 
-When an import can be found in named exports, star exports are not searched, avoiding unnecessary module loading.
+如果能在命名导出中找到导入项，就不会搜索星号导出，从而避免不必要的模块加载。
 
-However, if the import is not found in named exports, all star re-exports will be loaded to resolve it. If those star re-exported modules are also barrel modules, only the specific import specifier will be loaded from them.
+不过，如果在命名导出中找不到导入项，就会加载所有星号重新导出以进行解析。如果这些星号重新导出的模块本身也是聚合模块，则只会从中加载特定的导入说明符。
 
-:::: warning Re-export vs Own export for default
-`export { Button as default } from './Button.js'` and `import { Button } from './Button.js'; export default Button` are **not equivalent**.
+:::: warning default 的重新导出与自身导出
+`export { Button as default } from './Button.js'` 和 `import { Button } from './Button.js'; export default Button` **并不等价**。
 
-In the former case, the value exported is synced with the value in `Button.js`. This is because it points to the same variable.
+前一种情况下，导出值会与 `Button.js` 中的值保持同步，因为二者指向同一个变量。
 
-In the latter case, the value exported is not synced with the value in `Button.js`. This is because `export default ...` creates a new variable.
+后一种情况下，导出值不会与 `Button.js` 中的值同步，因为 `export default ...` 会创建新变量。
 
-This example shows the difference:
+以下示例展示了其中差异：
 
 ::: code-group
 
@@ -147,24 +147,24 @@ export const increment = () => {
 
 :::
 
-For this reason, `export default ...` is considered an own export and may prevent the optimization (see [Own exports](#own-exports-non-pure-re-export-barrels)).
+因此，`export default ...` 被视为自身导出，可能会阻止优化（参阅[自身导出](#own-exports-non-pure-re-export-barrels)）。
 ::::
 
-## Advanced scenarios
+## 高级场景
 
-### Self re-export
+### 自我重新导出
 
-Lazy barrel correctly handles barrel modules that re-export from themselves:
+惰性聚合模块可以正确处理从自身重新导出的聚合模块：
 
 ```js
 // barrel/index.js
 export { a } from './a';
-export { a as b } from './index'; // self re-export
+export { a as b } from './index'; // 自我重新导出
 ```
 
-### Circular exports
+### 循环导出
 
-Lazy barrel correctly handles circular export relationships between barrel modules:
+惰性聚合模块可以正确处理聚合模块之间的循环导出关系：
 
 ```js
 // barrel-a/index.js
@@ -173,28 +173,28 @@ export * from '../barrel-b';
 
 // barrel-b/index.js
 export { b } from './b';
-export { a as c } from '../barrel-a'; // circular reference
+export { a as c } from '../barrel-a'; // 循环引用
 ```
 
-### Dynamic import entry
+### 动态导入入口
 
-When a barrel module is dynamically imported, it becomes an entry point and all its exports must be available:
+动态导入聚合模块时，它会成为入口点，因此必须提供其全部导出项：
 
 ```js
 // barrel/a.js
 export const a = 'a';
-import('./index.js'); // makes barrel an entry point
+import('./index.js'); // 使聚合模块成为入口点
 
 // barrel/index.js
 export { a } from './a';
-export { b } from './b'; // b.js will be loaded
+export { b } from './b'; // 会加载 b.js
 ```
 
-However, if `b.js` is also a barrel module, its unused exports will still be optimized.
+不过，如果 `b.js` 也是聚合模块，仍会优化其中未使用的导出项。
 
-### Unused import specifiers
+### 未使用的导入说明符
 
-By default, even if an imported specifier is not used, its corresponding module will still be loaded:
+默认情况下，即使没有使用某个导入说明符，仍会加载其对应模块：
 
 ```js
 // barrel/index.js
@@ -202,12 +202,12 @@ export { a } from './a';
 export { b } from './b';
 
 // main.js
-import { a } from './barrel'; // a.js is loaded even if `a` is never used
+import { a } from './barrel'; // 即使从未使用 `a`，仍会加载 a.js
 ```
 
-### Own exports (non-pure re-export barrels)
+### 自身导出（非纯重新导出聚合模块） {#own-exports-non-pure-re-export-barrels}
 
-When a barrel module has its own exports (not just re-exports), all its import records must be loaded when any own export is used:
+如果聚合模块包含自身导出（不只是重新导出），一旦使用任何自身导出，就必须加载它的所有导入记录：
 
 ```js
 // barrel/index.js
@@ -220,31 +220,31 @@ export { e };
 
 console.log(b);
 
-export const index = 'index'; // own export
-export default b; // `default` is an own export
+export const index = 'index'; // 自身导出
+export default b; // `default` 是自身导出
 
 // main.js
 import { index, c } from './barrel';
 // or import b, { c } from './barrel';
 ```
 
-In this case, when `index` is imported: `a.js`, `b.js`, `c.js`, `d.js`, and `e.js` are all loaded:
+本例中，导入 `index` 时会加载 `a.js`、`b.js`、`c.js`、`d.js` 和 `e.js`：
 
-- `import './a'` - `a.js` is loaded with no specifier requested
-- `import { b } from './b'` - `b.js` is loaded with `b` requested (used by the barrel's own code)
-- `import { e } from './e'; export { e }` (import-then-export) - `e.js` is loaded with `e` requested, because Rolldown cannot statically determine whether the barrel's own code also uses `e`
-- `export { c } from './c'` (dedicated re-export) - `c.js` is loaded with `c` requested (because main.js imports `c`)
-- `export { d } from './d'` (dedicated re-export) - `d.js` is loaded with no specifier requested (like `import './d'`, since `d` is not imported in main.js)
+- `import './a'`：加载 `a.js`，不请求任何说明符。
+- `import { b } from './b'`：加载 `b.js` 并请求 `b`（聚合模块自身的代码使用了它）。
+- `import { e } from './e'; export { e }`（先导入再导出）：加载 `e.js` 并请求 `e`，因为 Rolldown 无法静态判断聚合模块自身的代码是否也使用了 `e`。
+- `export { c } from './c'`（专用重新导出）：加载 `c.js` 并请求 `c`（因为 main.js 导入了 `c`）。
+- `export { d } from './d'`（专用重新导出）：加载 `d.js`，但不请求任何说明符（类似 `import './d'`，因为 main.js 没有导入 `d`）。
 
-Note the distinction between a dedicated re-export record (`export { .. } from '..'`, `export * as ns from '..'`) and a shared import record produced by the import-then-export pattern. When the barrel's own exports are loaded by main.js and the barrel must execute, dedicated re-export records can still fall back to an empty specifier set if their binding is not requested by main.js. Shared import records, by contrast, always keep their full specifiers, since their bindings may be referenced by the barrel's own code.
+请注意专用重新导出记录（`export { .. } from '..'`、`export * as ns from '..'`）与先导入再导出模式生成的共享导入记录之间的区别。当 main.js 加载聚合模块的自身导出、使聚合模块必须执行时，如果 main.js 没有请求专用重新导出记录的绑定，该记录仍可回退到空说明符集合。相比之下，共享导入记录始终保留完整说明符，因为聚合模块自身的代码可能引用这些绑定。
 
-This happens because `moduleSideEffects` can only be determined after the transform hook, but lazy barrel decisions are made at the load stage. When the barrel must execute (due to own exports being used), all its imports must be loaded to ensure correct behavior.
+之所以如此，是因为只有在 transform 钩子之后才能确定 `moduleSideEffects`，而惰性聚合模块会在 load 阶段作出决策。当聚合模块由于使用了自身导出而必须执行时，为确保行为正确，必须加载它的所有导入。
 
-If the loaded modules (`a.js`, `b.js`, etc.) are also barrel modules, lazy barrel optimization still applies to them recursively based on whether specifiers are requested.
+如果加载的模块（`a.js`、`b.js` 等）本身也是聚合模块，仍会根据是否请求说明符递归应用惰性聚合模块优化。
 
-## Configuration
+## 配置
 
-Lazy barrel optimization is currently disabled by default. You can enable it in your Rolldown configuration:
+惰性聚合模块优化目前默认禁用，可以在 Rolldown 配置中启用：
 
 ```js
 // rolldown.config.js
@@ -256,16 +256,16 @@ export default {
 ```
 
 ::: warning
-This option is planned to be removed in the future. If you need to opt out, please [open an issue](https://github.com/rolldown/rolldown/issues) describing your use case so we can address it before the option is gone.
+该选项计划在未来移除。如果需要禁用此功能，请[创建 issue](https://github.com/rolldown/rolldown/issues) 描述你的用例，以便我们在移除选项前加以处理。
 :::
 
-## Requirements
+## 要求
 
-For lazy barrel optimization to work, barrel modules need to be marked as side-effect-free explicitly:
+要让惰性聚合模块优化生效，需要明确将聚合模块标记为无副作用：
 
-1. **Package declaration**: Adding `"sideEffects": false` to `package.json`
+1. **包声明**：在 `package.json` 中添加 `"sideEffects": false`。
 
-2. **Rolldown plugin hooks**: Returning `moduleSideEffects: false` from `resolveId`, `load`, or `transform` hooks
+2. **Rolldown 插件钩子**：从 `resolveId`、`load` 或 `transform` 钩子返回 `moduleSideEffects: false`。
 
 ```js
 // rolldown.config.js
@@ -283,30 +283,30 @@ export default {
 };
 ```
 
-3. **Rolldown configuration**: Using the `treeshake.moduleSideEffects` option
+3. **Rolldown 配置**：使用 `treeshake.moduleSideEffects` 选项。
 
 ```js
 // rolldown.config.js
 export default {
   treeshake: {
     moduleSideEffects: [
-      // Mark barrel modules as side-effect-free using regex
+      // 使用正则表达式将聚合模块标记为无副作用
       { test: /\/barrel\//, sideEffects: false },
-      // Or mark specific paths
+      // 或标记特定路径
       { test: /\/components\/index\.js$/, sideEffects: false },
     ],
   },
 };
 ```
 
-You can also use a function for more complex logic:
+对于更复杂的逻辑，也可以使用函数：
 
 ```js
 // rolldown.config.js
 export default {
   treeshake: {
     moduleSideEffects: (id) => {
-      // Mark all index.js files as side-effect-free
+      // 将所有 index.js 文件标记为无副作用
       if (id.endsWith('/index.js')) return false;
       return true;
     },
@@ -314,45 +314,45 @@ export default {
 };
 ```
 
-## When to use
+## 何时使用
 
-Lazy barrel optimization is particularly beneficial when:
+惰性聚合模块优化在以下情况下尤其有益：
 
-- Your codebase has many barrel modules (common in component libraries)
-- Barrel modules re-export many modules but consumers typically use only a few
+- 代码库包含许多聚合模块（常见于组件库）。
+- 聚合模块重新导出大量模块，但使用者通常只用到少数几个。
 
-## Large barrel modules
+## 大型聚合模块
 
-Lazy barrel skips loading, parsing, and transforming unused re-exports, but the **resolve** step still runs for every entry. The resolver invokes `resolveId` plugin hooks for each import record, so a barrel with thousands of re-exports can dominate build time even when only a handful of them are actually used.
+惰性聚合模块会跳过加载、解析和转换未使用的重新导出，但仍会为每个条目执行**解析**步骤。解析器会针对每条导入记录调用 `resolveId` 插件钩子，因此即使实际只使用少数导出，一个包含数千条重新导出的聚合模块仍可能占据大部分构建时间。
 
-A typical example is `@mui/icons-material/esm/index.js`, which contains more than 10,000 re-export entries. When such a file is loaded, Rolldown still issues a resolve for every one of them, even though lazy barrel ensures only the requested icons are loaded and transformed afterwards.
+典型示例是 `@mui/icons-material/esm/index.js`，其中包含超过 10,000 条重新导出。加载这种文件时，Rolldown 仍会逐一解析每条记录，尽管惰性聚合模块能确保之后只加载和转换请求的图标。
 
-When `experimental.lazyBarrel` is enabled and a barrel module contains more than 5,000 re-exports, Rolldown emits an info-level advice with the code `LARGE_BARREL_MODULES`:
+启用 `experimental.lazyBarrel` 且聚合模块包含超过 5,000 条重新导出时，Rolldown 会生成代码为 `LARGE_BARREL_MODULES` 的信息级建议：
 
 ```
 advice[LARGE_BARREL_MODULES]: node_modules/@mui/icons-material/esm/index.js has 10611 re-exports. Eagerly resolving every entry can significantly slow down the build. Consider using `@rolldown/plugin-transform-imports` to rewrite imports at the source level so the barrel file is never loaded.
 ```
 
-[`@rolldown/plugin-transform-imports`](https://github.com/rolldown/plugins/tree/main/packages/transform-imports) sidesteps the resolve cost by rewriting the imports at the source level so the barrel file is never loaded:
+[`@rolldown/plugin-transform-imports`](https://github.com/rolldown/plugins/tree/main/packages/transform-imports) 会在源代码层改写导入，使聚合文件完全不被加载，从而绕过解析成本：
 
 ```js
-// Before
+// 改写前
 import { Home, Search } from '@mui/icons-material';
 
-// After (rewritten by the plugin)
+// 改写后（由插件完成）
 import Home from '@mui/icons-material/esm/Home';
 import Search from '@mui/icons-material/esm/Search';
 ```
 
-To silence the advice, set `checks.largeBarrelModules` to `false` or pass `--no-checks.large-barrel-modules` on the CLI.
+要关闭该建议，请把 `checks.largeBarrelModules` 设为 `false`，或在 CLI 中传入 `--no-checks.large-barrel-modules`。
 
-::: info Why is this a plugin instead of built-in behavior?
-Deferring the resolve step inside Rolldown would change when `moduleParsed` fires and when `ModuleInfo` is fully populated — a visible departure from Rollup-compatible plugin semantics. To keep the plugin contract stable through Rolldown's 1.0 release, we prefer to solve this at the source level for the cases where it actually matters. Outside of outliers like icon packs, the resolve cost on typical barrels (tens to low hundreds of re-exports) is negligible.
+::: info 为什么通过插件实现，而不是内置行为？
+在 Rolldown 内部延迟解析步骤，会改变 `moduleParsed` 的触发时机和 `ModuleInfo` 完整填充的时机，明显偏离兼容 Rollup 的插件语义。为了在 Rolldown 1.0 发布过程中保持插件约定稳定，我们倾向于只在真正需要的情况下从源代码层解决问题。除图标包等极端情况外，典型聚合模块（数十到几百条重新导出）的解析成本可以忽略不计。
 :::
 
-## Limitations
+## 限制
 
-- Barrel modules with side effects cannot be optimized
-- Unmatched named imports require loading all star re-exports to resolve
-- Entry files, `import * as ns`, `import('..')`, `require('..')`, etc. will cause the barrel module to load all its exports
-- When a barrel has its own exports (not just re-exports), using any own export causes all its import records to be loaded
+- 无法优化具有副作用的聚合模块。
+- 无法匹配的命名导入需要加载所有星号重新导出才能完成解析。
+- 入口文件、`import * as ns`、`import('..')`、`require('..')` 等会使聚合模块加载全部导出项。
+- 如果聚合模块包含自身导出（不只是重新导出），使用任何自身导出都会导致加载其所有导入记录。

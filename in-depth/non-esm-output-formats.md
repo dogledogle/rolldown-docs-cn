@@ -1,28 +1,28 @@
-# Non ESM Output Formats
+# 非 ESM 输出格式
 
-Rolldown supports non-ESM output formats. Some features in ESM are not supported in non-ESM formats and Rolldown will emit messages or provide polyfills for them.
+Rolldown 支持非 ESM 输出格式。ESM 中的部分功能无法用于非 ESM 格式，Rolldown 会针对这些功能输出提示信息或提供 polyfill。
 
-## Top Level Await
+## 顶层 await
 
-Top level await is not supported in non-ESM formats. Rolldown outputs an error if it encounters top level await when the output format is not ESM.
+非 ESM 格式不支持顶层 await。如果输出格式不是 ESM，而 Rolldown 遇到了顶层 await，就会报错。
 
 ## `import.meta`
 
-`import.meta` is a syntax error in non-ESM formats. To avoid that from happening, Rolldown replaces `import.meta` with other values.
+在非 ESM 格式中，`import.meta` 会导致语法错误。为避免这一问题，Rolldown 会用其他值替换 `import.meta`。
 
-### Well-known `import.meta` properties
+### 常见的 `import.meta` 属性 {#well-known-import-meta-properties}
 
-Rolldown supports the following well-known `import.meta` properties:
+Rolldown 支持以下常见的 `import.meta` 属性：
 
 - `import.meta.url`
 - `import.meta.dirname`
 - `import.meta.filename`
 
-These properties are polyfilled when the output format is CJS. In other formats, it will be handled as same as the other properties.
+输出格式为 CJS 时，Rolldown 会为这些属性提供 polyfill。在其他格式中，它们会按照普通属性处理。
 
-:::: tip Polyfilling `import.meta.url` in IIFE and UMD
+:::: tip 在 IIFE 和 UMD 中为 `import.meta.url` 提供 polyfill
 
-Rollup supports polyfilling `import.meta.url` in IIFE and UMD formats. However, Rolldown does not support this feature. If you need to polyfill it, you can use the following config:
+Rollup 支持在 IIFE 和 UMD 格式中为 `import.meta.url` 提供 polyfill，但 Rolldown 暂不支持此功能。如果有此需求，可以使用以下配置：
 
 ::: code-group
 
@@ -70,6 +70,6 @@ export default defineConfig({
 
 ::::
 
-### Other properties and `import.meta` object itself
+### 其他属性和 `import.meta` 对象本身
 
-Other properties and `import.meta` object itself are replaced with `{}`. Since this does not keep the original value, Rolldown emits a warning in this case.
+其他属性以及 `import.meta` 对象本身都会被替换为 `{}`。由于这种处理无法保留原始值，Rolldown 会在此情况下发出警告。

@@ -1,14 +1,14 @@
-# Bundle Analyzer Plugin
+# 打包产物分析插件
 
-The `bundleAnalyzerPlugin` is a built-in Rolldown plugin that emits a detailed report describing your bundle's chunks, modules, dependencies, and reachability information. The report can be consumed by visualization tools, custom scripts, or LLM-based coding agents.
+`bundleAnalyzerPlugin` 是 Rolldown 的内置插件，可生成详细报告，描述打包产物中的代码块、模块、依赖关系和可达性信息。可视化工具、自定义脚本或基于 LLM 的编码智能体都可以使用该报告。
 
-:::tip EXPERIMENTAL
-This plugin is currently experimental and is exported from `rolldown/experimental`. Its API may change in future releases.
+::: tip 实验性功能
+该插件目前处于实验阶段，从 `rolldown/experimental` 导出。其 API 可能在未来版本中发生变化。
 :::
 
-## Usage
+## 用法
 
-Import and use the plugin from Rolldown's experimental exports:
+从 Rolldown 的实验性导出入口导入并使用该插件：
 
 ```js
 import { defineConfig } from 'rolldown';
@@ -24,16 +24,16 @@ export default defineConfig({
 });
 ```
 
-After running the build, the plugin emits an analysis file alongside your bundled output (by default `dist/analyze-data.json`).
+运行构建后，插件会在打包输出旁生成分析文件（默认为 `dist/analyze-data.json`）。
 
-## Options
+## 选项
 
 ### `fileName`
 
-- **Type:** `string`
-- **Default:** `'analyze-data.json'` when `format` is `'json'`, `'analyze-data.md'` when `format` is `'md'`
+- **类型：** `string`
+- **默认值：** `format` 为 `'json'` 时是 `'analyze-data.json'`，为 `'md'` 时是 `'analyze-data.md'`
 
-The filename used for the emitted analysis asset. The file is emitted into the same output directory as the rest of the bundle.
+生成的分析资源所使用的文件名。该文件与打包产物的其他文件输出到同一目录。
 
 ```js
 bundleAnalyzerPlugin({
@@ -43,13 +43,13 @@ bundleAnalyzerPlugin({
 
 ### `format`
 
-- **Type:** `'json' | 'md'`
-- **Default:** `'json'`
+- **类型：** `'json' | 'md'`
+- **默认值：** `'json'`
 
-Selects the output format.
+选择输出格式。
 
-- `'json'` produces a structured data file suitable for programmatic analysis or third-party visualizers.
-- `'md'` produces a markdown report tailored for LLM consumption (see [Markdown Format](#markdown-format) below).
+- `'json'` 生成结构化数据文件，适合程序分析或第三方可视化工具。
+- `'md'` 生成专为 LLM 使用而设计的 Markdown 报告（参阅下文的 [Markdown 格式](#markdown-格式)）。
 
 ```js
 bundleAnalyzerPlugin({
@@ -57,9 +57,9 @@ bundleAnalyzerPlugin({
 });
 ```
 
-## JSON Format
+## JSON 格式
 
-When `format` is `'json'` (the default), the emitted file contains a structured object with the shape below. The `timestamp` field is milliseconds since the Unix epoch.
+当 `format` 为 `'json'`（默认值）时，生成的文件包含如下结构化对象。`timestamp` 字段表示从 Unix 纪元开始经过的毫秒数。
 
 ```jsonc
 {
@@ -96,43 +96,43 @@ When `format` is `'json'` (the default), the emitted file contains a structured 
 }
 ```
 
-The JSON output can be uploaded to community visualizers such as [chunk-visualize](https://iwanabethatguy.github.io/chunk-visualize/), or processed by custom scripts to track bundle metrics over time.
+可以将 JSON 输出上传到 [chunk-visualize](https://iwanabethatguy.github.io/chunk-visualize/) 等社区可视化工具，也可以通过自定义脚本处理，以持续跟踪打包指标。
 
-## Markdown Format
+## Markdown 格式
 
-When `format: 'md'` is set, the plugin emits a structured markdown report instead of JSON. The report is designed to be consumed by LLM-based coding agents, so you can pipe it directly into a prompt for review and refactoring suggestions.
+设置 `format: 'md'` 后，插件会生成结构化 Markdown 报告而不是 JSON。该报告专为基于 LLM 的编码智能体设计，可以直接通过管道传入提示词，以获取审查和重构建议。
 
-The report is organized into the following sections:
+报告分为以下部分：
 
-| Section                                    | Description                                                                                                           |
+| 部分                                       | 说明                                                                                                                  |
 | ------------------------------------------ | --------------------------------------------------------------------------------------------------------------------- |
-| **Quick Summary**                          | Total output size, input module count, entry points, and number of code-split (common) chunks.                        |
-| **Largest Modules by Output Contribution** | All modules sorted by size, with each module's percentage share of the total output.                                  |
-| **Entry Point Analysis**                   | For each entry: its output filename, bundle size, the chunks it loads, and the modules it bundles.                    |
-| **Dependency Chains**                      | Modules imported by multiple files, useful for understanding why a module ends up in the bundle.                      |
-| **Optimization Suggestions**               | Actionable suggestions with severity levels (see below).                                                              |
-| **Full Module Graph**                      | Complete per-module dependency information (imports, imported-by, size).                                              |
-| **Raw Data for Searching**                 | Grep-friendly lines using `[MODULE:]`, `[OUTPUT_BYTES:]`, `[IMPORT:]`, `[IMPORTED_BY:]`, `[ENTRY:]`, `[CHUNK:]` tags. |
+| **快速摘要**                               | 输出总大小、输入模块数、入口点和代码拆分（公共）代码块数量。                                                          |
+| **按输出贡献排序的最大模块**               | 按大小排列所有模块，并显示每个模块占总输出的百分比。                                                                  |
+| **入口点分析**                             | 每个入口的输出文件名、打包大小、加载的代码块和包含的模块。                                                            |
+| **依赖链**                                 | 被多个文件导入的模块，有助于理解某个模块为何进入打包产物。                                                            |
+| **优化建议**                               | 带有严重程度的可执行建议（见下文）。                                                                                  |
+| **完整模块图**                             | 每个模块的完整依赖信息（导入项、导入方和大小）。                                                                      |
+| **用于搜索的原始数据**                     | 便于 grep 的行，使用 `[MODULE:]`、`[OUTPUT_BYTES:]`、`[IMPORT:]`、`[IMPORTED_BY:]`、`[ENTRY:]`、`[CHUNK:]` 标签。      |
 
-### Optimization Suggestions
+### 优化建议
 
-The suggestions section identifies modules that live in **shared common chunks** but are only reachable from a **single static entry**. Such modules are unnecessarily shared and could be moved closer to their entry point by enabling [`entriesAware: true`](../reference/TypeAlias.CodeSplittingGroup.md#entriesaware) on your [`output.codeSplitting`](../reference/OutputOptions.codeSplitting.md) groups, which is the same fix the report's own optimization tip recommends.
+建议部分会识别位于**共享公共代码块**中、但只能从**单个静态入口**到达的模块。这些模块没有必要共享。可以在 [`output.codeSplitting`](https://rolldown.rs/reference/OutputOptions.codeSplitting) 分组中启用 [`entriesAware: true`](https://rolldown.rs/reference/TypeAlias.CodeSplittingGroup#entriesaware)，将它们移到更靠近入口的位置；这也是报告自身优化提示所推荐的修复方式。
 
-Each suggestion is tagged with a severity level based on the proportion of single-entry-reachable module size within the common chunk:
+每条建议都会根据公共代码块中“只能从单个入口到达的模块”所占大小比例标记严重程度：
 
-- `[HIGH]`: greater than 50%
-- `[MEDIUM]`: between 30% and 50%
-- `[LOW]`: less than 30%
+- `[HIGH]`：大于 50%。
+- `[MEDIUM]`：介于 30% 和 50% 之间。
+- `[LOW]`：小于 30%。
 
-### Piping the Report into an LLM
+### 通过管道将报告传给 LLM
 
-Because the report is plain markdown, you can feed it directly to an AI assistant for review:
+报告采用纯 Markdown 格式，因此可以直接交给 AI 助手审查：
 
 ```bash
-# After running your build
+# 运行构建后
 cat dist/analyze-data.md | your-cli-coding-agent "review this bundle and suggest improvements"
 ```
 
-## Example
+## 示例
 
-A runnable example is available in the [`examples/bundle-analyzer-demo`](https://github.com/rolldown/rolldown/tree/main/examples/bundle-analyzer-demo) directory of the Rolldown repository. It demonstrates a multi-entry project that produces interesting optimization suggestions when analyzed with `format: 'md'`.
+Rolldown 仓库的 [`examples/bundle-analyzer-demo`](https://github.com/rolldown/rolldown/tree/main/examples/bundle-analyzer-demo) 目录提供了可运行示例。它演示了一个多入口项目，使用 `format: 'md'` 分析时会生成一些有价值的优化建议。

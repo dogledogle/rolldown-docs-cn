@@ -4,57 +4,56 @@ import path from 'node:path';
 import { type DefaultTheme, defineConfig } from 'vitepress';
 import { groupIconMdPlugin, groupIconVitePlugin } from 'vitepress-plugin-group-icons';
 import llmstxt from 'vitepress-plugin-llms';
-import { addOgImage } from 'vitepress-plugin-og';
 import { graphvizMarkdownPlugin } from 'vitepress-plugin-graphviz';
 import { createHooksGraphProcessor } from './markdown-hooks-graph.ts';
 
 const sidebarForGuide: DefaultTheme.SidebarItem[] = [
   {
-    text: 'Guide',
+    text: '指南',
     items: [
-      { text: 'Introduction', link: '/guide/introduction.md' },
-      { text: 'Getting Started', link: '/guide/getting-started.md' },
-      { text: 'Notable Features', link: '/guide/notable-features.md' },
+      { text: '简介', link: '/guide/introduction.md' },
+      { text: '快速开始', link: '/guide/getting-started.md' },
+      { text: '主要特性', link: '/guide/notable-features.md' },
       {
-        text: 'Troubleshooting',
+        text: '故障排查',
         link: '/guide/troubleshooting.md',
       },
     ],
   },
   {
-    text: 'In-Depth',
+    text: '深入理解',
     collapsed: true,
     items: [
-      { text: 'Why Bundlers', link: '/in-depth/why-bundlers.md' },
+      { text: '为什么需要打包器', link: '/in-depth/why-bundlers.md' },
       {
-        text: 'Why Plugin Hook Filter',
+        text: '为什么需要插件钩子过滤器',
         link: '/in-depth/why-plugin-hook-filter.md',
       },
-      { text: 'Module Types', link: '/in-depth/module-types.md' },
-      { text: 'External Modules', link: '/in-depth/external-modules.md' },
-      { text: 'Directives', link: '/in-depth/directives.md' },
-      { text: 'Automatic Code Splitting', link: '/in-depth/automatic-code-splitting.md' },
-      { text: 'Manual Code Splitting', link: '/in-depth/manual-code-splitting.md' },
-      { text: 'Bundling CJS', link: '/in-depth/bundling-cjs.md' },
+      { text: '模块类型', link: '/in-depth/module-types.md' },
+      { text: '外部模块', link: '/in-depth/external-modules.md' },
+      { text: '指令', link: '/in-depth/directives.md' },
+      { text: '自动代码拆分', link: '/in-depth/automatic-code-splitting.md' },
+      { text: '手动代码拆分', link: '/in-depth/manual-code-splitting.md' },
+      { text: '打包 CommonJS', link: '/in-depth/bundling-cjs.md' },
       {
-        text: 'Non ESM Output Formats',
+        text: '非 ESM 输出格式',
         link: '/in-depth/non-esm-output-formats.md',
       },
-      { text: 'Top Level Await', link: '/in-depth/tla-in-rolldown.md' },
-      { text: 'Dead Code Elimination', link: '/in-depth/dead-code-elimination.md' },
-      { text: 'Lazy Barrel Optimization', link: '/in-depth/lazy-barrel-optimization.md' },
-      { text: 'Native MagicString', link: '/in-depth/native-magic-string.md' },
+      { text: '顶层 await', link: '/in-depth/tla-in-rolldown.md' },
+      { text: '无用代码消除', link: '/in-depth/dead-code-elimination.md' },
+      { text: '惰性聚合模块优化', link: '/in-depth/lazy-barrel-optimization.md' },
+      { text: '原生 MagicString', link: '/in-depth/native-magic-string.md' },
     ],
   },
   {
-    text: 'Glossary',
+    text: '术语表',
     collapsed: true,
     items: [
-      { text: 'Barrel Module', link: '/glossary/barrel-module.md' },
-      { text: 'Entry', link: '/glossary/entry.md' },
-      { text: 'Entry Chunk', link: '/glossary/entry-chunk.md' },
-      { text: 'Entry Name', link: '/glossary/entry-name.md' },
-      { text: 'User-defined Entry', link: '/glossary/user-defined-entry.md' },
+      { text: '聚合模块', link: '/glossary/barrel-module.md' },
+      { text: '入口', link: '/glossary/entry.md' },
+      { text: '入口代码块', link: '/glossary/entry-chunk.md' },
+      { text: '入口名称', link: '/glossary/entry-name.md' },
+      { text: '用户定义的入口', link: '/glossary/user-defined-entry.md' },
     ],
   },
 ];
@@ -63,32 +62,32 @@ const sidebarForApi: DefaultTheme.SidebarItem[] = [
   {
     text: 'API',
     items: [
-      { text: 'Bundler API', link: '/apis/bundler-api.md' },
+      { text: '打包器 API', link: '/apis/bundler-api.md' },
       {
-        text: 'Plugin API',
+        text: '插件 API',
         link: '/apis/plugin-api.md',
         items: [
-          { text: 'Hook Filters', link: '/apis/plugin-api/hook-filters.md' },
-          { text: 'File URLs', link: '/apis/plugin-api/file-urls.md' },
-          { text: 'Source Code Transformations', link: '/apis/plugin-api/transformations.md' },
+          { text: '钩子过滤器', link: '/apis/plugin-api/hook-filters.md' },
+          { text: '文件 URL', link: '/apis/plugin-api/file-urls.md' },
+          { text: '源代码转换', link: '/apis/plugin-api/transformations.md' },
           {
-            text: 'Inter-plugin communication',
+            text: '插件间通信',
             link: '/apis/plugin-api/inter-plugin-communication.md',
           },
         ],
       },
-      { text: 'Command Line Interface', link: '/apis/cli.md' },
-      { text: 'Rust Crates', link: '/apis/rust-crates.md' },
+      { text: '命令行界面', link: '/apis/cli.md' },
+      { text: 'Rust crate', link: '/apis/rust-crates.md' },
     ],
   },
 ];
 
 const sidebarForPlugins: DefaultTheme.SidebarItem[] = [
   {
-    text: 'Built-in Plugins',
+    text: '内置插件',
     items: [
       {
-        text: 'Introduction',
+        text: '简介',
         link: '/builtin-plugins/',
       },
       {
@@ -162,7 +161,7 @@ function getOptionsSidebar() {
 
 const sidebarForReference: DefaultTheme.SidebarItem[] = [
   {
-    text: 'Options',
+    text: '选项',
     base: '/reference',
     items: getOptionsSidebar(),
     collapsed: false,
@@ -172,45 +171,41 @@ const sidebarForReference: DefaultTheme.SidebarItem[] = [
 
 const sidebarForDevGuide: DefaultTheme.SidebarItem[] = [
   {
-    text: 'Contribution Guide',
+    text: '贡献指南',
     items: [
       {
-        text: 'Overview',
+        text: '概览',
         link: '/contribution-guide/',
-      },
-      {
-        text: 'Etiquette',
-        link: 'https://developer.mozilla.org/en-US/docs/MDN/Community/Open_source_etiquette',
       },
     ],
   },
   {
-    text: 'Development Guide',
+    text: '开发指南',
     items: [
       {
-        text: 'Setup the project',
+        text: '配置项目',
         link: '/development-guide/setup-the-project.md',
       },
       {
-        text: 'Building and running',
+        text: '构建与运行',
         link: '/development-guide/building-and-running.md',
       },
-      { text: 'Testing', link: '/development-guide/testing.md' },
+      { text: '测试', link: '/development-guide/testing.md' },
       {
-        text: 'Benchmarking',
+        text: '基准测试',
         link: '/development-guide/benchmarking.md',
       },
       {
-        text: 'Tracing/Logging',
+        text: '追踪与日志',
         link: '/development-guide/tracing-logging.md',
       },
       {
-        text: 'Profiling',
+        text: '性能分析',
         link: '/development-guide/profiling.md',
       },
-      { text: 'Docs', link: '/development-guide/docs.md' },
+      { text: '文档', link: '/development-guide/docs.md' },
       {
-        text: 'Coding Style',
+        text: '代码风格',
         link: '/development-guide/coding-style.md',
       },
     ],
@@ -219,24 +214,22 @@ const sidebarForDevGuide: DefaultTheme.SidebarItem[] = [
 
 const sidebarForResources: DefaultTheme.SidebarItem[] = [
   {
-    text: 'Team',
+    text: '团队',
     link: '/team.md',
   },
   {
-    text: 'Acknowledgements',
+    text: '致谢',
     link: '/acknowledgements.md',
   },
 ];
 
 // https://vitepress.dev/reference/site-config
 const config = defineConfig({
+  lang: 'zh-CN',
   title: 'Rolldown',
-  description: 'Fast Rust-based bundler for JavaScript with Rollup-compatible API',
+  description: '基于 Rust 的高性能 JavaScript 打包器，提供兼容 Rollup 的 API',
   lastUpdated: true,
   cleanUrls: true,
-  sitemap: {
-    hostname: 'https://rolldown.rs',
-  },
   head: [
     [
       'link',
@@ -248,12 +241,12 @@ const config = defineConfig({
     ],
     ['meta', { name: 'theme-color', content: '#ff7e17' }],
     ['meta', { property: 'og:type', content: 'website' }],
-    ['meta', { property: 'og:locale', content: 'en' }],
+    ['meta', { property: 'og:locale', content: 'zh_CN' }],
     [
       'meta',
       {
         property: 'og:title',
-        content: 'Rolldown | Rust bundler for JavaScript',
+        content: 'Rolldown 中文文档 | 基于 Rust 的 JavaScript 打包器',
       },
     ],
     [
@@ -263,8 +256,7 @@ const config = defineConfig({
         content: 'https://rolldown.rs/og.jpg',
       },
     ],
-    ['meta', { property: 'og:site_name', content: 'Rolldown' }],
-    ['meta', { property: 'og:url', content: 'https://rolldown.rs/' }],
+    ['meta', { property: 'og:site_name', content: 'Rolldown 中文文档' }],
     ['meta', { name: 'twitter:card', content: 'summary_large_image' }],
     ['meta', { name: 'twitter:site', content: '@rolldown_rs' }],
   ],
@@ -274,12 +266,7 @@ const config = defineConfig({
   themeConfig: {
     variant: 'rolldown',
     search: {
-      provider: 'algolia',
-      options: {
-        appId: process.env.ALGOLIA_APP_ID || '',
-        apiKey: process.env.ALGOLIA_API_KEY || '',
-        indexName: 'rolldown',
-      },
+      provider: 'local',
     },
 
     // banner: {
@@ -291,13 +278,13 @@ const config = defineConfig({
     // https://vitepress.dev/reference/default-theme-config
     nav: [
       {
-        text: 'Guide',
+        text: '指南',
         activeMatch: '/(guide|in-depth|glossary)',
         link: '/guide/getting-started.md',
       },
-      { text: 'Reference', activeMatch: '/reference', link: '/reference' },
+      { text: 'API 参考（英文）', link: 'https://rolldown.rs/reference/' },
       {
-        text: 'Plugins',
+        text: '插件',
         activeMatch: '/builtin-plugins',
         link: '/builtin-plugins/',
       },
@@ -308,21 +295,21 @@ const config = defineConfig({
       },
       { text: 'REPL', link: 'https://repl.rolldown.rs/' },
       {
-        text: 'Resources',
+        text: '资源',
         activeMatch: '/(team|acknowledgements|contribution-guide|development-guide)',
         items: [
           {
-            text: 'Team',
+            text: '团队',
             activeMatch: '/(team|acknowledgements)',
             link: '/team.md',
           },
           {
-            text: 'Contribute',
+            text: '参与贡献',
             activeMatch: '/(contribution-guide|development-guide)',
             link: '/contribution-guide/',
           },
           {
-            text: 'Roadmap',
+            text: '路线图',
             link: 'https://github.com/rolldown/rolldown/discussions/153',
           },
         ],
@@ -334,8 +321,6 @@ const config = defineConfig({
       '/guide/': sidebarForGuide,
       '/in-depth/': sidebarForGuide,
       '/glossary/': sidebarForGuide,
-      // --- Reference (options + typedoc dictionary) ---
-      '/reference/': sidebarForReference,
       // --- Plugins ---
       '/builtin-plugins/': sidebarForPlugins,
       // --- API ---
@@ -347,7 +332,12 @@ const config = defineConfig({
       '/team': sidebarForResources,
       '/acknowledgements': sidebarForResources,
     },
-    outline: 'deep',
+    outline: { level: 'deep', label: '本页目录' },
+    docFooter: { prev: '上一篇', next: '下一篇' },
+    lastUpdated: { text: '最后更新于' },
+    sidebarMenuLabel: '目录',
+    returnToTopLabel: '返回顶部',
+    darkModeSwitchLabel: '外观',
     socialLinks: [
       { icon: 'x', link: 'https://twitter.com/rolldown_rs' },
       {
@@ -359,27 +349,27 @@ const config = defineConfig({
     ],
 
     footer: {
-      copyright: `© 2025-present VoidZero Inc. and Rolldown contributors.`,
+      copyright: `© 2025-present VoidZero Inc. 与 Rolldown 贡献者。`,
       nav: [
         {
           title: 'Rolldown',
           items: [
-            { text: 'Guide', link: '/guide/getting-started' },
-            { text: 'Reference', link: '/reference' },
-            { text: 'Plugins', link: '/builtin-plugins/' },
+            { text: '指南', link: '/guide/getting-started' },
+            { text: 'API 参考（英文）', link: 'https://rolldown.rs/reference/' },
+            { text: '插件', link: '/builtin-plugins/' },
             { text: 'API', link: '/apis/bundler-api' },
-            { text: 'Contribute', link: '/contribution-guide/' },
+            { text: '参与贡献', link: '/contribution-guide/' },
             { text: 'REPL', link: 'https://repl.rolldown.rs/' },
           ],
         },
         {
-          title: 'Resources',
+          title: '资源',
           items: [
             {
-              text: 'Roadmap',
+              text: '路线图',
               link: 'https://github.com/rolldown/rolldown/discussions/153',
             },
-            { text: 'Team', link: '/team' },
+            { text: '团队', link: '/team' },
           ],
         },
       ],
@@ -391,10 +381,6 @@ const config = defineConfig({
       ],
     },
 
-    editLink: {
-      pattern: 'https://github.com/rolldown/rolldown/edit/main/docs/:path',
-      text: 'Edit this page on GitHub',
-    },
   },
 
   vite: {
@@ -409,8 +395,8 @@ const config = defineConfig({
         },
       }) as any,
       llmstxt({
-        ignoreFiles: ['development-guide/**/*', 'index.md', 'README.md', 'team.md'],
-        description: 'Fast Rust-based bundler for JavaScript with Rollup-compatible API',
+        ignoreFiles: ['index.md', 'README.md', 'team.md'],
+        description: '基于 Rust 的高性能 JavaScript 打包器，提供兼容 Rollup 的 API',
         details: '',
       }),
     ],
@@ -422,20 +408,6 @@ const config = defineConfig({
         processors: { 'hooks-graph': createHooksGraphProcessor() },
       });
     },
-  },
-  async transformPageData(pageData, ctx) {
-    // Disable "Edit this page on GitHub" for auto-generated reference docs
-    if (pageData.relativePath.startsWith('reference/')) {
-      pageData.frontmatter.editLink = false;
-    }
-
-    // Automatically handle OG images for all markdown files.
-    if (!pageData.frontmatter.image && pageData.relativePath !== 'index.md') {
-      await addOgImage(pageData, ctx, {
-        domain: 'https://rolldown.rs',
-        maxTitleSizePerLine: 16,
-      });
-    }
   },
 });
 

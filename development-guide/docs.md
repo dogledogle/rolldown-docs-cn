@@ -1,22 +1,22 @@
-# Docs
+# 文档
 
-Rolldown is documented using [VitePress](https://vitepress.dev). You can find the source code for the site in `docs`. Check out the [Markdown Extensions Guide](https://vitepress.dev/guide/markdown) to learn about VitePress features.
+Rolldown 使用 [VitePress](https://vitepress.dev) 构建文档。站点源代码位于 `docs` 目录。要了解 VitePress 的功能，请查看 [Markdown 扩展指南](https://vitepress.dev/guide/markdown)。
 
-To contribute to the documentation, you can start the docs dev server running on the project root:
+要为文档作贡献，可以在项目根目录中启动文档开发服务器：
 
 ```sh
 pnpm run docs
 ```
 
-Since the `pnpm docs` command is used for opening the module introduction in `npm`, you may use the command above.
+由于 `pnpm docs` 命令用于在 npm 中打开模块介绍，因此请使用上面的命令。
 
-You can then edit the markdown files and see your changes instantly. The docs structure is configured at `docs/.vitepress/config.ts` (see the [Site Config Reference](https://vitepress.dev/reference/site-config)).
+接下来便可编辑 Markdown 文件并即时查看变更。文档结构在 `docs/.vitepress/config.ts` 中配置（参阅[站点配置参考](https://vitepress.dev/reference/site-config)）。
 
-If you'd like to review the built site, run in the project root:
+如果希望检查构建后的站点，请在项目根目录中运行：
 
 ```sh
 pnpm docs:build
 pnpm docs:preview
 ```
 
-This step isn't needed when contributing if you aren't modifying the docs build setup.
+如果贡献内容不涉及文档构建设置，则无需执行此步骤。

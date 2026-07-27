@@ -1,40 +1,40 @@
-# Coding Style
+# 代码风格
 
-We recommend to follow these guidelines when writing code for rolldown. They aren't very strict rules since we want to be flexible and we understand that under certain circumstances some of them can be counterproductive. Just try to follow as many of them as possible:
+编写 Rolldown 代码时，建议遵循以下准则。它们并非十分严格的规则，因为我们希望保留灵活性，也明白其中一些规则在特定情况下可能适得其反。请尽可能多地遵循这些准则。
 
 ## Rust
 
-### General API Design
+### 通用 API 设计
 
-We tend to follow the suggestions of [Rust API Guidelines](https://rust-lang.github.io/api-guidelines/). They are authored largely by the Rust library team, based on experiences building the Rust standard library and other crates in the Rust ecosystem.
+我们倾向于遵循 [Rust API 准则](https://rust-lang.github.io/api-guidelines/)中的建议。这些准则主要由 Rust 库团队编写，源自构建 Rust 标准库和 Rust 生态中其他 crate 的经验。
 
-We understand that there are cases that rules don't apply, but you should try to follow them as much as possible.
+我们理解这些规则并非在所有场景都适用，但仍应尽可能遵循。
 
-### Rule: File names should match the main struct, trait, enum or function name in that file
+### 规则：文件名应与文件中的主要结构体、trait、枚举或函数同名
 
-Examples:
+示例：
 
-- If a file implements a struct, like `Resolver` and `ResolverConfig`, the file should be named `resolver.rs`, because `Resolver` is the main struct implemented in that file.
-- If a file contains only one struct, like `ResolverConfig`, the file should be named `resolver_config.rs` not `config.rs`.
-- If a struct is complex enough to have its own folder, still prefer to put the struct into its own file with the same name as the struct. For example, move `bundler.rs` into `bundler/bundler.rs` instead of `bundler/mod.rs`.
+- 如果一个文件实现了 `Resolver` 和 `ResolverConfig` 等结构体，应将文件命名为 `resolver.rs`，因为 `Resolver` 是该文件实现的主要结构体。
+- 如果文件中只有一个结构体，例如 `ResolverConfig`，文件应命名为 `resolver_config.rs`，而不是 `config.rs`。
+- 如果一个结构体复杂到需要单独的目录，仍应优先把它放在与结构体同名的文件中。例如，将 `bundler.rs` 移至 `bundler/bundler.rs`，而不是 `bundler/mod.rs`。
 
-Motivation:
+原因：
 
-When you're reasoning rolldown's codebase, you often think in terms of structs, functions, and traits. If file names correspond directly to struct names, it becomes much easier to locate the relevant code quickly. This is especially helpful in a large codebase like rolldown, where you might have many files and modules.
+理解 Rolldown 代码库时，通常会以结构体、函数和 trait 为线索。如果文件名与结构体名称直接对应，就能更快地找到相关代码。Rolldown 这样的大型代码库包含大量文件和模块，这一点尤其有帮助。
 
-## Misc
+## 其他
 
-### Adding tests
+### 添加测试
 
-In general, we have two environments for running different purposes of tests. See [Testing](./testing.md) for more information.
+总体而言，我们使用两个环境运行不同目的的测试。更多信息请参阅[测试](./testing.md)。
 
-We enquire that you should first considering adding tests in Rust side, because
+建议优先考虑在 Rust 端添加测试，原因如下：
 
-- It has better debugging support without considering bridge between Rust and JavaScript.
-- It has faster development cycle due to no need to compile the binding crate and run Node.js.
+- 无需考虑 Rust 与 JavaScript 之间的桥接，调试支持更好。
+- 无需编译绑定 crate 和运行 Node.js，开发周期更短。
 
-You could consider adding tests in Node.js with the following reasons:
+在以下情况下，可以考虑在 Node.js 端添加测试：
 
-- The test is about the behavior of the JavaScript API.
-- The test is about the behavior of the `rolldown` package itself.
-- E2E tests.
+- 测试涉及 JavaScript API 的行为。
+- 测试涉及 `rolldown` 包本身的行为。
+- 端到端测试。

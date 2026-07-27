@@ -2,16 +2,16 @@
   import { data } from '../data-loading/node-version.data.js'
 </script>
 
-# Setup the project
+# 配置项目
 
-## Prerequisites
+## 前置条件
 
-Only a few tools are required to build and run Rolldown. You'll need:
+构建和运行 Rolldown 只需要少量工具。你需要：
 
-- Install Rust via [rustup](https://www.rust-lang.org/tools/install)
-- Install `just`
+- 通过 [rustup](https://www.rust-lang.org/tools/install) 安装 Rust。
+- 安装 `just`。
 
-You could install `just` quickly by running the following command or by following the official [guide](https://github.com/casey/just?tab=readme-ov-file#installation):
+可以运行以下命令快速安装 `just`，也可以按照官方[指南](https://github.com/casey/just?tab=readme-ov-file#installation)安装：
 
 ::: code-group
 
@@ -37,50 +37,49 @@ cargo install just
 
 :::
 
-- Install `cmake`
+- 安装 `cmake`。
 
-You could install it by following the official [Download](https://cmake.org/download/).
+可以按照官方[下载说明](https://cmake.org/download/)进行安装。
 
-- Install Node.js >= {{ data.nodeVersion }} / 21.2.0
+- 安装 Node.js {{ data.nodeVersion }} / 21.2.0 或更高版本。
 
 ## `just setup`
 
-On your first checkout of the repository, all you need to do is run `just setup` in the repository root.
+首次检出仓库后，只需在仓库根目录中运行 `just setup`。
 
-If you are seeing `✅✅✅ Setup complete!` at the end, that means you have everything you need to build and run rolldown.
+如果最后看到 `✅✅✅ Setup complete!`，说明构建和运行 Rolldown 所需的一切都已准备就绪。
 
-You could run `just roll` to verify if everything is working correctly.
+可以运行 `just roll`，验证所有内容能否正常工作。
 
 ::: tip
 
-- `just roll` might take a while to run, since it will build rolldown from scratch and run all the tests.
-- If you want to know what `just setup` does under the hood, you can check the [`justfile`](https://github.com/rolldown/rolldown/blob/main/justfile) in the repository root.
+- `just roll` 可能需要运行一段时间，因为它会从头构建 Rolldown 并运行全部测试。
+- 如果想了解 `just setup` 在底层做了什么，可以查看仓库根目录中的 [`justfile`](https://github.com/rolldown/rolldown/blob/main/justfile)。
 
 :::
 
-Now, you could move to next chapter [Building and Running](./building-and-running.md). Continue reading if you want to have a in-depth understanding of the setup process.
+现在可以继续阅读下一章[构建与运行](./building-and-running.md)。如果希望深入了解配置过程，请继续阅读本页。
 
-## In Depth
+## 深入了解
 
-This section will go into more detail about the installed tools and dependencies required to build and run Rolldown.
+本节将详细介绍构建和运行 Rolldown 所需安装的工具与依赖。
 
-### Setup Rust
+### 配置 Rust
 
-Rolldown is built on Rust and requires `rustup` and `cargo` to exist in your environment. You can
-[install Rust from the official website](https://www.rust-lang.org/tools/install).
+Rolldown 基于 Rust 构建，因此环境中必须存在 `rustup` 和 `cargo`。可以从[官方网站安装 Rust](https://www.rust-lang.org/tools/install)。
 
-### Setup Node.js
+### 配置 Node.js
 
-Rolldown is a npm package built with [NAPI-RS](https://napi.rs/) and is published to the npm registry, and as such requires Node.js and pnpm (for dependency management).
+Rolldown 是使用 [NAPI-RS](https://napi.rs/) 构建并发布到 npm registry 的 npm 包，因此需要 Node.js 和 pnpm（用于依赖管理）。
 
-We recommend installing Node.js with a version manager, like [nvm](https://github.com/nvm-sh/nvm) or [fnm](https://github.com/Schniz/fnm). Make sure to install and use Node.js version {{ data.nodeVersion }}+, which is the minimum requirement for this project. You can skip this step if you are already using a Node.js version manager of your choice and on a Node.js version that meets the requirement.
+建议使用 [nvm](https://github.com/nvm-sh/nvm) 或 [fnm](https://github.com/Schniz/fnm) 等版本管理器安装 Node.js。请确保安装并使用 Node.js {{ data.nodeVersion }} 或更高版本，这是本项目的最低要求。如果已经在使用自己选择的 Node.js 版本管理器，并且当前版本满足要求，可以跳过此步骤。
 
-#### Setup pnpm
+#### 配置 pnpm
 
-We recommend enabling pnpm via [corepack](https://nodejs.org/api/corepack.html), so the correct version of pnpm can be automatically used when working in this project:
+建议通过 [corepack](https://nodejs.org/api/corepack.html) 启用 pnpm，这样处理本项目时便会自动使用正确的 pnpm 版本：
 
 ```shell
 corepack enable
 ```
 
-to verify that everything is setup correctly.
+以验证所有内容均已正确配置。

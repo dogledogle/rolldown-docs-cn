@@ -12,18 +12,18 @@ import Footer from '@voidzero-dev/vitepress-theme/src/components/oss/Footer.vue'
   <Hero />
   <!-- 'framer' requires public/trusted-by/framer.svg -->
   <!-- <TrustedBy :logos="['framer', 'angular']" /> -->
-  <HeadingSection heading="Performance + Features + Ecosystem" />
+  <HeadingSection heading="性能 + 特性 + 生态系统" />
   <RolldownFeatureGrid />
   <Sponsors
-    description="Rolldown is free and open source, made possible by a full-time team and passionate open-source contributors."
-    sponsorLinkText="Contribute"
+    description="Rolldown 是自由开源软件，由全职团队和充满热情的开源贡献者共同打造。"
+    sponsorLinkText="参与贡献"
     sponsorLink="/contribution-guide"
   />
   <Spacer />
   <Footer
-    heading="Optimize your JavaScript code with Rolldown"
-    subheading="Why do we still need bundlers?"
-    button-text="Learn more"
+    heading="使用 Rolldown 优化 JavaScript 代码"
+    subheading="为什么我们仍然需要打包器？"
+    button-text="了解更多"
     button-link="/in-depth/why-bundlers"
   />
 </template>

@@ -1,86 +1,86 @@
-# Notable Features
+# 主要特性
 
-This page documents some notable features in Rolldown that do not have built-in equivalents in Rollup.
+本页介绍 Rolldown 中一些值得关注、但 Rollup 没有内置对应功能的特性。
 
-## Platform presets
+## 平台预设
 
-- Configurable via the [`platform`](/reference/InputOptions.platform) option.
-- Default: `'node'` for `cjs` output, `'browser'` otherwise
-- Possible values: `browser | node | neutral`
+- 通过 [`platform`](https://rolldown.rs/reference/InputOptions.platform) 选项配置。
+- 默认值：输出格式为 `cjs` 时是 `'node'`，其他情况下是 `'browser'`。
+- 可选值：`browser | node | neutral`。
 
-Similar to [esbuild's `platform` option](https://esbuild.github.io/api/#platform), this option provides some sensible defaults regarding module resolution and how to handle `process.env.NODE_ENV`.
+与 [esbuild 的 `platform` 选项](https://esbuild.github.io/api/#platform)类似，该选项为模块解析和 `process.env.NODE_ENV` 的处理方式提供了一组合理的默认值。
 
-**Notable differences from esbuild:**
+**与 esbuild 的主要区别：**
 
-- The default output format is always `esm` regardless of platform.
+- 无论使用什么平台，默认输出格式始终为 `esm`。
 
-:::tip
-Rolldown does not polyfill Node built-ins when targeting the browser. You can opt-in to it with [rolldown-plugin-node-polyfills](https://github.com/rolldown/rolldown-plugin-node-polyfills).
+::: tip
+以浏览器为目标平台时，Rolldown 不会为 Node 内置模块提供 polyfill。你可以通过 [rolldown-plugin-node-polyfills](https://github.com/rolldown/rolldown-plugin-node-polyfills) 选择启用。
 :::
 
-## Built-in transforms
+## 内置转换
 
-Rolldown supports the following transforms out of the box, powered by [Oxc](https://oxc.rs/docs/guide/usage/transformer).
-The transform is configurable via the [`transform`](/reference/InputOptions.transform) option.
-The following transforms are supported:
+Rolldown 开箱即用地支持以下由 [Oxc](https://oxc.rs/docs/guide/usage/transformer) 驱动的转换。
+转换行为可通过 [`transform`](https://rolldown.rs/reference/InputOptions.transform) 选项配置。
+目前支持：
 
 - TypeScript
-  - Sets configurations based on the `tsconfig.json` when the [`tsconfig`](/reference/InputOptions.tsconfig) option is provided.
-  - Supported legacy decorators and decorator metadata.
+  - 提供 [`tsconfig`](https://rolldown.rs/reference/InputOptions.tsconfig) 选项时，根据 `tsconfig.json` 设置配置。
+  - 支持旧版装饰器和装饰器元数据。
 - JSX
-- Syntax lowering
-  - Automatically transforms modern syntax to be compatible with your defined target.
-  - Supports [down to ES2015](https://oxc.rs/docs/guide/usage/transformer/lowering#transformations).
+- 语法降级
+  - 自动转换现代语法，使其兼容你指定的目标环境。
+  - 最低[支持降级到 ES2015](https://oxc.rs/docs/guide/usage/transformer/lowering#transformations)。
 
-## CJS support
+## CJS 支持
 
-Rolldown supports mixed ESM / CJS module graphs out of the box, without the need for `@rollup/plugin-commonjs`. It largely follows esbuild's semantics and [passes all esbuild ESM / CJS interop tests](https://github.com/evanw/bundler-esm-cjs-tests).
+Rolldown 开箱即用地支持混合 ESM / CJS 模块图，无需使用 `@rollup/plugin-commonjs`。它基本遵循 esbuild 的语义，并且[通过了 esbuild 的全部 ESM / CJS 互操作测试](https://github.com/evanw/bundler-esm-cjs-tests)。
 
-See [Bundling CJS](/in-depth/bundling-cjs) for more details.
+更多细节请参阅[打包 CJS](/in-depth/bundling-cjs)。
 
-## Module resolution
+## 模块解析
 
-- Configurable via the [`resolve`](/reference/InputOptions.resolve) option
-- Powered by [oxc-resolver](https://github.com/oxc-project/oxc-resolver), aligned with webpack's [enhanced-resolve](https://github.com/webpack/enhanced-resolve)
+- 通过 [`resolve`](https://rolldown.rs/reference/InputOptions.resolve) 选项配置。
+- 由 [oxc-resolver](https://github.com/oxc-project/oxc-resolver) 驱动，并与 webpack 的 [enhanced-resolve](https://github.com/webpack/enhanced-resolve) 保持一致。
 
-Rolldown resolves modules based on TypeScript and Node.js' behavior by default, without the need for `@rollup/plugin-node-resolve`.
+Rolldown 默认按照 TypeScript 和 Node.js 的行为解析模块，无需使用 `@rollup/plugin-node-resolve`。
 
-When top-level [`tsconfig`](/reference/InputOptions.tsconfig) option is provided, Rolldown will respect `compilerOptions.paths` in the specified `tsconfig.json`.
+提供顶层 [`tsconfig`](https://rolldown.rs/reference/InputOptions.tsconfig) 选项时，Rolldown 会遵循指定 `tsconfig.json` 中的 `compilerOptions.paths`。
 
 ## Define
 
-- Configurable via the [`transform.define`](/reference/InputOptions.transform#define) option.
+- 通过 [`transform.define`](https://rolldown.rs/reference/InputOptions.transform#define) 选项配置。
 
-This feature provides a way to replace global identifiers with constant expressions. Aligns with the respective options in [Vite](https://vite.dev/config/shared-options.html#define) and [esbuild](https://esbuild.github.io/api/#define).
+此功能可用常量表达式替换全局标识符，与 [Vite](https://vite.dev/config/shared-options.html#define) 和 [esbuild](https://esbuild.github.io/api/#define) 中的相应选项保持一致。
 
-::: tip `@rollup/plugin-replace` behaves differently
+::: tip `@rollup/plugin-replace` 的行为不同
 
-Note it behaves differently from [`@rollup/plugin-replace`](https://github.com/rollup/plugins/tree/master/packages/replace) as the replacement is AST-based, so the value to be replaced must be a valid identifier or member expression. Use the built-in [`replacePlugin`](/builtin-plugins/replace) for that purpose.
+请注意，它的行为与 [`@rollup/plugin-replace`](https://github.com/rollup/plugins/tree/master/packages/replace) 不同。由于替换基于 AST，要替换的值必须是有效的标识符或成员表达式。如果需要文本替换，请使用内置的 [`replacePlugin`](/builtin-plugins/replace)。
 
 :::
 
 ## Inject
 
-- Configurable via the [`transform.inject`](/reference/InputOptions.transform#inject) option.
+- 通过 [`transform.inject`](https://rolldown.rs/reference/InputOptions.transform#inject) 选项配置。
 
-This feature provides a way to shim global variables with a specific value exported from a module. This feature is equivalent of [`@rollup/plugin-inject`](https://github.com/rollup/plugins/tree/master/packages/inject) and conceptually similar to [esbuild's `inject` option](https://esbuild.github.io/api/#inject).
+此功能可使用模块导出的特定值填充全局变量。它等同于 [`@rollup/plugin-inject`](https://github.com/rollup/plugins/tree/master/packages/inject)，在概念上也与 [esbuild 的 `inject` 选项](https://esbuild.github.io/api/#inject)相似。
 
-## Manual Code Splitting
+## 手动代码拆分 {#manual-code-splitting}
 
-- Configurable via [`output.codeSplitting`](/reference/OutputOptions.codeSplitting) option.
+- 通过 [`output.codeSplitting`](https://rolldown.rs/reference/OutputOptions.codeSplitting) 选项配置。
 
-Rolldown allows controlling the chunking behavior granularly, similar to webpack's [`optimization.splitChunks`](https://webpack.js.org/plugins/split-chunks-plugin/#optimizationsplitchunks) feature.
+Rolldown 允许细粒度控制代码块拆分行为，类似于 webpack 的 [`optimization.splitChunks`](https://webpack.js.org/plugins/split-chunks-plugin/#optimizationsplitchunks) 功能。
 
-See [Manual Code Splitting](/in-depth/manual-code-splitting) for more details.
+更多细节请参阅[手动代码拆分](/in-depth/manual-code-splitting)。
 
-## Module types
+## 模块类型 {#module-types}
 
-- ⚠️ Experimental
+- ⚠️ 实验性功能
 
-This is conceptually similar to [esbuild's `loader` option](https://esbuild.github.io/api/#loader), allowing users to globally associate file extensions to built-in module types via the [`moduleTypes`](/reference/InputOptions.moduleTypes) option, or specify module type of a specific module in plugin hooks. It is discussed in more details [here](/in-depth/module-types).
+这在概念上类似于 [esbuild 的 `loader` 选项](https://esbuild.github.io/api/#loader)：用户可以通过 [`moduleTypes`](https://rolldown.rs/reference/InputOptions.moduleTypes) 选项在全局范围内将文件扩展名关联到内置模块类型，也可以在插件钩子中指定某个模块的类型。更多细节请参阅[模块类型](/in-depth/module-types)。
 
-## Minification
+## 代码压缩
 
-- Configurable via the [`output.minify`](/reference/OutputOptions.minify) option.
+- 通过 [`output.minify`](https://rolldown.rs/reference/OutputOptions.minify) 选项配置。
 
-The minification is powered by [Oxc Minifier](https://oxc.rs/docs/guide/usage/minifier). See its documentation for more details.
+代码压缩由 [Oxc Minifier](https://oxc.rs/docs/guide/usage/minifier) 驱动。更多细节请参阅其文档。

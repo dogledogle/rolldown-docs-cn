@@ -1,10 +1,10 @@
-# Replace Plugin
+# Replace 插件
 
-The `replacePlugin` is a built-in Rolldown plugin that replaces the code based on string manipulation. This is an equivalent of `@rollup/plugin-replace`.
+`replacePlugin` 是 Rolldown 的内置插件，通过字符串操作替换代码，作用等同于 `@rollup/plugin-replace`。
 
-## Usage
+## 用法
 
-Import and use the plugin from Rolldown's plugins exports:
+从 Rolldown 的插件导出入口导入并使用该插件：
 
 ```js
 import { defineConfig } from 'rolldown';
@@ -30,32 +30,32 @@ export default defineConfig({
 });
 ```
 
-## Options
+## 选项
 
 ### `delimiters`
 
-- **Type:** `[string, string]`
-- **Default:** `["\\b", "\\b(?!\\.)"]`
+- **类型：** `[string, string]`
+- **默认值：** `["\\b", "\\b(?!\\.)"]`
 
-Customizes how each key is matched. A key only matches when it's surrounded by these two patterns:
+自定义每个键的匹配方式。只有当键被以下两个模式包围时才会匹配：
 
-- `delimiters[0]` (**left**): what must come right before the key.
-- `delimiters[1]` (**right**): what must come right after the key.
+- `delimiters[0]`（**左侧**）：键之前必须出现的内容。
+- `delimiters[1]`（**右侧**）：键之后必须出现的内容。
 
-Both are regular expressions. The default `["\\b", "\\b(?!\\.)"]` matches a key only at word boundaries and skips property accesses, so `process` in `process.env` is left untouched.
+二者都是正则表达式。默认值 `["\\b", "\\b(?!\\.)"]` 只在单词边界匹配键，并跳过属性访问，因此 `process.env` 中的 `process` 不会被替换。
 
 ### `preventAssignment`
 
-- **Type:** `boolean`
-- **Default:** `false`
+- **类型：** `boolean`
+- **默认值：** `false`
 
-Prevents replacing strings in variable declarations.
+防止替换变量声明中的字符串。
 
 ```js
 replacePlugin({ DEBUG: 'false' }, { preventAssignment: true });
 
-// const DEBUG = true;  // Not replaced (assignment)
-// console.log(DEBUG);  // Replaced with `false`
+// const DEBUG = true;  // 不替换（赋值）
+// console.log(DEBUG);  // 替换为 `false`
 ```
 
 ### `objectGuards`
@@ -63,12 +63,12 @@ replacePlugin({ DEBUG: 'false' }, { preventAssignment: true });
 - **Type:** `boolean`
 - **Default:** `false`
 
-Automatically replaces `typeof` checks for object paths.
+自动替换针对对象路径的 `typeof` 检查。
 
 ```js
 replacePlugin({ 'process.env.NODE_ENV': JSON.stringify('production') }, { objectGuards: true });
 
-// Also replaces:
+// 同时替换：
 // typeof process → "object"
 // typeof process.env → "object"
 ```
@@ -78,18 +78,18 @@ replacePlugin({ 'process.env.NODE_ENV': JSON.stringify('production') }, { object
 - **Type:** `boolean`
 - **Default:** `false`
 
-Generates source maps for the replacements.
+为替换结果生成 source map。
 
-## Important Notes
+## 重要说明
 
-### Replacement Order
+### 替换顺序
 
-Keys are sorted by length (descending) to prevent partial replacements. This is crucial when you have overlapping replacement keys.
+插件会按长度降序排列键，以防止局部替换。当替换键互相重叠时，这一点至关重要。
 
-**Why order matters:**
+**顺序为何重要：**
 
 ```js
-// Input code:
+// 输入代码：
 const apiV2 = API_URL_V2;
 const api = API_URL;
 
@@ -98,60 +98,60 @@ replacePlugin({
   API_URL_V2: '"https://api.example.com/v2"',
 });
 
-// Without length sorting (❌ wrong):
-// const apiV2 = "https://api.example.com"_V2;  // Incorrect!
+// 不按长度排序（❌ 错误）：
+// const apiV2 = "https://api.example.com"_V2;  // 不正确！
 // const api = "https://api.example.com";
 
-// With length sorting (✅ correct):
-// const apiV2 = "https://api.example.com/v2";  // API_URL_V2 matched first
-// const api = "https://api.example.com";       // Then API_URL matched
+// 按长度排序（✅ 正确）：
+// const apiV2 = "https://api.example.com/v2";  // 先匹配 API_URL_V2
+// const api = "https://api.example.com";       // 然后匹配 API_URL
 ```
 
-The plugin automatically handles this by processing longer keys first, so you don't need to worry about the order in which you define replacements.
+插件会优先处理较长的键，因此无需关心定义替换项的顺序。
 
-### Word Boundaries
+### 单词边界
 
-By default, replacements only occur at word boundaries to prevent unintended substring replacements.
+默认情况下，替换只发生在单词边界，避免意外替换子字符串。
 
-**Example:**
+**示例：**
 
 ```js
-// Input code:
+// 输入代码：
 const currentEnv = env;
 const environment = getEnvironment();
 const config = process.env.NODE_ENV;
 
 replacePlugin({ env: '"production"' });
 
-// Output:
-// const currentEnv = "production";           ✅ 'env' as standalone word
-// const environment = getEnvironment();      ✅ 'env' is part of 'environment'
-// const config = process.env.NODE_ENV;       ✅ 'env' after '.' (property access)
+// 输出：
+// const currentEnv = "production";           ✅ 'env' 是独立单词
+// const environment = getEnvironment();      ✅ 'env' 是 'environment' 的一部分
+// const config = process.env.NODE_ENV;       ✅ 'env' 位于 '.' 后（属性访问）
 ```
 
-This behavior ensures that replacing `env` doesn't accidentally break `environment` or property accesses like `process.env`. You can customize this with the `delimiters` option if needed.
+此行为可确保替换 `env` 时不会意外破坏 `environment` 或 `process.env` 等属性访问。如有需要，可以使用 `delimiters` 选项自定义匹配方式。
 
-## Migration from @rollup/plugin-replace
+## 从 @rollup/plugin-replace 迁移
 
-### Feature Comparison
+### 功能对比
 
-| Feature         | @rollup/plugin-replace       | rolldown                        |
+| 功能            | @rollup/plugin-replace       | Rolldown                        |
 | --------------- | ---------------------------- | ------------------------------- |
 | API             | `replace({ values: {...} })` | `replacePlugin({...}, options)` |
-| Function values | ✅ `() => value`             | ❌ Static values only           |
-| File filtering  | ✅ include/exclude           | ❌ All files                    |
-| Performance     | JavaScript                   | Rust (faster)                   |
+| 函数值          | ✅ `() => value`             | ❌ 仅支持静态值                 |
+| 文件过滤        | ✅ include/exclude           | ❌ 所有文件                     |
+| 性能            | JavaScript                   | Rust（更快）                    |
 
-### Migration Example
+### 迁移示例
 
 ```js
-// Before (@rollup/plugin-replace)
+// 迁移前（@rollup/plugin-replace）
 replace({
   values: { __VERSION__: () => getVersion() },
   include: ['src/**/*.js'],
 });
 
-// After (rolldown)
+// 迁移后（Rolldown）
 replacePlugin({
   __VERSION__: JSON.stringify(getVersion()),
 });

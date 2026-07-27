@@ -1,0 +1,9 @@
+node_modules/
+.vitepress/cache/
+.vitepress/dist/
+public/og/
+
+# Local environment files
+.env
+.env.*
+!.env.example

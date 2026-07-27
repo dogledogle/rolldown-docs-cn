@@ -1,73 +1,73 @@
-# Contribution Guide
+# 贡献指南
 
-Contributions are always welcome, no matter how large or small! Here we summarize some general guidelines on how you can get involved in the Rolldown project.
+无论贡献大小，我们始终欢迎！本页汇总了参与 Rolldown 项目的一般准则。
 
-## Open development
+## 开放式开发
 
-All development happens directly on [GitHub](https://github.com/rolldown/rolldown). Both core team members and external contributors (via forks) send pull requests which go through the same review process.
+所有开发工作都直接在 [GitHub](https://github.com/rolldown/rolldown) 上进行。核心团队成员和外部贡献者（通过 fork）提交的 pull request 都会经过相同的审查流程。
 
-Outside of GitHub, we also use a [Discord server](https://chat.rolldown.rs) for real-time discussions.
+除 GitHub 外，我们还使用 [Discord 服务器](https://chat.rolldown.rs)进行实时讨论。
 
-## AI Usage Policy
+## AI 使用政策
 
-When using AI tools (including LLMs like ChatGPT, Claude, Copilot, etc.) to contribute to Rolldown:
+使用 AI 工具（包括 ChatGPT、Claude、Copilot 等 LLM）为 Rolldown 作贡献时：
 
-- **Please disclose AI usage** to reduce maintainer fatigue
-- **Discuss before you open a pull request when the change calls for it** — follow the same rules as [Submitting a pull request](#submitting-a-pull-request) below; if you're unsure which path applies, open an issue first
-- **You are responsible** for all AI-generated issues or PRs you submit
-- **Low-quality or unreviewed AI content will be closed immediately**
-- **Contributors who submit repeated low-quality ("slop") PRs will be banned without prior warning.** Bans may be lifted if you commit to contributing to Rolldown in accordance with this policy. You may request an unban via our [Discord](https://chat.rolldown.rs/).
+- **请披露 AI 的使用情况**，以减轻维护者的负担。
+- **如果变更需要事先讨论，请在发起 pull request 前讨论**。遵循下文[提交 pull request](#提交-pull-request) 的相同规则；如果不确定适用哪种方式，请先创建 issue。
+- 你需要对自己提交的所有 AI 生成 issue 或 PR **负责**。
+- **低质量或未经审查的 AI 内容会被立即关闭。**
+- **反复提交低质量（“slop”）PR 的贡献者会在不预先警告的情况下被封禁。**如果你承诺按照本政策为 Rolldown 作贡献，封禁可能被解除。可以通过我们的 [Discord](https://chat.rolldown.rs/) 申请解封。
 
-We encourage the use of AI tools to assist with development, but all contributions must be thoroughly reviewed and tested by the contributor before submission. AI-generated code should be understood, validated, and adapted to meet Rolldown's standards.
+我们鼓励使用 AI 工具辅助开发，但所有贡献在提交前都必须由贡献者充分审查和测试。对于 AI 生成的代码，贡献者必须理解并验证其内容，再进行调整以满足 Rolldown 的标准。
 
-## Reporting a bug
+## 报告 bug
 
-Please open a bug report on GitHub only after searching the existing issues and finding no match. Be as descriptive as possible, and include all applicable labels.
+请先搜索现有 issue，确认没有相同问题后再在 GitHub 上提交 bug 报告。描述应尽可能详尽，并添加所有适用标签。
 
-The best way to get your bug fixed is to include a minimal reproduction — a public repository with a runnable example, a usable code snippet, or a link to our [REPL](https://repl.rolldown.rs/) for a quick in-browser repro.
+提高 bug 修复概率的最佳方式是提供最小复现，例如包含可运行示例的公开仓库、可用的代码片段，或指向 [REPL](https://repl.rolldown.rs/) 的链接，以便在浏览器中快速复现。
 
-## Requesting new functionality
+## 请求新功能
 
-Before requesting new functionality, search the [open issues](https://github.com/rolldown/rolldown/issues) — someone may have requested it already. If not, open an issue with the title prefixed with `[request]`. Be as descriptive as possible, and include all applicable labels.
+请求新功能前，请搜索[开放的 issue](https://github.com/rolldown/rolldown/issues)，其他人可能已经提出过相同请求。如果没有，请创建标题以 `[request]` 开头的 issue。描述应尽可能详尽，并添加所有适用标签。
 
-## Submitting a pull request
+## 提交 pull request
 
-We welcome pull requests for bugs, fixes, improvements, and new features. Before you open one, please check which of the two paths below applies to your change: [send it directly](#send-a-pull-request-directly), or [discuss the approach first](#discuss-the-approach-first). Either way, be sure your build passes locally before you submit.
+我们欢迎针对 bug、修复、改进和新功能的 pull request。发起前，请判断变更适用于以下哪种方式：[直接提交](#直接提交-pull-request)，或[先讨论方案](#先讨论方案)。无论采用哪种方式，提交前都请确保构建能在本地通过。
 
-For setting up the project's development environment, see [Project Setup](../development-guide/setup-the-project.md).
+有关配置项目开发环境的说明，请参阅[配置项目](../development-guide/setup-the-project.md)。
 
 > [!NOTE]
-> Please read the [Etiquette](https://developer.mozilla.org/en-US/docs/MDN/Community/Open_source_etiquette) chapter before submitting a pull request.
+> 提交 pull request 前，请阅读[开源协作礼仪](https://developer.mozilla.org/en-US/docs/MDN/Community/Open_source_etiquette)一章。
 
-### Send a pull request directly
+### 直接提交 pull request
 
-No prior discussion is needed for changes whose correctness speaks for itself:
+对于正确性不言自明的变更，无需事先讨论：
 
-- Clear bug fixes where the expected behavior is unambiguous
-- Documentation, typo, and comment fixes
-- Tests for existing behavior
-- Small, self-contained internal cleanups with no user-facing change
+- 预期行为明确的 bug 修复。
+- 文档、拼写错误和注释修复。
+- 针对现有行为的测试。
+- 小型、独立且不影响用户的内部清理。
 
-If there's a related issue, link it in your pull request.
+如果存在相关 issue，请在 pull request 中添加链接。
 
-### Discuss the approach first
+### 先讨论方案
 
-For the changes below, please open or comment on an issue and reach agreement with the team **before** you start coding or open a pull request:
+对于以下变更，请在开始编码或发起 pull request **之前**创建或评论 issue，并与团队达成一致：
 
-- New features and new public APIs
-- Changes to existing public APIs or to default behavior
-- Fixes for an issue that doesn't yet have an agreed-upon approach in the thread
+- 新功能和新的公共 API。
+- 对现有公共 API 或默认行为的变更。
+- 修复尚未在 issue 讨论中就方案达成一致的问题。
 
-For these changes, the hard part is usually agreeing on the right direction, not writing the code. Talking it through first means your work goes into something we can merge, instead of stalling while the direction is still being worked out.
+对于这些变更，难点通常是就正确方向达成一致，而不是编写代码。提前充分讨论，可以确保你的工作能够被合并，避免因方向仍未确定而停滞。
 
-If you open a pull request in this category without that agreement, we may close it. **Closing it is not a rejection of your work, or of you as a contributor.** It only means the change needs to go through the discussion process first. If you want to drive it forward, share your thinking on the linked issue or in our [Discord](https://chat.rolldown.rs) — once there's agreement on the direction, the pull request is very welcome.
+如果未达成一致就为此类变更发起 pull request，我们可能会将其关闭。**关闭并不代表否定你的工作，也不是拒绝你这位贡献者。**它只表示该变更需要先经过讨论流程。如果希望继续推动，请在关联 issue 或我们的 [Discord](https://chat.rolldown.rs) 中分享你的想法；一旦就方向达成一致，我们非常欢迎再次提交 pull request。
 
-### Draft pull requests
+### 草稿 pull request
 
-If your pull request is still a work in progress, please open it as a [draft](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/changing-the-stage-of-a-pull-request) and only mark it **Ready for review** once you genuinely want the team to review it. Converting a PR to "Ready for review" notifies reviewers and code owners, so please hold off until your changes are complete and your build passes locally. This keeps maintainers' inboxes focused on PRs that actually need attention.
+如果 pull request 仍在开发中，请将其创建为[草稿](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/changing-the-stage-of-a-pull-request)，只有在确实希望团队审查时才标记为 **Ready for review**。将 PR 转为“Ready for review”会通知审阅者和代码所有者，因此请等到变更完成且构建在本地通过后再操作。这样维护者的收件箱便能集中处理真正需要关注的 PR。
 
-### Branch organization
+### 分支组织
 
-Submit all pull requests directly to the `main` branch. We only use separate branches for upcoming releases or breaking changes; otherwise, everything targets `main`.
+所有 pull request 都直接提交到 `main` 分支。我们只为即将发布的版本或破坏性变更使用单独分支，其他内容一律以 `main` 为目标。
 
-Code that lands in `main` must be compatible with the latest stable release. It may contain additional features, but no breaking changes. We should be able to release a new minor version from the tip of `main` at any time.
+进入 `main` 的代码必须兼容最新稳定版本。可以包含额外功能，但不能包含破坏性变更。我们应该能够随时从 `main` 顶端发布新的次版本。

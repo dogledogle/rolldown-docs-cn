@@ -1,44 +1,44 @@
-# Tracing/Logging
+# 追踪与日志
 
-Rolldown's codebase has a lot of [`tracing::debug!`] (or `tracing::trace!`) calls, which print out logging information at many points. These are very useful to at least narrow down the location of a bug if not to find it entirely, or just to orient yourself as to why the compiler is doing a particular thing.
+Rolldown 代码库中包含大量 [`tracing::debug!`]（或 `tracing::trace!`）调用，它们会在许多位置输出日志信息。即使不能直接找到 bug，这些日志也能帮助缩小问题范围，或帮助你理解编译器为何执行某项操作。
 
 [`tracing::debug!`]: https://docs.rs/tracing/0.1/tracing/macro.debug.html
 
-To see the logs, you need to set the `RD_LOG` environment variable to your log filter. The full syntax of the log filters can be found in the [rustdoc of `tracing-subscriber`](https://docs.rs/tracing-subscriber/0.2.24/tracing_subscriber/filter/struct.EnvFilter.html#directives).
+要查看日志，需要将 `RD_LOG` 环境变量设置为日志过滤器。日志过滤器的完整语法请参阅 [`tracing-subscriber` 的 rustdoc](https://docs.rs/tracing-subscriber/0.2.24/tracing_subscriber/filter/struct.EnvFilter.html#directives)。
 
-## Usages
+## 用法
 
 ```
 RD_LOG=debug [executing rolldown]
 RD_LOG=debug RD_LOG_OUTPUT=chrome-json [executing rolldown]
 ```
 
-`RD_LOG_OUTPUT=chrome-json` requires building with the `chrome-tracing` cargo feature, which is enabled for profile builds (`pnpm build-binding:profile`) but disabled in release builds to keep the shipped binary smaller. Without it, rolldown falls back to readable stdout output and prints a warning.
+`RD_LOG_OUTPUT=chrome-json` 要求构建时启用 `chrome-tracing` Cargo feature。性能分析构建（`pnpm build-binding:profile`）会启用该 feature，而 release 构建为了减小发布二进制文件的体积会将其禁用。如果没有启用，Rolldown 会回退到可读的标准输出，并打印警告。
 
-## Add logging
+## 添加日志
 
-It's fine to add `tracing::debug!` or `tracing::trace!` calls in your PRs. However, to avoid noise in the logs, you should be careful about choosing `tracing::debug!` or `tracing::trace!`.
+可以在 PR 中添加 `tracing::debug!` 或 `tracing::trace!` 调用。不过，为避免日志噪声，需要谨慎选择二者。
 
-There are some rules that help you to choose right logging level:
+以下规则有助于选择正确的日志级别：
 
-- If you don't know what level to choose, use `tracing::trace!`.
-- If the log message would only be printed once during the bundling, use `tracing::debug!`.
-- If the log message would only be printed once but the size of content is related to the scale of input during the bundling, use `tracing::trace!`.
-- If the log message would be printed multiple but limited times during the bundling, use `tracing::debug!`.
-- If the log message would be printed multiple times due to the scale of the input, use `tracing::trace!`.
+- 如果不知道该选择哪个级别，请使用 `tracing::trace!`。
+- 如果日志消息在一次打包中只会输出一次，请使用 `tracing::debug!`。
+- 如果日志消息只会输出一次，但内容大小与打包输入规模有关，请使用 `tracing::trace!`。
+- 如果日志消息在一次打包中会输出多次，但次数有限，请使用 `tracing::debug!`。
+- 如果日志消息的输出次数会随输入规模增长，请使用 `tracing::trace!`。
 
-These rules also apply to the `#[tracing::instrument]` attribute.
+这些规则也适用于 `#[tracing::instrument]` 属性。
 
-- If the function is called only once during the bundling, use `#[tracing::instrument(level = "debug", skip_all)]`.
-- If the function is called multiple times due to the scale of the input, use `#[tracing::instrument(level = "trace", skip_all]`.
+- 如果函数在一次打包中只调用一次，请使用 `#[tracing::instrument(level = "debug", skip_all)]`。
+- 如果函数的调用次数会随输入规模增长，请使用 `#[tracing::instrument(level = "trace", skip_all]`。
 
 ::: info
-What information should be traced could be opinionated, so the reviewer will decide whether to let you leave tracing statements in or whether to ask you to remove them before merging.
+应该追踪哪些信息带有一定主观性，因此审阅者会决定是否保留追踪语句，或要求在合并前将其移除。
 :::
 
-## Function level filters
+## 函数级过滤器
 
-Lots of functions in rolldown are annotated with
+Rolldown 中的许多函数带有以下注解：
 
 ```
 #[instrument(level = "debug", skip(self))]
@@ -48,31 +48,31 @@ fn foo(&self, bar: Type) {}
 fn baz(&self, bar: Type) {}
 ```
 
-which allows you to use
+因此可以使用：
 
 ```
 RUSTC_LOG=[foo]
 ```
 
-to do the following all at once
+一次完成以下操作：
 
-- log all function calls to `foo`
-- log the arguments (except for those in the `skip` list)
-- log everything (from anywhere else in the compiler) until the function returns
+- 记录对 `foo` 的所有函数调用。
+- 记录参数（`skip` 列表中的参数除外）。
+- 在函数返回前，记录编译器其他位置产生的所有内容。
 
-Notices:
+注意：
 
-We generally recommend using `skip_all` unless you have a good reason to use logging for the arguments.
+通常建议使用 `skip_all`，除非确实有充分理由记录参数。
 
-## Trace Module Resolution
+## 追踪模块解析
 
-Rolldown uses [oxc-resolver](https://github.com/oxc-project/oxc-resolver), which exposes trace information for debugging purposes.
+Rolldown 使用 [oxc-resolver](https://github.com/oxc-project/oxc-resolver)，后者会公开用于调试的追踪信息。
 
 ```bash
 RD_LOG='oxc_resolver' rolldown
 ```
 
-This emits trace information for the `oxc_resolver::resolve` function, e.g.
+该命令会输出 `oxc_resolver::resolve` 函数的追踪信息，例如：
 
 ```
 2024-06-11T07:12:20.003537Z DEBUG oxc_resolver: options: ResolveOptions { ... }, path: "...", specifier: "...", ret: "..."
@@ -80,4 +80,4 @@ This emits trace information for the `oxc_resolver::resolve` function, e.g.
     in oxc_resolver::resolve with path: "...", specifier: "..."
 ```
 
-The input values are `options`, `path` and `specifier`, the returned value is `ret`.
+输入值为 `options`、`path` 和 `specifier`，返回值为 `ret`。

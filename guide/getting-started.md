@@ -1,12 +1,12 @@
-# Getting Started
+# 快速开始
 
-:::tip Looking for specific use cases?
-For most applications, using [Rolldown through Vite](https://vite.dev/guide/rolldown.html#how-to-try-rolldown) is the recommended approach, as it provides a complete development experience with dev server, HMR, and optimized production builds.
+::: tip 在寻找特定用例的方案？
+对于大多数应用，推荐[通过 Vite 使用 Rolldown](https://vite.dev/guide/rolldown.html#how-to-try-rolldown)，因为 Vite 提供了完整的开发体验，包括开发服务器、HMR 和经过优化的生产构建。
 
-For library bundling, check out [tsdown](https://tsdown.dev/).
+如果需要打包库，请查看 [tsdown](https://tsdown.dev/)。
 :::
 
-## Installation
+## 安装
 
 ::: code-group
 
@@ -32,9 +32,9 @@ $ bun add -D rolldown
 
 :::
 
-::: details Using a minor platform (CPU architecture, OS) ?
+::: details 使用小众平台（CPU 架构、操作系统）？
 
-Prebuilt binaries are distributed for the following platforms (grouped by [Node.js v24 platform support tier](https://github.com/nodejs/node/blob/v24.x/BUILDING.md#platform-list)):
+项目为以下平台分发预构建二进制文件（按照 [Node.js v24 平台支持等级](https://github.com/nodejs/node/blob/v24.x/BUILDING.md#platform-list)分组）：
 
 - Tier 1
   - Linux x64 glibc (`x86_64-unknown-linux-gnu`)
@@ -46,22 +46,22 @@ Prebuilt binaries are distributed for the following platforms (grouped by [Node.
   - Windows arm64 (`aarch64-pc-windows-msvc`)
   - Linux s390x glibc (`s390x-unknown-linux-gnu`)
   - Linux ppc64le glibc (`powerpc64le-unknown-linux-gnu`)
-- Experimental
+- 实验性支持
   - Linux x64 musl (`x86_64-unknown-linux-musl`)
   - Linux armv7 (`armv7-unknown-linux-gnueabihf`)
   - FreeBSD x64 (`x86_64-unknown-freebsd`)
   - OpenHarmony arm64 (`aarch64-unknown-linux-ohos`)
-- Other
+- 其他
   - Linux arm64 musl (`aarch64-unknown-linux-musl`)
   - Android arm64 (`aarch64-linux-android`)
   - Wasm + Wasi (`wasm32-wasip1-threads`)
 
-If you are using a platform that a prebuilt binary is not distributed, you have the following options:
+如果你使用的平台没有预构建二进制文件，可以选择以下方案：
 
-- Use the Wasm build
-  1. Download the Wasm build.
-     - For npm, you can run `npm install --cpu wasm32 --os wasip1-threads`.
-     - For yarn or pnpm, you need to add the following content to your `.yarnrc.yaml` or `pnpm-workspace.yaml`:
+- 使用 Wasm 构建
+  1. 下载 Wasm 构建。
+     - 使用 npm 时，可以运行 `npm install --cpu wasm32 --os wasip1-threads`。
+     - 使用 Yarn 或 pnpm 时，需要将以下内容添加到 `.yarnrc.yaml` 或 `pnpm-workspace.yaml`：
        ```yaml
        supportedArchitectures:
          os:
@@ -69,39 +69,39 @@ If you are using a platform that a prebuilt binary is not distributed, you have 
          cpu:
            - wasm32
        ```
-  2. Make Rolldown load the Wasm build.
-     - If the prebuilt binary is not available, Rolldown will fallback to the Wasm binary automatically.
-     - In case you need to force Rolldown to use the Wasm build, you can set `NAPI_RS_FORCE_WASI=error` environment variable.
-- Build from source
-  1. Clone the repository.
-  2. Setup the project by following [the setup instructions](/development-guide/setup-the-project).
-  3. Build the project by following [the build instructions](/development-guide/building-and-running).
-  4. Set the `NAPI_RS_NATIVE_LIBRARY_PATH` environment variable to the path of `packages/rolldown` in the cloned repository.
+  2. 让 Rolldown 加载 Wasm 构建。
+     - 如果预构建二进制文件不可用，Rolldown 会自动回退到 Wasm 二进制文件。
+     - 如果需要强制 Rolldown 使用 Wasm 构建，可以设置环境变量 `NAPI_RS_FORCE_WASI=error`。
+- 从源代码构建
+  1. 克隆仓库。
+  2. 按照[项目配置说明](/development-guide/setup-the-project)配置项目。
+  3. 按照[构建说明](/development-guide/building-and-running)构建项目。
+  4. 将环境变量 `NAPI_RS_NATIVE_LIBRARY_PATH` 设置为所克隆仓库中 `packages/rolldown` 的路径。
 
 :::
 
-### Release Channels
+### 发布渠道
 
-- [latest](https://npmx.dev/package/rolldown#versions): currently `1.x.x`.
-- [pkg.pr.new](https://pkg.pr.new/~/rolldown/rolldown): continuously released from the `main` branch. Install with `npm i https://pkg.pr.new/rolldown@sha` where `sha` is a successful build listed on [pkg.pr.new](https://pkg.pr.new/~/rolldown/rolldown).
+- [latest](https://npmx.dev/package/rolldown#versions)：目前为 `1.x.x`。
+- [pkg.pr.new](https://pkg.pr.new/~/rolldown/rolldown)：从 `main` 分支持续发布。使用 `npm i https://pkg.pr.new/rolldown@sha` 安装，其中 `sha` 是 [pkg.pr.new](https://pkg.pr.new/~/rolldown/rolldown) 上列出的成功构建。
 
-## Using the CLI
+## 使用 CLI
 
-To verify Rolldown is installed correctly, run the following in the directory where you installed it:
+要验证 Rolldown 是否正确安装，请在安装目录中运行：
 
 ```sh
 $ ./node_modules/.bin/rolldown --version
 ```
 
-You can also check out the CLI options and examples with:
+你还可以通过以下命令查看 CLI 选项和示例：
 
 ```sh
 $ ./node_modules/.bin/rolldown --help
 ```
 
-### Your first bundle
+### 第一次打包
 
-Let's create two source JavaScript files:
+先创建两个 JavaScript 源文件：
 
 ```js [src/main.js]
 import { hello } from './hello.js';
@@ -115,23 +115,23 @@ export function hello() {
 }
 ```
 
-Then run the following in the command line:
+然后在命令行中运行：
 
 ```sh
 $ ./node_modules/.bin/rolldown src/main.js --file bundle.js
 ```
 
-You should see the content written to `bundle.js` in your current directory. Let's run it to verify it's working:
+此时应该会看到内容被写入当前目录的 `bundle.js`。运行它以验证结果：
 
 ```sh
 $ node bundle.js
 ```
 
-You should see `Hello Rolldown!` printed.
+终端中应该会输出 `Hello Rolldown!`。
 
-### Adding a package.json build script
+### 添加 package.json 构建脚本
 
-To avoid typing the long command, we can move it inside a `package.json` script:
+为避免每次输入很长的命令，可以将它放入 `package.json` 脚本：
 
 ```json{5} [package.json]
 {
@@ -146,7 +146,7 @@ To avoid typing the long command, we can move it inside a `package.json` script:
 }
 ```
 
-Now we can run the build with just:
+现在，只需运行以下命令即可构建：
 
 ::: code-group
 
@@ -172,9 +172,9 @@ $ bun run build
 
 :::
 
-## Using the Config File
+## 使用配置文件
 
-When more options are needed, it is recommended to use a config file for more flexibility. A config file can be written in `.js`, `.cjs`, `.mjs`, `.ts`, `.mts`, or `.cts` formats. Let's create the following config file:
+需要更多选项时，建议使用配置文件以获得更大灵活性。配置文件可以采用 `.js`、`.cjs`、`.mjs`、`.ts`、`.mts` 或 `.cts` 格式。创建如下配置文件：
 
 ```js [rolldown.config.js]
 import { defineConfig } from 'rolldown';
@@ -187,11 +187,11 @@ export default defineConfig({
 });
 ```
 
-Rolldown supports most of the [Rollup config options](https://rollupjs.org/configuration-options), with some [notable additional features](./notable-features). See the [reference](/reference/) for the full list of options.
+Rolldown 支持大多数 [Rollup 配置选项](https://rollupjs.org/configuration-options)，同时还提供一些[值得关注的额外功能](./notable-features)。完整的选项列表请参阅[官方 API 参考（英文）](https://rolldown.rs/reference/)。
 
-While exporting a plain object also works, it is recommended to utilize the [`defineConfig`](/reference/Function.defineConfig) helper method to get options intellisense and auto-completion. This helper is provided purely for the types and returns the options as-is.
+虽然直接导出普通对象也能工作，但建议使用 [`defineConfig`](https://rolldown.rs/reference/Function.defineConfig) 辅助函数，以获得选项类型提示和自动补全。该辅助函数仅用于提供类型，会原样返回传入的选项。
 
-Next, in the npm script, we can instruct Rolldown to use the config file with the `--config` CLI option (`-c` for short):
+接下来，可以在 npm 脚本中使用 `--config` CLI 选项（简写为 `-c`），让 Rolldown 使用配置文件：
 
 ```json{5} [package.json]
 {
@@ -206,9 +206,9 @@ Next, in the npm script, we can instruct Rolldown to use the config file with th
 }
 ```
 
-### Multiple builds in the same config
+### 在同一配置中执行多次构建
 
-You can also specify multiple configurations as an array, and Rolldown will bundle them in parallel.
+也可以通过数组指定多份配置，Rolldown 会并行执行这些打包任务。
 
 ```js [rolldown.config.js]
 import { defineConfig } from 'rolldown';
@@ -230,48 +230,48 @@ export default defineConfig([
 ]);
 ```
 
-## Using Plugins
+## 使用插件
 
-Rolldown's plugin API is identical to that of Rollup's, so you can reuse most of the existing Rollup plugins when using Rolldown. That said, Rolldown provides many [built-in features](./notable-features) that make it unnecessary to use plugins.
+Rolldown 的插件 API 与 Rollup 相同，因此使用 Rolldown 时可以复用大多数现有 Rollup 插件。不过，Rolldown 提供了许多[内置功能](./notable-features)，很多场景不再需要插件。
 
-Also Rolldown provides some builtin plugins that can be used for some use cases. See [Builtin Plugins](/builtin-plugins/) for more information.
+Rolldown 还针对部分用例提供了内置插件。更多信息请参阅[内置插件](/builtin-plugins/)。
 
-Community plugins that are published to npm are listed in [Vite Plugin Registry](https://registry.vite.dev/plugins).
+发布到 npm 的社区插件可以在 [Vite 插件目录](https://registry.vite.dev/plugins)中查找。
 
-## Using the API
+## 使用 API
 
-Rolldown provides a JavaScript API that is compatible with [Rollup's](https://rollupjs.org/javascript-api/), which separates `input` and `output` options:
+Rolldown 提供了兼容 [Rollup](https://rollupjs.org/javascript-api/) 的 JavaScript API，将 `input` 和 `output` 选项分开处理：
 
 ```js
 import { rolldown } from 'rolldown';
 
 const bundle = await rolldown({
-  // input options
+  // 输入选项
   input: 'src/main.js',
 });
 
-// generate bundles in memory with different output options
+// 使用不同的输出选项，在内存中生成打包产物
 await bundle.generate({
-  // output options
+  // 输出选项
   format: 'esm',
 });
 await bundle.generate({
-  // output options
+  // 输出选项
   format: 'cjs',
 });
 
-// or directly write to disk
+// 或者直接写入磁盘
 await bundle.write({
   file: 'bundle.js',
 });
 ```
 
-Alternatively, you can also use the more concise `build` API, which accepts the exact same options as the config file export:
+你也可以使用更简洁的 `build` API，它接受的选项与配置文件导出的选项完全相同：
 
 ```js
 import { build } from 'rolldown';
 
-// build writes to disk by default
+// build 默认写入磁盘
 await build({
   input: 'src/main.js',
   output: {
@@ -280,16 +280,16 @@ await build({
 });
 ```
 
-## Using the Watcher
+## 使用监听器
 
-The rolldown watcher api is compatible with rollup [watch](https://rollupjs.org/javascript-api/#rollup-watch).
+Rolldown 的监听器 API 与 Rollup 的 [`watch`](https://rollupjs.org/javascript-api/#rollup-watch) 兼容。
 
 ```js
 import { watch } from 'rolldown';
 
-const watcher = watch({/* option */}); // or watch([/* multiple option */] )
+const watcher = watch({/* 选项 */}); // 或 watch([/* 多组选项 */] )
 
 watcher.on('event', () => {});
 
-await watcher.close(); // This is different than rollup: rolldown returns a promise here.
+await watcher.close(); // 与 Rollup 不同：Rolldown 在这里返回 Promise。
 ```

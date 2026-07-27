@@ -1,140 +1,140 @@
-# Native MagicString
+# 原生 MagicString
 
-## Overview
+## 概述
 
-`experimental.nativeMagicString` is an optimization feature that replaces the JavaScript-based MagicString implementation with a native Rust version, enabling source map generation in background threads for improving performance.
+`experimental.nativeMagicString` 是一项优化功能，它使用原生 Rust 版本替代基于 JavaScript 的 MagicString 实现，让 source map 可以在后台线程中生成，从而提升性能。
 
-## What is MagicString?
+## 什么是 MagicString？
 
-MagicString is a JavaScript library developed by Rich Harris (the creator of Rollup and Svelte) that provides efficient string manipulation with automatic source map generation. It's commonly used by bundlers and build tools for:
+MagicString 是由 Rich Harris（Rollup 和 Svelte 的创造者）开发的 JavaScript 库。它可以高效地操作字符串，并自动生成 source map。打包器和构建工具通常会将其用于：
 
-- Code transformation in plugins
-- Source map generation
-- Precise line/column tracking
-- Efficient string operations (replace, prepend, append, etc.)
+- 在插件中转换代码
+- 生成 source map
+- 精确跟踪行和列
+- 高效执行字符串操作（替换、前置、追加等）
 
-## The JavaScript Implementation vs Native Rust
+## JavaScript 实现与原生 Rust 实现
 
-### Traditional JavaScript MagicString
+### 传统的 JavaScript MagicString
 
-The original MagicString implementation is written in JavaScript and runs in the Node.js environment. When bundlers perform code transformations, they typically:
+原始 MagicString 实现使用 JavaScript 编写并在 Node.js 环境中运行。打包器执行代码转换时，通常会：
 
-1. Load source code as JavaScript strings
-2. Apply transformations using MagicString API
-3. Generate source maps for the transformed code
-4. Process everything in the main JavaScript thread
+1. 将源代码加载为 JavaScript 字符串
+2. 使用 MagicString API 应用转换
+3. 为转换后的代码生成 source map
+4. 在 JavaScript 主线程中完成所有处理
 
-### Native Rust Implementation
+### 原生 Rust 实现
 
-Rolldown's native MagicString implementation rewrites the core functionality in Rust, providing several advantages:
+Rolldown 的原生 MagicString 实现使用 Rust 重写核心功能，带来了多项优势：
 
-- **Performance**: Rust's memory safety and zero-cost abstractions make string operations faster
-- **Parallel Processing**: Source map generation can happen in background threads
-- **Memory Efficiency**: Better memory management for large codebases
-- **Integration**: Seamless integration with Rolldown's Rust-based architecture
+- **性能**：Rust 的内存安全与零成本抽象让字符串操作更快
+- **并行处理**：可以在后台线程中生成 source map
+- **内存效率**：能够更好地管理大型代码库所需的内存
+- **集成**：与 Rolldown 基于 Rust 的架构无缝集成
 
-## How It Works
+## 工作原理
 
-When `experimental.nativeMagicString` is enabled, Rolldown modifies the transformation pipeline. The diagrams below show the architectural differences:
+启用 `experimental.nativeMagicString` 后，Rolldown 会调整转换流水线。下图展示了两种架构之间的区别：
 
 :::info
-Some technical details are simplified for better illustration. The native MagicString implementation provides a `magicString` object in the `meta` parameter of transform hooks, which plugins can use just like the JavaScript version.
+为了便于理解，图中简化了部分技术细节。原生 MagicString 实现会通过转换钩子的 `meta` 参数提供一个 `magicString` 对象，插件可以像使用 JavaScript 版本一样使用它。
 :::
 
-### Without Native MagicString
+### 不使用原生 MagicString
 
 <img width="3426" height="1699" alt="js-magic-string" src="https://github.com/user-attachments/assets/c9e81f8a-fad0-4f99-99c4-c71c67b8912e" style="background: white;" />
 
-(Correction in the image: "rolldown without js magic-string" should be "rolldown without native magic-string")
+（图中勘误："rolldown without js magic-string" 应为 "rolldown without native magic-string"）
 
-### With Native MagicString
+### 使用原生 MagicString
 
 <img width="3343" height="1659" alt="native-magic-string" src="https://github.com/user-attachments/assets/71ca5d7b-9b40-46ce-86dd-bfa4bdd73f4b" style="background: white;" />
 
-**Key Difference**: The native implementation is written in Rust, providing both Rust's performance advantages and background thread source map generation. Offloading to background threads improves overall CPU usage and enables significant performance improvements.
+**关键区别**：原生实现使用 Rust 编写，既具备 Rust 的性能优势，又能在后台线程中生成 source map。将任务转移到后台线程可以提高 CPU 的整体利用率，并带来显著的性能提升。
 
-## API Compatibility
+## API 兼容性
 
-The native implementation maintains API compatibility with the JavaScript version. The most commonly used APIs are already implemented, with the remaining APIs planned for completion in future releases.
+原生实现保持了与 JavaScript 版本的 API 兼容性。目前已经实现了最常用的 API，其余 API 计划在未来版本中逐步补齐。
 
-### Implemented Methods
+### 已实现的方法
 
-The following MagicString methods are currently available in the native implementation:
+原生实现目前提供以下 MagicString 方法：
 
-**String Manipulation:**
+**字符串操作：**
 
-- `append(content)` - Appends content to the end of the string
-- `prepend(content)` - Prepends content to the beginning of the string
-- `appendLeft(index, content)` - Appends content to the left of a specific index
-- `appendRight(index, content)` - Appends content to the right of a specific index
-- `prependLeft(index, content)` - Prepends content to the left of a specific index
-- `prependRight(index, content)` - Prepends content to the right of a specific index
-- `overwrite(start, end, content)` - Replaces content in a range
-- `update(start, end, content)` - Updates content in a range
-- `remove(start, end)` - Removes content in a range
-- `replace(from, to)` - Replaces the first occurrence of a pattern
-- `replaceAll(from, to)` - Replaces all occurrences of a pattern
+- `append(content)` - 在字符串末尾追加内容
+- `prepend(content)` - 在字符串开头添加内容
+- `appendLeft(index, content)` - 在指定索引的左侧追加内容
+- `appendRight(index, content)` - 在指定索引的右侧追加内容
+- `prependLeft(index, content)` - 在指定索引的左侧添加内容
+- `prependRight(index, content)` - 在指定索引的右侧添加内容
+- `overwrite(start, end, content)` - 替换某个范围内的内容
+- `update(start, end, content)` - 更新某个范围内的内容
+- `remove(start, end)` - 删除某个范围内的内容
+- `replace(from, to)` - 替换模式的第一次匹配
+- `replaceAll(from, to)` - 替换模式的所有匹配
 
-**Transformations:**
+**转换：**
 
-- `indent(indentor?)` - Indents the content with optional custom indentation string
-- `relocate(start, end, to)` - Moves content from one position to another
+- `indent(indentor?)` - 缩进内容，可以指定自定义缩进字符串
+- `relocate(start, end, to)` - 将内容从一个位置移动到另一个位置
 
-**Utilities:**
+**实用方法：**
 
-- `toString()` - Returns the transformed string
-- `hasChanged()` - Checks if the string has been modified
-- `length()` - Returns the length of the transformed string
-- `isEmpty()` - Checks if the string is empty
-- `clone()` - Returns a clone of the MagicString instance
-- `trim(charType?)` - Trims whitespace or specified characters from both ends
-- `trimStart(charType?)` - Trims whitespace or specified characters from the start
-- `trimEnd(charType?)` - Trims whitespace or specified characters from the end
-- `trimLines()` - Trims newlines from both ends
-- `snip(start, end)` - Returns a clone with content outside the range removed
-- `slice(start?, end?)` - Returns content between positions
-- `reset(start, end)` - Resets a range to its original content
-- `lastChar()` - Returns the last character
-- `lastLine()` - Returns the content after the last newline
+- `toString()` - 返回转换后的字符串
+- `hasChanged()` - 检查字符串是否已被修改
+- `length()` - 返回转换后字符串的长度
+- `isEmpty()` - 检查字符串是否为空
+- `clone()` - 返回 MagicString 实例的副本
+- `trim(charType?)` - 移除两端的空白或指定字符
+- `trimStart(charType?)` - 移除开头的空白或指定字符
+- `trimEnd(charType?)` - 移除末尾的空白或指定字符
+- `trimLines()` - 移除两端的换行符
+- `snip(start, end)` - 返回一个移除了指定范围外内容的副本
+- `slice(start?, end?)` - 返回两个位置之间的内容
+- `reset(start, end)` - 将某个范围恢复为原始内容
+- `lastChar()` - 返回最后一个字符
+- `lastLine()` - 返回最后一个换行符之后的内容
 
-**Source Map Generation:**
+**生成 source map：**
 
-- `generateMap(options?)` - Generates a source map as a JSON string
-  - `options.source` - Source file name
-  - `options.includeContent` - Include original source in the map
-  - `options.hires` - High-resolution mode: `true`, `false`, or `"boundary"`
+- `generateMap(options?)` - 以 JSON 字符串形式生成 source map
+  - `options.source` - 源文件名
+  - `options.includeContent` - 是否在映射中包含原始源代码
+  - `options.hires` - 高分辨率模式：`true`、`false` 或 `"boundary"`
 
-### Not Yet Implemented
+### 尚未实现
 
-The following features are planned for future releases:
+以下功能计划在未来版本中实现：
 
-- `generateDecodedMap()` - Generate source map with decoded mappings
+- `generateDecodedMap()` - 生成包含已解码映射的 source map
 
-## Real-World Performance
+## 实际性能
 
-use [rolldown/benchmarks](https://github.com/rolldown/benchmarks/) as benchmark cases
+使用 [rolldown/benchmarks](https://github.com/rolldown/benchmarks/) 作为基准测试用例。
 
-### Build time
+### 构建时间
 
-| Runs       | oxc raw transfer + js magicString | oxc raw transfer + native magicString | Time Saved | Speedup |
-| ---------- | --------------------------------- | ------------------------------------- | ---------- | ------- |
-| apps/1000  | 497.6 ms                          | 431.1 ms                              | 66.5 ms    | 1.15x   |
-| apps/5000  | 1.100 s                           | 894.5 ms                              | 205.5 ms   | 1.23x   |
-| apps/10000 | 1.814 s                           | 1.368 s                               | 446.0 ms   | 1.33x   |
+| 运行规模   | oxc 原始转换 + js magicString | oxc 原始转换 + native magicString | 节省时间 | 加速比 |
+| ---------- | ----------------------------- | --------------------------------- | -------- | ------ |
+| apps/1000  | 497.6 ms                      | 431.1 ms                          | 66.5 ms  | 1.15x  |
+| apps/5000  | 1.100 s                       | 894.5 ms                          | 205.5 ms | 1.23x  |
+| apps/10000 | 1.814 s                       | 1.368 s                           | 446.0 ms | 1.33x  |
 
-### Plugin transform time (build time - noop plugin build time)
+### 插件转换时间（构建时间减去 noop 插件的构建时间）
 
-| Runs  | Transform Time (oxc raw transfer + js magicString) | Transform Time (oxc raw transfer + native magicString) | Time Saved | Speedup |
-| ----- | -------------------------------------------------- | ------------------------------------------------------ | ---------- | ------- |
-| 1000  | 172.0 ms                                           | 105.5 ms                                               | 66.5 ms    | 1.63x   |
-| 5000  | 455.4 ms                                           | 249.9 ms                                               | 205.5 ms   | 1.82x   |
-| 10000 | 799.0 ms                                           | 353.0 ms                                               | 446.0 ms   | 2.26x   |
+| 运行规模 | 转换时间（oxc 原始转换 + js magicString） | 转换时间（oxc 原始转换 + native magicString） | 节省时间 | 加速比 |
+| -------- | ---------------------------------------- | -------------------------------------------- | -------- | ------ |
+| 1000     | 172.0 ms                                 | 105.5 ms                                     | 66.5 ms  | 1.63x  |
+| 5000     | 455.4 ms                                 | 249.9 ms                                     | 205.5 ms | 1.82x  |
+| 10000    | 799.0 ms                                 | 353.0 ms                                     | 446.0 ms | 2.26x  |
 
-For detailed benchmark results, see the [benchmark pull request](https://github.com/rolldown/benchmarks/pull/9/files).
+详细的基准测试结果请参阅[基准测试拉取请求](https://github.com/rolldown/benchmarks/pull/9/files)。
 
-## Usage Examples
+## 使用示例
 
-### Basic Plugin with Native MagicString
+### 在基础插件中使用原生 MagicString
 
 ```js [rolldown.config.js]
 import { defineConfig } from 'rolldown';
@@ -151,18 +151,18 @@ export default defineConfig({
       name: 'transform-example',
       transform(code, id, meta) {
         if (!meta?.magicString) {
-          // Fallback when nativeMagicString is not available
+          // nativeMagicString 不可用时回退
           return null;
         }
 
         const { magicString } = meta;
 
-        // Example transformation: Add debug comments
+        // 转换示例：添加调试注释
         if (code.includes('console.log')) {
           magicString.replace(/console\.log\(/g, 'console.log("[DEBUG]", ');
         }
 
-        // Example: Add file header
+        // 示例：添加文件头
         magicString.prepend(`// Transformed from: ${id}\n`);
 
         return {
@@ -174,28 +174,28 @@ export default defineConfig({
 });
 ```
 
-## Compatibility and Fallbacks
+## 兼容性与回退方案
 
-### Checking for Native MagicString Availability
+### 检查原生 MagicString 是否可用
 
 ```javascript [rolldown.config.js]
 transform(code, id, meta) {
   if (meta?.magicString) {
-    // Native MagicString is available
+    // 原生 MagicString 可用
     const { magicString } = meta;
 
-    // Use the native implementation
-    // Note: Return the magicString object directly, not a string
+    // 使用原生实现
+    // 注意：直接返回 magicString 对象，而不是字符串
     return {
       code: magicString
     };
   } else {
-    // Fallback to regular string manipulation
-    // or use the JavaScript MagicString library
+    // 回退到常规字符串操作
+    // 或使用 JavaScript MagicString 库
     const MagicString = require('magic-string');
     const ms = new MagicString(code);
 
-    // Your transformations here...
+    // 在这里执行转换……
 
     return {
       code: ms.toString(),
@@ -205,51 +205,51 @@ transform(code, id, meta) {
 }
 ```
 
-### Rollup Compatibility
+### Rollup 兼容性
 
-This feature is Rolldown-specific and not available in Rollup. For plugins that need to work with both bundlers:
+此功能为 Rolldown 专用，Rollup 并不提供。对于需要同时支持两种打包器的插件：
 
 ```javascript [plugin.js]
 function createTransform() {
   return function (code, id, meta) {
     if (meta?.magicString) {
-      // Rolldown with native MagicString
+      // 使用原生 MagicString 的 Rolldown
       return transformWithNativeMagicString(code, id, meta);
     } else {
-      // Rollup or Rolldown without native MagicString
+      // Rollup，或未使用原生 MagicString 的 Rolldown
       return transformWithJsMagicString(code, id);
     }
   };
 }
 ```
 
-::: tip
+::: tip 提示
 
-You can use [`rolldown-string`](https://github.com/sxzz/rolldown-string), which provides a unified interface that works with both bundlers.
+你可以使用 [`rolldown-string`](https://github.com/sxzz/rolldown-string)，它提供了一个适用于两种打包器的统一接口。
 
 :::
 
-## When to Use Native MagicString
+## 何时使用原生 MagicString
 
-### Recommended Scenarios
+### 推荐场景
 
-1. **Large Codebases**: Projects with hundreds or thousands of files
-2. **Complex Transformations**: Plugins that perform extensive code manipulation
-3. **Source Map Intensive**: Projects requiring detailed source maps
-4. **Performance-Critical**: Build processes where speed is crucial
-5. **Development Mode**: Faster rebuild times during development
+1. **大型代码库**：包含数百或数千个文件的项目
+2. **复杂转换**：执行大量代码操作的插件
+3. **大量使用 source map**：需要详细 source map 的项目
+4. **性能敏感**：构建速度至关重要的流程
+5. **开发模式**：在开发过程中缩短重新构建时间
 
-### When to Be Cautious
+### 需要谨慎的场景
 
-1. **Experimental Feature**: As an experimental feature, API may change
-2. **Plugin Compatibility**: Some plugins may expect specific JavaScript MagicString behavior
-3. **Debugging**: Native implementation may have different error messages
+1. **实验性功能**：作为实验性功能，其 API 可能发生变化
+2. **插件兼容性**：部分插件可能依赖 JavaScript MagicString 的特定行为
+3. **调试**：原生实现可能会产生不同的错误消息
 
-## Migration Guide
+## 迁移指南
 
-### Enabling Native MagicString
+### 启用原生 MagicString
 
-1. **Update Configuration**:
+1. **更新配置：**
 
 ```javascript [rolldown.config.js]
 export default {
@@ -257,49 +257,49 @@ export default {
     nativeMagicString: true,
   },
   output: {
-    sourcemap: true, // Required for source map generation
+    sourcemap: true, // 生成 source map 时必需
   },
 };
 ```
 
-2. **Update Plugins**:
+2. **更新插件：**
 
 ```javascript [rolldown.config.js]
-// Before
+// 之前
 transform(code, id) {
   const ms = new MagicString(code);
-  // ... transformations
+  // ……转换操作
   return { code: ms.toString(), map: ms.generateMap() };
 }
 
-// After
+// 之后
 transform(code, id, meta) {
   if (meta?.magicString) {
     const { magicString } = meta;
-    // ... transformations (same API)
+    // ……转换操作（使用相同的 API）
     return { code: magicString };
   }
-  // Fallback logic
+  // 回退逻辑
 }
 ```
 
-## Limitations and Considerations
+## 限制与注意事项
 
-### Current Limitations
+### 当前限制
 
-1. **Experimental Status**: API may change in future versions
-2. **Edge Cases**: Some edge cases may behave differently from JavaScript version
-3. **Debugging**: Error messages may be less familiar
+1. **实验性状态**：API 可能在未来版本中发生变化
+2. **边缘情况**：部分边缘情况的行为可能与 JavaScript 版本不同
+3. **调试**：错误消息可能不太熟悉
 
-### Best Practices
+### 最佳实践
 
-1. **Always Check Availability**: Verify `meta?.magicString` exists before using
-2. **Provide Fallbacks**: Include fallback logic for compatibility
-3. **Test Thoroughly**: Test transformations with both implementations
-4. **Report Issues**: Report any behavior differences to the Rolldown team
+1. **始终检查是否可用**：使用前确认 `meta?.magicString` 存在
+2. **提供回退方案**：加入回退逻辑以保证兼容性
+3. **充分测试**：使用两种实现测试转换逻辑
+4. **报告问题**：向 Rolldown 团队报告任何行为差异
 
-## Conclusion
+## 总结
 
-`experimental.nativeMagicString` represents a significant performance optimization for Rolldown by leveraging Rust's efficiency for code transformation tasks. While it requires some considerations for compatibility, the performance benefits make it an attractive option for large-scale projects and performance-critical build processes.
+`experimental.nativeMagicString` 利用 Rust 在代码转换任务中的效率，为 Rolldown 带来了显著的性能优化。尽管使用时需要考虑兼容性，但它所带来的性能收益使其非常适合大型项目和性能敏感的构建流程。
 
-As an experimental feature, it's recommended to test thoroughly in development environments before adopting in production workflows. The Rolldown team is actively working on this feature, and feedback from the community is valuable for its continued development.
+作为一项实验性功能，建议在生产工作流中采用之前，先在开发环境中进行充分测试。Rolldown 团队正在积极开发此功能，社区反馈对其持续改进非常宝贵。

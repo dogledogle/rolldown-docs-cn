@@ -1,12 +1,12 @@
-import { readFileSync } from 'node:fs';
-import path from 'node:path';
+import { createRequire } from 'node:module';
 
-const nodeVersion = readFileSync(path.join(__dirname, '../../.node-version'), 'utf8').trim();
+const require = createRequire(import.meta.url);
+const { engines } = require('rolldown/package.json');
 
 export default {
   load() {
     return {
-      nodeVersion,
+      nodeVersion: engines.node,
     };
   },
 };

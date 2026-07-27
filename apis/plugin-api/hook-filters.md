@@ -1,10 +1,10 @@
-# Plugin Hook Filters
+# 插件钩子过滤器
 
-Hook filters allow Rolldown to skip unnecessary Rust-to-JS calls by evaluating filter conditions on the Rust side before invoking your plugin. This improves performance and enables better parallelization. See [Why Plugin Hook Filters](/in-depth/why-plugin-hook-filter) for more details.
+钩子过滤器让 Rolldown 能在调用插件前先在 Rust 端判断过滤条件，从而跳过不必要的 Rust 到 JS 调用。这可以提高性能，并实现更好的并行化。更多细节请参阅[为什么需要插件钩子过滤器](/in-depth/why-plugin-hook-filter)。
 
-## Basic Usage
+## 基本用法
 
-Instead of checking conditions inside your hook:
+不要在钩子内部检查条件：
 
 ```js{5}
 export default function myPlugin() {
@@ -12,17 +12,17 @@ export default function myPlugin() {
     name: 'example',
     transform(code, id) {
       if (!id.endsWith('.data')) {
-        // early return
+        // 提前返回
         return
       }
-      // perform actual transform
+      // 执行实际转换
       return transformedCode
     },
   }
 }
 ```
 
-Use the object hook format with a `filter` property:
+请改用带有 `filter` 属性的对象钩子格式：
 
 ```js{5-7}
 export default function myPlugin() {
@@ -33,7 +33,7 @@ export default function myPlugin() {
         id: /\.data$/
       },
       handler(code) {
-        // perform actual transform
+        // 执行实际转换
         return transformedCode
       },
     }
@@ -41,19 +41,19 @@ export default function myPlugin() {
 }
 ```
 
-Rolldown evaluates the filter on the Rust side and only calls your handler when the filter matches.
+Rolldown 会在 Rust 端判断过滤器，只在匹配时调用处理函数。
 
 ::: tip
-[`@rolldown/pluginutils`](https://npmx.dev/package/@rolldown/pluginutils) exports some utilities for hook filters like `exactRegex` and `prefixRegex`.
+[`@rolldown/pluginutils`](https://npmx.dev/package/@rolldown/pluginutils) 导出了一些钩子过滤器工具，例如 `exactRegex` 和 `prefixRegex`。
 :::
 
-## Filter Properties
+## 过滤器属性
 
-In addition to `id`, you can also filter based on `moduleType` and the module's source code. The `filter` property works similarly to [`createFilter` from `@rollup/pluginutils`](https://github.com/rollup/plugins/blob/master/packages/pluginutils/README.md#createfilter).
+除 `id` 外，还可以根据 `moduleType` 和模块源代码进行过滤。`filter` 属性的工作方式与 [`@rollup/pluginutils` 中的 `createFilter`](https://github.com/rollup/plugins/blob/master/packages/pluginutils/README.md#createfilter) 类似。
 
-- If multiple values are passed to `include`, the filter matches if **any** of them match.
-- If a filter has both `include` and `exclude`, `exclude` takes precedence.
-- If multiple filter properties are specified, the filter matches when all of the specified properties match. In other words, if even one property fails to match, it is excluded, regardless of the other properties. For example, the following filter matches a module only if its file names ends with `.js`, its source code contains `foo`, and does not contain `bar`:
+- 如果向 `include` 传递多个值，**任意一个**值匹配即可。
+- 如果过滤器同时包含 `include` 和 `exclude`，`exclude` 优先。
+- 如果指定多个过滤器属性，只有全部指定属性都匹配时，过滤器才会匹配。换句话说，只要有一个属性不匹配，无论其他属性如何，该模块都会被排除。例如，以下过滤器只匹配文件名以 `.js` 结尾、源代码包含 `foo` 且不包含 `bar` 的模块：
   ```js
   {
     id: {
@@ -67,27 +67,27 @@ In addition to `id`, you can also filter based on `moduleType` and the module's 
   }
   ```
 
-The following properties are supported by each hook:
+各钩子支持以下属性：
 
 - `resolveId` hook: `id`
 - `load` hook: `id`
 - `transform` hook: `id`, `moduleType`, `code`
 
-See [`HookFilter`](/reference/Interface.HookFilter) as well.
+另请参阅 [`HookFilter`](https://rolldown.rs/reference/Interface.HookFilter)。
 
 > [!NOTE]
-> `id` is treated as a glob pattern when you pass a `string`, and treated as a regular expression when you pass a `RegExp`.
-> In the `resolve` hook, `id` must be a `RegExp`. `string`s are not allowed.
-> This is because the `id` value in `resolveId` is the exact text written in the import statement and usually not an absolute path, while glob patterns are designed to match absolute paths.
+> 传入 `string` 时，`id` 会被视为 glob 模式；传入 `RegExp` 时，会被视为正则表达式。
+> 在 `resolve` 钩子中，`id` 必须是 `RegExp`，不允许使用 `string`。
+> 这是因为 `resolveId` 中的 `id` 值就是导入语句里写下的原始文本，通常不是绝对路径，而 glob 模式是为匹配绝对路径设计的。
 
-## Composable Filters
+## 可组合过滤器
 
-For more complex filtering logic, Rolldown provides composable filter expressions via the [`@rolldown/pluginutils`](https://github.com/rolldown/rolldown/tree/main/packages/pluginutils) package. These allow you to build filters using logical operators like `and`, `or`, and `not`.
+对于更复杂的过滤逻辑，Rolldown 通过 [`@rolldown/pluginutils`](https://github.com/rolldown/rolldown/tree/main/packages/pluginutils) 包提供可组合过滤器表达式。可以使用 `and`、`or` 和 `not` 等逻辑运算构建过滤器。
 
 > [!WARNING]
-> Composable filters are not yet supported in Vite or unplugin. They can be used in Rolldown plugins only.
+> Vite 和 unplugin 尚不支持可组合过滤器，它们只能用于 Rolldown 插件。
 
-### Example
+### 示例
 
 ```js
 import { and, id, include, moduleType } from '@rolldown/pluginutils';
@@ -98,7 +98,7 @@ export default function myPlugin() {
     transform: {
       filter: [include(and(id(/\.ts$/), moduleType('ts')))],
       handler(code, id) {
-        // Only called for .ts files with moduleType 'ts'
+        // 只针对 moduleType 为 'ts' 的 .ts 文件调用
         return transformedCode;
       },
     },
@@ -106,28 +106,28 @@ export default function myPlugin() {
 }
 ```
 
-### Available Filter Functions
+### 可用的过滤器函数
 
-- `and(...exprs)` / `or(...exprs)` / `not(expr)` — Logical composition of filter expressions.
-- `id(pattern, params?)` — Filter by id. A `string` pattern is matched by exact equality (not glob); a `RegExp` is tested against the id.
-- `importerId(pattern, params?)` — Filter by importer id. A `string` pattern is matched by exact equality; a `RegExp` is tested against the importer id. Only usable with the `resolveId` hook.
-- `moduleType(type)` — Filter by module type (e.g. 'js', 'tsx', or 'json').
-- `code(pattern)` — Filter by code content.
-- `query(key, pattern)` — Filter by query parameter.
-- `include(expr)` / `exclude(expr)` — Top-level include/exclude wrappers.
-- `queries(obj)` — Compose multiple query filters.
+- `and(...exprs)` / `or(...exprs)` / `not(expr)`：以逻辑方式组合过滤器表达式。
+- `id(pattern, params?)`：按 ID 过滤。`string` 模式使用严格相等匹配（不是 glob）；`RegExp` 会针对 ID 进行测试。
+- `importerId(pattern, params?)`：按导入方 ID 过滤。`string` 模式使用严格相等匹配；`RegExp` 会针对导入方 ID 进行测试。只能用于 `resolveId` 钩子。
+- `moduleType(type)`：按模块类型过滤（例如 `'js'`、`'tsx'` 或 `'json'`）。
+- `code(pattern)`：按代码内容过滤。
+- `query(key, pattern)`：按查询参数过滤。
+- `include(expr)` / `exclude(expr)`：顶层包含/排除包装器。
+- `queries(obj)`：组合多个查询过滤器。
 
-See the [`@rolldown/pluginutils` README](https://github.com/rolldown/rolldown/tree/main/packages/pluginutils#readme) for the full API reference.
+完整 API 参考请参阅 [`@rolldown/pluginutils` README](https://github.com/rolldown/rolldown/tree/main/packages/pluginutils#readme)。
 
-## Interoperability
+## 互操作性
 
-Plugin hook filters are supported in Rollup 4.38.0+, Vite 6.3.0+, and all versions of Rolldown.
+Rollup 4.38.0+、Vite 6.3.0+ 以及所有 Rolldown 版本都支持插件钩子过滤器。
 
-### Supporting Older Versions
+### 支持旧版本
 
-If you're authoring a plugin that needs to support older versions of Rollup (< 4.38.0) or Vite (< 6.3.0), you can provide a fallback implementation that works in both environments.
+如果正在编写需要支持旧版 Rollup（< 4.38.0）或 Vite（< 6.3.0）的插件，可以提供一份在新旧环境中都能工作的回退实现。
 
-The strategy is to use the object hook format with filters when available, and fall back to a regular function that checks conditions internally for older versions:
+具体策略是：在支持时使用带过滤器的对象钩子格式；在旧版本中则回退到内部检查条件的普通函数：
 
 ```js
 const idFilter = /\.data$/;
@@ -136,16 +136,16 @@ export default function myPlugin() {
   return {
     name: 'my-plugin',
     transform: {
-      // Filter is used by Rolldown and newer Rollup/Vite versions
+      // Rolldown 和较新的 Rollup/Vite 版本会使用过滤器
       filter: { id: idFilter },
-      // Handler is called when filter matches
+      // 过滤器匹配时调用处理函数
       handler(code, id) {
-        // Double-check in handler for compatibility with older versions
-        // This is only necessary if you're supporting older versions
+        // 在处理函数中再次检查，以兼容旧版本
+        // 只有需要支持旧版本时才有必要这样做
         if (!idFilter.test(id)) {
           return null;
         }
-        // perform actual transform
+        // 执行实际转换
         return transformedCode;
       },
     },
@@ -153,14 +153,14 @@ export default function myPlugin() {
 }
 ```
 
-This approach ensures your plugin will:
+这种方式可以确保插件：
 
-- Use filters for optimal performance in Rolldown and newer Rollup/Vite versions
-- Still work correctly in older versions (they will call the handler for all files, but the internal check ensures correct behavior)
+- 在 Rolldown 和较新的 Rollup / Vite 版本中使用过滤器，以获得最佳性能。
+- 在旧版本中仍能正常工作（旧版本会对所有文件调用处理函数，但内部检查可以确保行为正确）。
 
 > [!TIP]
-> When supporting older versions, keep both the filter pattern and the internal check in sync to avoid confusion.
+> 支持旧版本时，请确保过滤器模式与内部检查保持同步，以免造成混淆。
 
 ### `moduleType` Filter
 
-The [Module Type concept](/in-depth/module-types) does not exist in Rollup / Vite 7 and below. For that reason, the `moduleType` filter is not supported by those tools and will be ignored.
+Rollup / Vite 7 及更低版本中不存在[模块类型](/in-depth/module-types)概念。因此，这些工具不支持 `moduleType` 过滤器，并会将其忽略。
