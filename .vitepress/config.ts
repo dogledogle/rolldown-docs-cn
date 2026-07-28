@@ -226,6 +226,18 @@ const sidebarForResources: DefaultTheme.SidebarItem[] = [
 // https://vitepress.dev/reference/site-config
 const config = defineConfig({
   lang: 'zh-CN',
+  locales: {
+    root: {
+      label: '简体中文',
+      lang: 'zh-CN',
+      link: '/',
+    },
+    en: {
+      label: 'English',
+      lang: 'en',
+      link: 'https://rolldown.rs/',
+    },
+  },
   title: 'Rolldown',
   description: '基于 Rust 的高性能 JavaScript 打包器，提供兼容 Rollup 的 API',
   lastUpdated: true,
@@ -265,6 +277,8 @@ const config = defineConfig({
 
   themeConfig: {
     variant: 'rolldown',
+    i18nRouting: false,
+    langMenuLabel: '切换语言',
     search: {
       provider: 'local',
     },
@@ -349,7 +363,7 @@ const config = defineConfig({
     ],
 
     footer: {
-      copyright: `© 2025-present VoidZero Inc. 与 Rolldown 贡献者。`,
+      copyright: `© 2025-present VoidZero Inc. and Rolldown contributors.`,
       nav: [
         {
           title: 'Rolldown',
