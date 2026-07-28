@@ -1,3 +1,18 @@
+<p align="center">
+  <br>
+  <br>
+  <a href="https://rolldown.rs" target="_blank" rel="noopener noreferrer">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://rolldown.rs/rolldown-light.svg">
+      <source media="(prefers-color-scheme: light)" srcset="https://rolldown.rs/rolldown-dark.svg">
+      <img alt="rolldown logo" src="https://rolldown.rs/rolldown-dark.svg" height="60">
+    </picture>
+  </a>
+  <br>
+  <br>
+  <br>
+</p>
+
 # Rolldown 中文文档
 
 本仓库是 [Rolldown](https://github.com/rolldown/rolldown) 官方仓库 `docs/` 目录的独立简体中文版本。
