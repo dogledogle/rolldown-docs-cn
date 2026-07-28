@@ -69,7 +69,7 @@ esmExternalRequirePlugin({
 
 默认情况下，插件会检查指定的外部模块是否也配置在顶层 `external` 选项中。如果发现重复项，会看到以下警告：
 
-```
+```text
 Found 2 duplicate external: `react`, `vue`. Remove them from top-level `external` as they're already handled by 'builtin:esm-external-require' plugin.
 ```
 

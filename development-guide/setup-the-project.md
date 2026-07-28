@@ -11,7 +11,7 @@
 - 通过 [rustup](https://www.rust-lang.org/tools/install) 安装 Rust。
 - 安装 `just`。
 
-可以运行以下命令快速安装 `just`，也可以按照官方[指南](https://github.com/casey/just?tab=readme-ov-file#installation)安装：
+可以运行以下命令快速安装 `just`，也可以按照官方 [指南](https://github.com/casey/just?tab=readme-ov-file#installation) 安装：
 
 ::: code-group
 
@@ -39,7 +39,7 @@ cargo install just
 
 - 安装 `cmake`。
 
-可以按照官方[下载说明](https://cmake.org/download/)进行安装。
+可以按照官方 [下载说明](https://cmake.org/download/) 进行安装。
 
 - 安装 Node.js {{ data.nodeVersion }} / 21.2.0 或更高版本。
 
@@ -58,7 +58,7 @@ cargo install just
 
 :::
 
-现在可以继续阅读下一章[构建与运行](./building-and-running.md)。如果希望深入了解配置过程，请继续阅读本页。
+现在可以继续阅读下一章 [构建与运行](./building-and-running.md)。如果希望深入了解配置过程，请继续阅读本页。
 
 ## 深入了解
 
@@ -66,7 +66,7 @@ cargo install just
 
 ### 配置 Rust
 
-Rolldown 基于 Rust 构建，因此环境中必须存在 `rustup` 和 `cargo`。可以从[官方网站安装 Rust](https://www.rust-lang.org/tools/install)。
+Rolldown 基于 Rust 构建，因此环境中必须存在 `rustup` 和 `cargo`。可以从 [官方网站安装 Rust](https://www.rust-lang.org/tools/install)。
 
 ### 配置 Node.js
 

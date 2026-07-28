@@ -8,7 +8,7 @@
 - 默认值：输出格式为 `cjs` 时是 `'node'`，其他情况下是 `'browser'`。
 - 可选值：`browser | node | neutral`。
 
-与 [esbuild 的 `platform` 选项](https://esbuild.github.io/api/#platform)类似，该选项为模块解析和 `process.env.NODE_ENV` 的处理方式提供了一组合理的默认值。
+与 [esbuild 的 `platform` 选项](https://esbuild.github.io/api/#platform) 类似，该选项为模块解析和 `process.env.NODE_ENV` 的处理方式提供了一组合理的默认值。
 
 **与 esbuild 的主要区别：**
 
@@ -30,13 +30,13 @@ Rolldown 开箱即用地支持以下由 [Oxc](https://oxc.rs/docs/guide/usage/tr
 - JSX
 - 语法降级
   - 自动转换现代语法，使其兼容你指定的目标环境。
-  - 最低[支持降级到 ES2015](https://oxc.rs/docs/guide/usage/transformer/lowering#transformations)。
+- 最低 [支持降级到 ES2015](https://oxc.rs/docs/guide/usage/transformer/lowering#transformations)。
 
 ## CJS 支持
 
-Rolldown 开箱即用地支持混合 ESM / CJS 模块图，无需使用 `@rollup/plugin-commonjs`。它基本遵循 esbuild 的语义，并且[通过了 esbuild 的全部 ESM / CJS 互操作测试](https://github.com/evanw/bundler-esm-cjs-tests)。
+Rolldown 开箱即用地支持混合 ESM / CJS 模块图，无需使用 `@rollup/plugin-commonjs`。它基本遵循 esbuild 的语义，并且 [通过了 esbuild 的全部 ESM / CJS 互操作测试](https://github.com/evanw/bundler-esm-cjs-tests)。
 
-更多细节请参阅[打包 CJS](/in-depth/bundling-cjs)。
+更多细节请参阅 [打包 CJS](/in-depth/bundling-cjs)。
 
 ## 模块解析
 
@@ -63,7 +63,7 @@ Rolldown 默认按照 TypeScript 和 Node.js 的行为解析模块，无需使�
 
 - 通过 [`transform.inject`](https://rolldown.rs/reference/InputOptions.transform#inject) 选项配置。
 
-此功能可使用模块导出的特定值填充全局变量。它等同于 [`@rollup/plugin-inject`](https://github.com/rollup/plugins/tree/master/packages/inject)，在概念上也与 [esbuild 的 `inject` 选项](https://esbuild.github.io/api/#inject)相似。
+此功能可使用模块导出的特定值填充全局变量。它等同于 [`@rollup/plugin-inject`](https://github.com/rollup/plugins/tree/master/packages/inject)，在概念上也与 [esbuild 的 `inject` 选项](https://esbuild.github.io/api/#inject) 相似。
 
 ## 手动代码拆分 {#manual-code-splitting}
 
@@ -71,13 +71,13 @@ Rolldown 默认按照 TypeScript 和 Node.js 的行为解析模块，无需使�
 
 Rolldown 允许细粒度控制代码块拆分行为，类似于 webpack 的 [`optimization.splitChunks`](https://webpack.js.org/plugins/split-chunks-plugin/#optimizationsplitchunks) 功能。
 
-更多细节请参阅[手动代码拆分](/in-depth/manual-code-splitting)。
+更多细节请参阅 [手动代码拆分](/in-depth/manual-code-splitting)。
 
 ## 模块类型 {#module-types}
 
 - ⚠️ 实验性功能
 
-这在概念上类似于 [esbuild 的 `loader` 选项](https://esbuild.github.io/api/#loader)：用户可以通过 [`moduleTypes`](https://rolldown.rs/reference/InputOptions.moduleTypes) 选项在全局范围内将文件扩展名关联到内置模块类型，也可以在插件钩子中指定某个模块的类型。更多细节请参阅[模块类型](/in-depth/module-types)。
+这在概念上类似于 [esbuild 的 `loader` 选项](https://esbuild.github.io/api/#loader)：用户可以通过 [`moduleTypes`](https://rolldown.rs/reference/InputOptions.moduleTypes) 选项在全局范围内将文件扩展名关联到内置模块类型，也可以在插件钩子中指定某个模块的类型。更多细节请参阅 [模块类型](/in-depth/module-types)。
 
 ## 代码压缩
 

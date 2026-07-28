@@ -2,9 +2,9 @@
 
 ## 概览
 
-Rolldown 的插件接口几乎完全兼容 Rollup（详细进度见[此处](https://github.com/rolldown/rolldown/issues/819)）。因此，如果以前编写过 Rollup 插件，你已经知道如何编写 Rolldown 插件了！
+Rolldown 的插件接口几乎完全兼容 Rollup（详细进度见 [此处](https://github.com/rolldown/rolldown/issues/819)）。因此，如果以前编写过 Rollup 插件，你已经知道如何编写 Rolldown 插件了！
 
-Rolldown 插件是满足下文[插件接口](#插件接口)的对象。
+Rolldown 插件是满足下文 [插件接口](#插件接口) 的对象。
 插件应以包的形式分发。该包导出一个函数，函数接收插件专用选项，并返回这样的对象。
 
 插件可以自定义 Rolldown 的行为，例如在打包前转译代码，或为不可用的内置模块提供垫片。
@@ -55,7 +55,7 @@ export default defineConfig({
 
 ::: warning 钩子过滤器
 
-为保持简单，该示例插件没有使用[钩子过滤器](/apis/plugin-api/hook-filters)。
+为保持简单，该示例插件没有使用 [钩子过滤器](/apis/plugin-api/hook-filters)。
 为提高性能，建议尽可能使用钩子过滤器。
 
 :::
@@ -65,7 +65,7 @@ export default defineConfig({
 - 插件应使用带 `rolldown-plugin-` 前缀的清晰名称。
 - 在 package.json 的 `keywords` 字段中包含 `rolldown-plugin` 关键字。
 - 如有需要，请确保插件输出正确的 source map。
-- 如果插件使用[虚拟模块](#virtual-modules)，请遵循[虚拟模块约定](#virtual-modules)。
+- 如果插件使用 [虚拟模块](#virtual-modules)，请遵循 [虚拟模块约定](#virtual-modules)。
 - （推荐）应为插件编写测试。
 - （推荐）应使用英文编写插件文档。
 
@@ -73,7 +73,7 @@ export default defineConfig({
 
 ### 虚拟模块约定 {#virtual-modules}
 
-虚拟模块是一种实用机制，允许使用普通 ESM 导入语法向源文件传递构建时信息或辅助函数。虚拟模块并不存在于文件系统中，而是由插件解析并提供，如[上面的示例](#示例)所示。
+虚拟模块是一种实用机制，允许使用普通 ESM 导入语法向源文件传递构建时信息或辅助函数。虚拟模块并不存在于文件系统中，而是由插件解析并提供，如 [上面的示例](#示例) 所示。
 
 注册这类插件后，便可通过面向用户的 ID 在 JavaScript 中导入虚拟模块：
 
@@ -100,7 +100,7 @@ console.log(msg);
 
 钩子也可以是带有 `handler` 属性的对象，而不是方法。此时 `handler` 属性才是真正的钩子方法。这样便可提供额外的可选属性来控制钩子行为。更多信息请参阅 [`ObjectHook`](https://rolldown.rs/reference/TypeAlias.ObjectHook) 类型。
 
-钩子分为两类：[构建钩子](#构建钩子)和[输出生成钩子](#输出生成钩子)。
+钩子分为两类：[构建钩子](#构建钩子) 和 [输出生成钩子](#输出生成钩子)。
 
 ### 构建钩子
 

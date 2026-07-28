@@ -1,13 +1,13 @@
 # 手动代码拆分
 
-手动代码拆分是一项强大的功能，可作为[自动代码拆分](./automatic-code-splitting.md)的补充。当你希望将应用拆分成更小、更易管理的部分，以优化加载性能时，它会非常有用。
+手动代码拆分是一项强大的功能，可作为 [自动代码拆分](./automatic-code-splitting.md) 的补充。当你希望将应用拆分成更小、更易管理的部分，以优化加载性能时，它会非常有用。
 
-阅读本指南前，你应该先了解 Rolldown 的[自动代码拆分](./automatic-code-splitting.md)功能。本指南将说明手动代码拆分的工作原理，以及如何有效地使用它。
+阅读本指南前，你应该先了解 Rolldown 的 [自动代码拆分](./automatic-code-splitting.md) 功能。本指南将说明手动代码拆分的工作原理，以及如何有效地使用它。
 
 在深入细节之前，我们先澄清几点：
 
 - 自动代码拆分与手动代码拆分并不冲突。使用手动代码拆分不代表禁用自动代码拆分。
-  根据配置，一个模块会由自动代码拆分或手动代码拆分处理，但不会同时由两者处理。如果某个模块未被手动代码拆分捕获，它仍会按照[自动代码拆分](./automatic-code-splitting.md)指南中介绍的规则，被放入自动代码拆分创建的代码块中。
+  根据配置，一个模块会由自动代码拆分或手动代码拆分处理，但不会同时由两者处理。如果某个模块未被手动代码拆分捕获，它仍会按照 [自动代码拆分](./automatic-code-splitting.md) 指南中介绍的规则，被放入自动代码拆分创建的代码块中。
 
 ## 为什么使用手动代码拆分？
 
@@ -98,7 +98,7 @@ export default {
 
 使用上述 `codeSplitting` 选项后，输出如下：
 
-:::code-group
+::: code-group
 
 ```js [output-hash0.js]
 import ... from './libs-hash0.js';
@@ -138,7 +138,7 @@ function App() {
 
 将得到以下输出：
 
-:::code-group
+::: code-group
 
 ```js [output-hash1.js]
 import ... from './libs-hash0.js';
@@ -204,7 +204,7 @@ export default {
 
 使用上述 `codeSplitting` 选项后，输出如下：
 
-:::code-group
+::: code-group
 
 ```js [output-hash0.js]
 import ... from './react-hash0.js';
@@ -377,7 +377,7 @@ export const value = 'b';
 
 假设我们想将 `a.js` 模块移入单独的代码块，同时让 `b.js` 模块与 `entry.js` 留在同一代码块中，会得到：
 
-:::code-group
+::: code-group
 
 ```js [entry.js]
 import { value } from './a.js';
@@ -405,7 +405,7 @@ export const value = 'a' + value;
 
 如果不希望出现这种行为，可以使用 [`codeSplitting.includeDependenciesRecursively: false`](https://rolldown.rs/reference/OutputOptions.codeSplitting#includedependenciesrecursively) 将其禁用。
 
-:::warning 注意事项
+::: warning 注意事项
 
 使用 `includeDependenciesRecursively: false` 时，分组依赖的模块可能会留在入口代码块中。从入口代码块导出非入口模块是无效的。为避免这种情况，如果没有显式设置 `preserveEntrySignatures`，Rolldown 会隐式将其设为 `'allow-extension'`。
 

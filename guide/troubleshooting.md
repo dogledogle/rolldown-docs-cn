@@ -19,7 +19,7 @@
 1. [**Dev Drive**](https://learn.microsoft.com/en-us/windows/dev-drive/)：面向开发者工作负载设计的一项较新的 Windows 功能，使用弹性文件系统（ReFS）。在文件系统操作方面，与标准 Windows NTFS 文件系统相比，使用 Dev Drive 可以实现 **2 到 3 倍的加速**。
 2. [**适用于 Linux 的 Windows 子系统（WSL）**](https://learn.microsoft.com/en-us/windows/wsl/)：WSL 让 Linux 环境可以轻松地在 Windows 上运行，并提供显著更好的文件系统性能。将项目文件放在 WSL 中并在其中执行构建，在文件系统操作方面可以达到标准 Windows NTFS 文件系统约 **10 倍的速度**。
 
-:::details 基准测试参考
+::: details 基准测试参考
 
 所使用的基准测试脚本在这篇博客文章中有所介绍：[打开 1000 个文件能有多快？](https://lemire.me/blog/2025/03/01/how-fast-can-you-open-1000-files/)
 
@@ -48,7 +48,7 @@
 
 #### 插件钩子过滤器
 
-Rolldown 提供了名为**插件钩子过滤器**的功能。它允许你精确指定插件钩子应该处理哪些模块，从而减少 JavaScript 与 Rust 之间的通信开销。有关过滤器内部工作原理的详细信息，请参阅[钩子过滤器](/apis/plugin-api/hook-filters)页面。
+Rolldown 提供了名为**插件钩子过滤器**的功能。它允许你精确指定插件钩子应该处理哪些模块，从而减少 JavaScript 与 Rust 之间的通信开销。有关过滤器内部工作原理的详细信息，请参阅 [钩子过滤器](/apis/plugin-api/hook-filters) 页面。
 
 如果你是插件使用者，而所使用的插件没有指定钩子过滤器，可以使用 Rolldown 导出的 `withFilter` 实用函数为它添加过滤器。
 
@@ -60,7 +60,7 @@ import { withFilter } from 'rolldown/filter';
 export default defineConfig({
   plugins: [
     // 仅对以 `.yaml` 结尾的模块运行 `yaml` 插件的 transform 钩子
-    withFilter(yaml({/*...*/}), { transform: { id: /\.yaml$/ } }),
+    withFilter(yaml({ /* ... */ }), { transform: { id: /\.yaml$/ } }),
   ],
 });
 ```
@@ -69,7 +69,7 @@ export default defineConfig({
 
 Rolldown 包含多项为提升效率而设计的内置功能。在可能的情况下，应该优先使用这些原生能力，而不是功能相似的外部 Rollup 插件。使用内置功能通常意味着处理过程可以完全在 Rust 中执行，并能够并行处理。
 
-请查看 [Rolldown 功能](/guide/notable-features)页面，了解 Rollup 不具备的能力。
+请查看 [Rolldown 功能](/guide/notable-features) 页面，了解 Rollup 不具备的能力。
 
 例如，以下常见的 Rollup 插件可以用 Rolldown 的内置功能替代：
 
@@ -139,7 +139,7 @@ namespace.method();
 
 之所以如此，是因为保留 `this` 的值会限制摇树优化的空间。例如，如果 `this` 变量需要绑定到模块命名空间对象，那么即使某些导出并未通过 `import` 使用，也无法对该模块中的所有导出执行摇树优化。
 
-:::tip 输出 CJS 时的类似问题
+::: tip 输出 CJS 时的类似问题
 
 与上述问题类似，将代码输出为 CJS 时，Rolldown 不一定会保留导出函数的 `this` 值。在这种情况下，本应为 `undefined` 的 `this` 可能会绑定到 `module.exports` 对象。
 
@@ -167,7 +167,7 @@ class X {}
 
 再举一个例子，即使存在导入循环，Rolldown 也可能在使用位置内联导出的 `const` 值。当循环导致代码在常量声明执行前读取它时，ESM 会抛出错误，而 Rolldown 会直接返回内联的值。
 
-:::code-group
+::: code-group
 
 ```js [entry.js]
 import './constants.js';

@@ -8,7 +8,7 @@ Rolldown 代码库中包含大量 [`tracing::debug!`]（或 `tracing::trace!`）
 
 ## 用法
 
-```
+```sh
 RD_LOG=debug [executing rolldown]
 RD_LOG=debug RD_LOG_OUTPUT=chrome-json [executing rolldown]
 ```
@@ -30,7 +30,7 @@ RD_LOG=debug RD_LOG_OUTPUT=chrome-json [executing rolldown]
 这些规则也适用于 `#[tracing::instrument]` 属性。
 
 - 如果函数在一次打包中只调用一次，请使用 `#[tracing::instrument(level = "debug", skip_all)]`。
-- 如果函数的调用次数会随输入规模增长，请使用 `#[tracing::instrument(level = "trace", skip_all]`。
+- 如果函数的调用次数会随输入规模增长，请使用 `#[tracing::instrument(level = "trace", skip_all)]`。
 
 ::: info
 应该追踪哪些信息带有一定主观性，因此审阅者会决定是否保留追踪语句，或要求在合并前将其移除。
@@ -40,7 +40,7 @@ RD_LOG=debug RD_LOG_OUTPUT=chrome-json [executing rolldown]
 
 Rolldown 中的许多函数带有以下注解：
 
-```
+```rust
 #[instrument(level = "debug", skip(self))]
 fn foo(&self, bar: Type) {}
 
@@ -50,7 +50,7 @@ fn baz(&self, bar: Type) {}
 
 因此可以使用：
 
-```
+```sh
 RUSTC_LOG=[foo]
 ```
 
@@ -74,7 +74,7 @@ RD_LOG='oxc_resolver' rolldown
 
 该命令会输出 `oxc_resolver::resolve` 函数的追踪信息，例如：
 
-```
+```text
 2024-06-11T07:12:20.003537Z DEBUG oxc_resolver: options: ResolveOptions { ... }, path: "...", specifier: "...", ret: "..."
     at /path/to/oxc_resolver-1.8.1/src/lib.rs:212
     in oxc_resolver::resolve with path: "...", specifier: "..."

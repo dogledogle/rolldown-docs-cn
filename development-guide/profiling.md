@@ -32,7 +32,7 @@ just build-rolldown-profile
 samply record node ./path/to/script-rolldown-is-used.js
 ```
 
-如果还想分析 JavaScript 部分，可以向 Node.js 传递[所需标志](https://github.com/nodejs/node/pull/58010)：
+如果还想分析 JavaScript 部分，可以向 Node.js 传递 [所需标志](https://github.com/nodejs/node/pull/58010)：
 
 ```shell
 samply record node --perf-prof --perf-basic-prof --perf-prof-unwinding-info --interpreted-frames-native-stack ./path/to/script-rolldown-is-used.js

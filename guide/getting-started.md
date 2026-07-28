@@ -1,7 +1,7 @@
 # 快速开始
 
 ::: tip 在寻找特定用例的方案？
-对于大多数应用，推荐[通过 Vite 使用 Rolldown](https://vite.dev/guide/rolldown.html#how-to-try-rolldown)，因为 Vite 提供了完整的开发体验，包括开发服务器、HMR 和经过优化的生产构建。
+对于大多数应用，推荐 [通过 Vite 使用 Rolldown](https://vite.dev/guide/rolldown.html#how-to-try-rolldown)，因为 Vite 提供了完整的开发体验，包括开发服务器、HMR 和经过优化的生产构建。
 
 如果需要打包库，请查看 [tsdown](https://tsdown.dev/)。
 :::
@@ -34,7 +34,7 @@ $ bun add -D rolldown
 
 ::: details 使用小众平台（CPU 架构、操作系统）？
 
-项目为以下平台分发预构建二进制文件（按照 [Node.js v24 平台支持等级](https://github.com/nodejs/node/blob/v24.x/BUILDING.md#platform-list)分组）：
+项目为以下平台分发预构建二进制文件（按照 [Node.js v24 平台支持等级](https://github.com/nodejs/node/blob/v24.x/BUILDING.md#platform-list) 分组）：
 
 - Tier 1
   - Linux x64 glibc (`x86_64-unknown-linux-gnu`)
@@ -62,6 +62,7 @@ $ bun add -D rolldown
   1. 下载 Wasm 构建。
      - 使用 npm 时，可以运行 `npm install --cpu wasm32 --os wasip1-threads`。
      - 使用 Yarn 或 pnpm 时，需要将以下内容添加到 `.yarnrc.yaml` 或 `pnpm-workspace.yaml`：
+
        ```yaml
        supportedArchitectures:
          os:
@@ -69,13 +70,14 @@ $ bun add -D rolldown
          cpu:
            - wasm32
        ```
+
   2. 让 Rolldown 加载 Wasm 构建。
      - 如果预构建二进制文件不可用，Rolldown 会自动回退到 Wasm 二进制文件。
      - 如果需要强制 Rolldown 使用 Wasm 构建，可以设置环境变量 `NAPI_RS_FORCE_WASI=error`。
 - 从源代码构建
   1. 克隆仓库。
-  2. 按照[项目配置说明](/development-guide/setup-the-project)配置项目。
-  3. 按照[构建说明](/development-guide/building-and-running)构建项目。
+  2. 按照 [项目配置说明](/development-guide/setup-the-project) 配置项目。
+  3. 按照 [构建说明](/development-guide/building-and-running) 构建项目。
   4. 将环境变量 `NAPI_RS_NATIVE_LIBRARY_PATH` 设置为所克隆仓库中 `packages/rolldown` 的路径。
 
 :::
@@ -187,7 +189,7 @@ export default defineConfig({
 });
 ```
 
-Rolldown 支持大多数 [Rollup 配置选项](https://rollupjs.org/configuration-options)，同时还提供一些[值得关注的额外功能](./notable-features)。完整的选项列表请参阅[官方 API 参考（英文）](https://rolldown.rs/reference/)。
+Rolldown 支持大多数 [Rollup 配置选项](https://rollupjs.org/configuration-options)，同时还提供一些 [值得关注的额外功能](./notable-features)。完整的选项列表请参阅 [官方 API 参考（英文）](https://rolldown.rs/reference/)。
 
 虽然直接导出普通对象也能工作，但建议使用 [`defineConfig`](https://rolldown.rs/reference/Function.defineConfig) 辅助函数，以获得选项类型提示和自动补全。该辅助函数仅用于提供类型，会原样返回传入的选项。
 
@@ -232,11 +234,11 @@ export default defineConfig([
 
 ## 使用插件
 
-Rolldown 的插件 API 与 Rollup 相同，因此使用 Rolldown 时可以复用大多数现有 Rollup 插件。不过，Rolldown 提供了许多[内置功能](./notable-features)，很多场景不再需要插件。
+Rolldown 的插件 API 与 Rollup 相同，因此使用 Rolldown 时可以复用大多数现有 Rollup 插件。不过，Rolldown 提供了许多 [内置功能](./notable-features)，很多场景不再需要插件。
 
-Rolldown 还针对部分用例提供了内置插件。更多信息请参阅[内置插件](/builtin-plugins/)。
+Rolldown 还针对部分用例提供了内置插件。更多信息请参阅 [内置插件](/builtin-plugins/)。
 
-发布到 npm 的社区插件可以在 [Vite 插件目录](https://registry.vite.dev/plugins)中查找。
+发布到 npm 的社区插件可以在 [Vite 插件目录](https://registry.vite.dev/plugins) 中查找。
 
 ## 使用 API
 
@@ -287,7 +289,7 @@ Rolldown 的监听器 API 与 Rollup 的 [`watch`](https://rollupjs.org/javascri
 ```js
 import { watch } from 'rolldown';
 
-const watcher = watch({/* 选项 */}); // 或 watch([/* 多组选项 */] )
+const watcher = watch({ /* 选项 */ }); // 或 watch([/* 多组选项 */]);
 
 watcher.on('event', () => {});
 

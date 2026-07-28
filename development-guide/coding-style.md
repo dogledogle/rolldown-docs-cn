@@ -6,7 +6,7 @@
 
 ### 通用 API 设计
 
-我们倾向于遵循 [Rust API 准则](https://rust-lang.github.io/api-guidelines/)中的建议。这些准则主要由 Rust 库团队编写，源自构建 Rust 标准库和 Rust 生态中其他 crate 的经验。
+我们倾向于遵循 [Rust API 准则](https://rust-lang.github.io/api-guidelines/) 中的建议。这些准则主要由 Rust 库团队编写，源自构建 Rust 标准库和 Rust 生态中其他 crate 的经验。
 
 我们理解这些规则并非在所有场景都适用，但仍应尽可能遵循。
 
@@ -26,7 +26,7 @@
 
 ### 添加测试
 
-总体而言，我们使用两个环境运行不同目的的测试。更多信息请参阅[测试](./testing.md)。
+总体而言，我们使用两个环境运行不同目的的测试。更多信息请参阅 [测试](./testing.md)。
 
 建议优先考虑在 Rust 端添加测试，原因如下：
 

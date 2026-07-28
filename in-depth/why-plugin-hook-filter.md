@@ -2,7 +2,7 @@
 
 ## 问题所在
 
-尽管 Rolldown 核心使用 Rust 编写并具备并行处理能力，**添加 JavaScript 插件仍可能显著拖慢构建**。原因是每个插件钩子都会针对_每个_模块调用，即使该插件并不关心其中绝大多数模块。
+尽管 Rolldown 核心使用 Rust 编写并具备并行处理能力，**添加 JavaScript 插件仍可能显著拖慢构建**。原因是每个插件钩子都会针对**每个**模块调用，即使该插件并不关心其中绝大多数模块。
 
 例如，一个只转换 `.css` 文件的 CSS 插件，仍会针对项目中的每个 `.js`、`.ts`、`.jsx` 和其他文件被调用。使用 10 个插件时，这些开销会不断叠加，使构建时间增加 **3～4 倍**。
 
@@ -11,7 +11,7 @@
 ## 实际影响
 
 下面通过 [apps/10000](https://github.com/rolldown/benchmarks/tree/main/apps/10000) 基准测试查看实际性能差异：
-分支：https://github.com/rolldown/benchmarks/pull/3
+分支：<https://github.com/rolldown/benchmarks/pull/3>
 
 ```diff
 diff --git a/apps/10000/rolldown.config.mjs b/apps/10000/rolldown.config.mjs
@@ -167,7 +167,7 @@ index 822af995..dee07e68 100644
 
 - 将 `transform` 函数包装在带 `handler` 和 `filter` 属性的对象中。
 - 添加 `filter.id.include`，使用正则表达式只匹配插件关心的文件。
-- Rolldown 现在会在调用 JavaScript _之前_，先在 Rust 中检查过滤器。
+- Rolldown 现在会在调用 JavaScript **之前**，先在 Rust 中检查过滤器。
 
 ### 使用过滤器（优化后）
 
@@ -218,9 +218,9 @@ Summary
 
 要理解过滤器为何如此有效，首先需要了解 Rolldown 如何使用 JavaScript 插件处理模块。
 
-Rolldown 使用并行处理（类似[生产者-消费者问题](https://en.wikipedia.org/wiki/Producer%E2%80%93consumer_problem)）高效构建模块图。以下是一个简单的依赖图：
+Rolldown 使用并行处理（类似 [生产者-消费者问题](https://en.wikipedia.org/wiki/Producer%E2%80%93consumer_problem)）高效构建模块图。以下是一个简单的依赖图：
 
-**依赖图**
+### 依赖图
 
 ```dot [Dependency Graph]
 digraph {
@@ -261,7 +261,7 @@ digraph {
 
 1. 在“菱形”处停止（钩子调用阶段）。
 2. 跨越 FFI 边界，从 Rust 进入 JavaScript。
-3. 等待_所有_插件依次运行。
+3. 等待**所有**插件依次运行。
 4. 再从 JavaScript 返回 Rust。
 
 这个串行点会成为主要瓶颈。可以看到，随着插件增加，菱形区域越来越宽，而 CPU 核心只能空闲等待 JavaScript。
@@ -270,7 +270,7 @@ digraph {
 
 添加过滤器后，Rolldown 会在进入 JavaScript 前**在 Rust 中**判断过滤器：
 
-```
+```text
 对于每个模块：
   对于每个插件：
     ✓ 在 Rust 中检查过滤器（微秒级）
@@ -315,4 +315,4 @@ export default {
 };
 ```
 
-完整的过滤器 API 和选项请参阅[插件钩子过滤器用法](/apis/plugin-api/hook-filters)。
+完整的过滤器 API 和选项请参阅 [插件钩子过滤器用法](/apis/plugin-api/hook-filters)。

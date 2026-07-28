@@ -6,14 +6,14 @@
 
 所有开发工作都直接在 [GitHub](https://github.com/rolldown/rolldown) 上进行。核心团队成员和外部贡献者（通过 fork）提交的 pull request 都会经过相同的审查流程。
 
-除 GitHub 外，我们还使用 [Discord 服务器](https://chat.rolldown.rs)进行实时讨论。
+除 GitHub 外，我们还使用 [Discord 服务器](https://chat.rolldown.rs) 进行实时讨论。
 
 ## AI 使用政策
 
 使用 AI 工具（包括 ChatGPT、Claude、Copilot 等 LLM）为 Rolldown 作贡献时：
 
 - **请披露 AI 的使用情况**，以减轻维护者的负担。
-- **如果变更需要事先讨论，请在发起 pull request 前讨论**。遵循下文[提交 pull request](#提交-pull-request) 的相同规则；如果不确定适用哪种方式，请先创建 issue。
+- **如果变更需要事先讨论，请在发起 pull request 前讨论**。遵循下文 [提交 pull request](#提交-pull-request) 的相同规则；如果不确定适用哪种方式，请先创建 issue。
 - 你需要对自己提交的所有 AI 生成 issue 或 PR **负责**。
 - **低质量或未经审查的 AI 内容会被立即关闭。**
 - **反复提交低质量（“slop”）PR 的贡献者会在不预先警告的情况下被封禁。**如果你承诺按照本政策为 Rolldown 作贡献，封禁可能被解除。可以通过我们的 [Discord](https://chat.rolldown.rs/) 申请解封。
@@ -28,16 +28,16 @@
 
 ## 请求新功能
 
-请求新功能前，请搜索[开放的 issue](https://github.com/rolldown/rolldown/issues)，其他人可能已经提出过相同请求。如果没有，请创建标题以 `[request]` 开头的 issue。描述应尽可能详尽，并添加所有适用标签。
+请求新功能前，请搜索 [开放的 issue](https://github.com/rolldown/rolldown/issues)，其他人可能已经提出过相同请求。如果没有，请创建标题以 `[request]` 开头的 issue。描述应尽可能详尽，并添加所有适用标签。
 
 ## 提交 pull request
 
-我们欢迎针对 bug、修复、改进和新功能的 pull request。发起前，请判断变更适用于以下哪种方式：[直接提交](#直接提交-pull-request)，或[先讨论方案](#先讨论方案)。无论采用哪种方式，提交前都请确保构建能在本地通过。
+我们欢迎针对 bug、修复、改进和新功能的 pull request。发起前，请判断变更适用于以下哪种方式：[直接提交](#直接提交-pull-request)，或 [先讨论方案](#先讨论方案)。无论采用哪种方式，提交前都请确保构建能在本地通过。
 
-有关配置项目开发环境的说明，请参阅[配置项目](../development-guide/setup-the-project.md)。
+有关配置项目开发环境的说明，请参阅 [配置项目](../development-guide/setup-the-project.md)。
 
 > [!NOTE]
-> 提交 pull request 前，请阅读[开源协作礼仪](https://developer.mozilla.org/en-US/docs/MDN/Community/Open_source_etiquette)一章。
+> 提交 pull request 前，请阅读 [开源协作礼仪](https://developer.mozilla.org/en-US/docs/MDN/Community/Open_source_etiquette) 一章。
 
 ### 直接提交 pull request
 
@@ -64,7 +64,7 @@
 
 ### 草稿 pull request
 
-如果 pull request 仍在开发中，请将其创建为[草稿](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/changing-the-stage-of-a-pull-request)，只有在确实希望团队审查时才标记为 **Ready for review**。将 PR 转为“Ready for review”会通知审阅者和代码所有者，因此请等到变更完成且构建在本地通过后再操作。这样维护者的收件箱便能集中处理真正需要关注的 PR。
+如果 pull request 仍在开发中，请将其创建为 [草稿](https://docs.github.com/en/pull-requests/collaborating-with-pull-requests/proposing-changes-to-your-work-with-pull-requests/changing-the-stage-of-a-pull-request)，只有在确实希望团队审查时才标记为 **Ready for review**。将 PR 转为“Ready for review”会通知审阅者和代码所有者，因此请等到变更完成且构建在本地通过后再操作。这样维护者的收件箱便能集中处理真正需要关注的 PR。
 
 ### 分支组织
 

@@ -1,6 +1,6 @@
 # 惰性聚合模块优化
 
-惰性聚合模块是一项优化功能，它会避免编译无副作用[聚合模块](/glossary/barrel-module)中未使用的重新导出模块，从而提高构建性能。
+惰性聚合模块是一项优化功能，它会避免编译无副作用 [聚合模块](/glossary/barrel-module) 中未使用的重新导出模块，从而提高构建性能。
 
 ## 为什么使用惰性聚合模块
 
@@ -22,7 +22,7 @@ Button;
 启用惰性聚合模块后，Rolldown 可将编译模块数减少 **92%**，并使构建速度提高 **2～4 倍**。
 
 ::: tip
-可以使用 [lazy-barrel 示例](https://github.com/rolldown/benchmarks/tree/main/examples/lazy-barrel)复现该基准测试。
+可以使用 [lazy-barrel 示例](https://github.com/rolldown/benchmarks/tree/main/examples/lazy-barrel) 复现该基准测试。
 :::
 
 ## 惰性聚合模块的工作原理
@@ -147,7 +147,7 @@ export const increment = () => {
 
 :::
 
-因此，`export default ...` 被视为自身导出，可能会阻止优化（参阅[自身导出](#own-exports-non-pure-re-export-barrels)）。
+因此，`export default ...` 被视为自身导出，可能会阻止优化（参阅 [自身导出](#own-exports-non-pure-re-export-barrels)）。
 ::::
 
 ## 高级场景
@@ -256,7 +256,7 @@ export default {
 ```
 
 ::: warning
-该选项计划在未来移除。如果需要禁用此功能，请[创建 issue](https://github.com/rolldown/rolldown/issues) 描述你的用例，以便我们在移除选项前加以处理。
+该选项计划在未来移除。如果需要禁用此功能，请 [创建 issue](https://github.com/rolldown/rolldown/issues) 描述你的用例，以便我们在移除选项前加以处理。
 :::
 
 ## 要求
@@ -329,7 +329,7 @@ export default {
 
 启用 `experimental.lazyBarrel` 且聚合模块包含超过 5,000 条重新导出时，Rolldown 会生成代码为 `LARGE_BARREL_MODULES` 的信息级建议：
 
-```
+```text
 advice[LARGE_BARREL_MODULES]: node_modules/@mui/icons-material/esm/index.js has 10611 re-exports. Eagerly resolving every entry can significantly slow down the build. Consider using `@rolldown/plugin-transform-imports` to rewrite imports at the source level so the barrel file is never loaded.
 ```
 

@@ -27,7 +27,7 @@ console.log(add(2, 3));
 本例中，`multiply` 从未被导入，也没有副作用，因此 Rolldown 会将其从最终产物中移除。
 
 ::: tip 摇树优化
-摇树优化是由 [Rollup 推广开来的](https://rollupjs.org/faqs/#what-is-tree-shaking)相关术语，指一种特定的无用代码消除技术：通过“摇动”语法树移除未使用的代码。
+摇树优化是由 [Rollup 推广开来的](https://rollupjs.org/faqs/#what-is-tree-shaking) 相关术语，指一种特定的无用代码消除技术：通过“摇动”语法树移除未使用的代码。
 :::
 
 ## 什么是副作用？
@@ -219,7 +219,7 @@ console.log('main', add(2, 3));
 
 ::::
 
-#### package.json 中的 `sideEffects`
+### package.json 中的 `sideEffects`
 
 `package.json` 中的 `sideEffects` 字段告诉打包器，包中的哪些文件具有副作用：
 
@@ -257,7 +257,7 @@ console.log('main', add(2, 3));
 
 :::
 
-#### 插件钩子：`moduleSideEffects`
+### 插件钩子：`moduleSideEffects`
 
 插件可以从 `resolveId`、`load` 或 `transform` 钩子返回 [`moduleSideEffects`](https://rolldown.rs/reference/Interface.SourceDescription#modulesideeffects)，覆盖特定模块的副作用检测结果：
 
@@ -292,7 +292,7 @@ export default {
 
 假设有以下结构的组件库：
 
-```
+```text
 my-component-lib/
 ├── package.json
 └── src/

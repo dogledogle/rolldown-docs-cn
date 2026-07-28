@@ -10,7 +10,7 @@ Rolldown 配置文件虽然可选，但功能强大且使用方便，因此**推
 也可以在 CJS 文件中使用 CJS 语法，以 `module.exports` 代替 `export default`。
 Rolldown 还原生支持 TypeScript 配置文件。
 
-配置文件中可用选项的完整列表请参阅[官方 API 参考（英文）](https://rolldown.rs/reference/)。
+配置文件中可用选项的完整列表请参阅 [官方 API 参考（英文）](https://rolldown.rs/reference/)。
 
 ```js [rolldown.config.js]
 export default {
@@ -124,7 +124,7 @@ export default defineConfig({
 
 ::: warning 禁用布尔标志
 
-要_关闭_布尔标志，请添加 `--no-` 前缀，例如 `--no-minify` 或 `--no-codeSplitting`。**不支持**把 `false` 作为值传入，例如 `--minify false` 或 `--codeSplitting=false`，这样做会报错，因为该值会被读取为字符串 `"false"`，而不是布尔值。这与 [Rollup CLI 的行为](https://rollupjs.org/command-line-interface/)一致（例如 `--no-treeshake`）。
+要**关闭**布尔标志，请添加 `--no-` 前缀，例如 `--no-minify` 或 `--no-codeSplitting`。**不支持**把 `false` 作为值传入，例如 `--minify false` 或 `--codeSplitting=false`，这样做会报错，因为该值会被读取为字符串 `"false"`，而不是布尔值。这与 [Rollup CLI 的行为](https://rollupjs.org/command-line-interface/) 一致（例如 `--no-treeshake`）。
 
 一些标志既接受布尔值，也接受对象（例如 `codeSplitting`）。对于这类标志，可以：
 
@@ -145,7 +145,7 @@ export default defineConfig({
 :::
 
 许多选项都有对应的命令行标志。
-这些标志的详情请参阅[官方 API 参考（英文）](https://rolldown.rs/reference/)。
+这些标志的详情请参阅 [官方 API 参考（英文）](https://rolldown.rs/reference/)。
 如果使用了配置文件，这里传入的参数会覆盖配置文件中的相应值。
 下面列出所有受支持的标志：
 
@@ -161,14 +161,14 @@ import { data } from '../data-loading/cli-help.data'
 
 ### `-c, --config <filename>`
 
-使用指定的配置文件。如果使用了该参数但未指定文件名，Rolldown 会查找默认配置文件。更多细节请参阅[配置文件](#配置文件)。
+使用指定的配置文件。如果使用了该参数但未指定文件名，Rolldown 会查找默认配置文件。更多细节请参阅 [配置文件](#配置文件)。
 
 ### `--configLoader <loader>`
 
 配置文件的加载方式，可选值如下：
 
 - `bundle`（默认值）：导入前先使用 Rolldown 打包配置。
-- `native`：直接导入配置，依靠运行时提供 TypeScript 和加载器支持。参阅[配置加载器](#配置加载器)。
+- `native`：直接导入配置，依靠运行时提供 TypeScript 和加载器支持。参阅 [配置加载器](#配置加载器)。
 
 ### `-h` / `--help`
 

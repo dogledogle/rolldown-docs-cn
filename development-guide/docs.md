@@ -10,7 +10,7 @@ pnpm run docs
 
 由于 `pnpm docs` 命令用于在 npm 中打开模块介绍，因此请使用上面的命令。
 
-接下来便可编辑 Markdown 文件并即时查看变更。文档结构在 `docs/.vitepress/config.ts` 中配置（参阅[站点配置参考](https://vitepress.dev/reference/site-config)）。
+接下来便可编辑 Markdown 文件并即时查看变更。文档结构在 `docs/.vitepress/config.ts` 中配置（参阅 [站点配置参考](https://vitepress.dev/reference/site-config)）。
 
 如果希望检查构建后的站点，请在项目根目录中运行：
 

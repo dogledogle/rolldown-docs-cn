@@ -1,6 +1,6 @@
 # 插件钩子过滤器
 
-钩子过滤器让 Rolldown 能在调用插件前先在 Rust 端判断过滤条件，从而跳过不必要的 Rust 到 JS 调用。这可以提高性能，并实现更好的并行化。更多细节请参阅[为什么需要插件钩子过滤器](/in-depth/why-plugin-hook-filter)。
+钩子过滤器让 Rolldown 能在调用插件前先在 Rust 端判断过滤条件，从而跳过不必要的 Rust 到 JS 调用。这可以提高性能，并实现更好的并行化。更多细节请参阅 [为什么需要插件钩子过滤器](/in-depth/why-plugin-hook-filter)。
 
 ## 基本用法
 
@@ -54,6 +54,7 @@ Rolldown 会在 Rust 端判断过滤器，只在匹配时调用处理函数。
 - 如果向 `include` 传递多个值，**任意一个**值匹配即可。
 - 如果过滤器同时包含 `include` 和 `exclude`，`exclude` 优先。
 - 如果指定多个过滤器属性，只有全部指定属性都匹配时，过滤器才会匹配。换句话说，只要有一个属性不匹配，无论其他属性如何，该模块都会被排除。例如，以下过滤器只匹配文件名以 `.js` 结尾、源代码包含 `foo` 且不包含 `bar` 的模块：
+
   ```js
   {
     id: {
@@ -163,4 +164,4 @@ export default function myPlugin() {
 
 ### `moduleType` Filter
 
-Rollup / Vite 7 及更低版本中不存在[模块类型](/in-depth/module-types)概念。因此，这些工具不支持 `moduleType` 过滤器，并会将其忽略。
+Rollup / Vite 7 及更低版本中不存在 [模块类型](/in-depth/module-types) 概念。因此，这些工具不支持 `moduleType` 过滤器，并会将其忽略。

@@ -17,4 +17,4 @@ export { Tabs } from './Tabs';
 import { Button, Card } from './components';
 ```
 
-然而，聚合模块可能带来性能问题，因为传统打包器需要编译所有被重新导出的模块，即使实际只用到了其中少数几个。要了解 Rolldown 如何解决这一问题，请参阅[惰性聚合模块优化](/in-depth/lazy-barrel-optimization)。
+然而，聚合模块可能带来性能问题，因为传统打包器需要编译所有被重新导出的模块，即使实际只用到了其中少数几个。要了解 Rolldown 如何解决这一问题，请参阅 [惰性聚合模块优化](/in-depth/lazy-barrel-optimization)。

@@ -1,6 +1,6 @@
 # 构建与运行
 
-继续之前，请确保已经完成[配置流程](./setup-the-project.md)。
+继续之前，请确保已经完成 [配置流程](./setup-the-project.md)。
 
 ## `just` 是什么？
 

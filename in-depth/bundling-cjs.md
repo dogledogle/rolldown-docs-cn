@@ -97,7 +97,7 @@ console.log(import_foo.value);
 
 ::: tip 仍想把 `require` 转换为 `import`？
 
-如果想把 `require` 调用转换为 `import` 语句，可以使用[内置的 `esmExternalRequirePlugin`](/builtin-plugins/esm-external-require)。请注意，该插件必须负责它要转换的外部模块：请把这些模块列在插件自身的 `external` 选项中，而不是顶层 `external` 选项中。
+如果想把 `require` 调用转换为 `import` 语句，可以使用 [内置的 `esmExternalRequirePlugin`](/builtin-plugins/esm-external-require)。请注意，该插件必须负责它要转换的外部模块：请把这些模块列在插件自身的 `external` 选项中，而不是顶层 `external` 选项中。
 
 :::
 
@@ -199,7 +199,7 @@ console.log(foo);
 
 #### 给库用户的建议
 
-如果发现的问题似乎由这种不兼容导致，请尝试使用 [publint](https://publint.dev/) 检查包。它提供了[检测此类不兼容的规则](https://publint.dev/rules#cjs_with_esmodule_default_export)（请注意，它只检查包中的部分文件，而不是全部文件）。
+如果发现的问题似乎由这种不兼容导致，请尝试使用 [publint](https://publint.dev/) 检查包。它提供了 [检测此类不兼容的规则](https://publint.dev/rules#cjs_with_esmodule_default_export)（请注意，它只检查包中的部分文件，而不是全部文件）。
 
 如果启发式规则不适用于你的情况，可以使用上一节中同时处理两种解释的代码。如果导入发生在依赖中，建议向该依赖提交 issue。在问题解决前，可以使用 [`patch-package`](https://github.com/ds300/patch-package)、[`pnpm patch`](https://pnpm.io/cli/patch) 或类似工具作为临时方案。
 

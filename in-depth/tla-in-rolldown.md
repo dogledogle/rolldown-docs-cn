@@ -2,8 +2,8 @@
 
 背景知识：
 
-- https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await#top_level_await
-- https://github.com/tc39/proposal-top-level-await
+- <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/await#top_level_await>
+- <https://github.com/tc39/proposal-top-level-await>
 
 ## Rolldown 如何处理 TLA
 
@@ -107,7 +107,7 @@ console.log(foo1, foo2, bar);
 
 可以看到，在打包后的代码中，Promise `foo1` 和 `foo2` 会依次完成；而在原始代码中，它们是并发执行的。
 
-TLA 规范仓库中有一个非常[清晰的示例](https://github.com/tc39/proposal-top-level-await?tab=readme-ov-file#semantics-as-desugaring)，用于解释 TLA 的工作心智模型：
+TLA 规范仓库中有一个非常 [清晰的示例](https://github.com/tc39/proposal-top-level-await?tab=readme-ov-file#semantics-as-desugaring)，用于解释 TLA 的工作心智模型：
 
 ```js
 import { a } from './a.mjs';

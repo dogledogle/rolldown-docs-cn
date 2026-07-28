@@ -2,17 +2,17 @@
 
 ## 快速指南
 
-:::tip 简而言之
+::: tip 简而言之
 运行 `just test-update` 可以执行所有 Rust 和 Node.js 测试，并自动更新快照。
 :::
 
 我们有两组测试套件：一组用于 Rust，另一组用于 Node.js。
 
-:::warning 应遵循的测试原则
+::: warning 应遵循的测试原则
 
 1. 添加带有选项的新功能时，只要可行，就务必在 JavaScript 侧添加相关测试。
 
-有关如何选择测试技术的更多细节，请参阅[如何选择测试技术](#如何选择测试技术)。
+有关如何选择测试技术的更多细节，请参阅 [如何选择测试技术](#如何选择测试技术)。
 :::
 
 - `just test`：运行所有测试。
@@ -41,7 +41,7 @@
 
 数据驱动测试用例是一个包含 `_config.json` 文件的文件夹。测试运行器会从 `_config.json` 读取配置，打包输入文件，并执行输出文件以验证行为。
 
-`_config.json` 包含测试套件的配置。如果一切正常，得益于这项[配置](https://github.com/rolldown/rolldown/blob/main/.vscode/settings.json#L36-L40)，编辑 `_config.json` 时应该能够获得自动补全。
+`_config.json` 包含测试套件的配置。如果一切正常，得益于这项 [配置](https://github.com/rolldown/rolldown/blob/main/.vscode/settings.json#L36-L40)，编辑 `_config.json` 时应该能够获得自动补全。
 
 所有可用选项请参阅：
 
@@ -100,7 +100,7 @@ Rolldown 还会运行从 esbuild 打包器测试套件派生的测试，以验�
 3. 然后开始 HMR 步骤 1：使用 `.hmr-1.js` 文件覆盖临时目录中相应的文件，并生成 HMR 补丁。
 4. 对步骤 2、3 等重复此过程，逐步应用 `*.hmr-2.js`、`*.hmr-3.js` 等文件。
 
-:::details 示例
+::: details 示例
 
 假设测试文件夹包含以下文件：
 
@@ -188,7 +188,7 @@ just test-node-rolldown -t test-name
 
 要运行 `tests/fixtures/resolve/alias` 测试，可以使用 `just test-node-rolldown -t resolve/alias`。
 
-:::info
+::: info
 
 - `just test-node-rolldown -t aaa bbb` 与 `just test-node-rolldown -t "aaa bbb"` 不同。前者会运行名称中包含 `aaa` 或 `bbb` 的测试；后者会运行名称中包含 `aaa bbb` 的测试。
 
@@ -205,7 +205,7 @@ just test-node-rolldown -t test-name
 | **browser**  | `browser` | 真实 Chromium 页面连接到**进程内运行、采用完整打包模式的 Vite 开发服务器**。大多数开发引擎测试位于此处。 |
 | **fixtures** | `node`    | 自定义开发服务器将内容构建到**磁盘**，再将构建产物作为 `node` 子进程运行。                    |
 
-浏览器测试套件运行在 Vite 本身之上（`experimental.bundledDev`）。所使用的 Vite 位于仓库根目录的 `vite/` 检出中。这是一个被 Git 忽略的 vitejs/vite 克隆，其 `rolldown-canary` 分支已变基到 `main`；它的 `rolldown` 依赖链接到工作区的 `packages/rolldown`。因此，测试会通过真实的 Vite 集成来检验本地 Rolldown 绑定。测试工具的架构和设计理由记录在[开发服务器测试工具设计文档](https://github.com/rolldown/rolldown/blob/main/internal-docs/dev-server-test-harness/implementation.md)中。修改测试工具本身之前，请先阅读该文档。
+浏览器测试套件运行在 Vite 本身之上（`experimental.bundledDev`）。所使用的 Vite 位于仓库根目录的 `vite/` 检出中。这是一个被 Git 忽略的 vitejs/vite 克隆，其 `rolldown-canary` 分支已变基到 `main`；它的 `rolldown` 依赖链接到工作区的 `packages/rolldown`。因此，测试会通过真实的 Vite 集成来检验本地 Rolldown 绑定。测试工具的架构和设计理由记录在 [开发服务器测试工具设计文档](https://github.com/rolldown/rolldown/blob/main/internal-docs/dev-server-test-harness/implementation.md) 中。修改测试工具本身之前，请先阅读该文档。
 
 ### 浏览器 playground
 
@@ -243,7 +243,7 @@ describe('<name>', () => {
 });
 ```
 
-:::warning 等待服务器异步工作完成，切勿使用 sleep
+::: warning 等待服务器异步工作完成，切勿使用 sleep
 使用 `expect.poll` 轮询 DOM；在后续编辑前执行 `await waitForBuildStable()`；或者通过 `untilBrowserLogAfter` 等待浏览器日志。固定时长的 `sleep` 既不稳定又缓慢。
 :::
 
@@ -332,18 +332,18 @@ just test-node-rollup --grep "function"
 
 我们的 Rust 测试基础设施足以覆盖大多数 JavaScript 场景（例如插件，以及在配置中传递函数）。不过，由于 JavaScript 用户仍然是我们的首要用户群体，只要可行，就尽量在 JavaScript 侧添加测试。以下是有关如何选择测试技术的一些经验。
 
-:::tip 简而言之
+::: tip 简而言之
 如果不想花时间决定使用哪种方式，请在 JavaScript 侧添加测试。
 :::
 
-#### 优先使用 Rust
+### 优先使用 Rust
 
 1. 测试 Rolldown 核心发出的警告或错误。
    - [错误](https://github.com/rolldown/rolldown/blob/568197a06444809bf44642d88509313ee2735594/crates/rolldown/tests/rolldown/errors/assign_to_import/artifacts.snap?plain=1#L2-L54)
    - [警告](https://github.com/rolldown/rolldown/blob/568197a06444809bf44642d88509313ee2735594/crates/rolldown/tests/rolldown/warnings/eval/artifacts.snap?plain=1#L1-L28)
-2. 矩阵测试。假设要测试一系列不同的[格式](https://github.com/rolldown/rolldown/blob/568197a06444809bf44642d88509313ee2735594/crates/rolldown/tests/rolldown/topics/bundler_esm_cjs_tests/4/_config.json?plain=1#L1-L21)，使用 `configVariants` 只需一个测试就能完成。
+2. 矩阵测试。假设要测试一系列不同的 [格式](https://github.com/rolldown/rolldown/blob/568197a06444809bf44642d88509313ee2735594/crates/rolldown/tests/rolldown/topics/bundler_esm_cjs_tests/4/_config.json?plain=1#L1-L21)，使用 `configVariants` 只需一个测试就能完成。
 3. 与链接算法（摇树优化、代码块拆分）相关的测试。这些测试可能需要大量调试，在 Rust 侧添加测试可以缩短“编码、调试、再编码”的工作循环。
 
-#### 优先使用 JavaScript
+### 优先使用 JavaScript
 
 以上未提及的类别都应该在 JavaScript 侧添加测试。

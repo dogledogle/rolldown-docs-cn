@@ -18,7 +18,7 @@ console.log(lodash);
 
 可以通过三种方式将模块标记为外部模块：
 
-1. **[`external`](https://rolldown.rs/reference/InputOptions.external) 选项**：配置级模式（字符串、正则表达式、数组或函数），用于测试每个导入说明符。模式语法、示例和注意事项请参阅[选项参考](https://rolldown.rs/reference/InputOptions.external)。
+1. **[`external`](https://rolldown.rs/reference/InputOptions.external) 选项**：配置级模式（字符串、正则表达式、数组或函数），用于测试每个导入说明符。模式语法、示例和注意事项请参阅 [选项参考](https://rolldown.rs/reference/InputOptions.external)。
 
 2. **插件的 `resolveId` 钩子**：插件可以返回 `{ id, external: true }`（或 `"relative"` / `"absolute"`），明确将模块标记为外部模块。插件也可以 `return false`，使用与 `external` 选项相同的规范化方式将原始说明符标记为外部模块。
 
@@ -57,7 +57,7 @@ Rolldown 的内置解析器尝试在磁盘上查找模块。
 
 无论在哪一步将模块标记为外部模块（第一次检查、插件或第二次检查），都会统一应用 [`makeAbsoluteExternalsRelative`](https://rolldown.rs/reference/InputOptions.makeAbsoluteExternalsRelative)，确定输出中的导入路径：
 
-- **裸说明符**（例如 `'lodash'`、`'node:fs'`）：在第一次检查中匹配时会原样输出。如果在第二次检查（解析后的路径）中匹配，则会输出完整解析路径（参阅[有关 `/node_modules/` 的注意事项](https://rolldown.rs/reference/InputOptions.external#avoid-node-modules-for-npm-packages)）。
+- **裸说明符**（例如 `'lodash'`、`'node:fs'`）：在第一次检查中匹配时会原样输出。如果在第二次检查（解析后的路径）中匹配，则会输出完整解析路径（参阅 [有关 `/node_modules/` 的注意事项](https://rolldown.rs/reference/InputOptions.external#avoid-node-modules-for-npm-packages)）。
 
 - **相对和绝对说明符**：会进行两项处理：
   1. **解析时规范化**：对于第一次检查和 `return false`，启用 `makeAbsoluteExternalsRelative`（默认启用）后，会相对于导入方目录解析相对说明符（即**原始导入说明符**），并将其规范化为绝对路径。这样，从不同目录导入的 `'./utils'` 会正确映射到不同的外部模块。对于第二次检查和 `return { id, external: true }`，**解析后的模块 ID** 已经是绝对路径。

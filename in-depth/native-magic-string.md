@@ -37,7 +37,7 @@ Rolldown 的原生 MagicString 实现使用 Rust 重写核心功能，带来了�
 
 启用 `experimental.nativeMagicString` 后，Rolldown 会调整转换流水线。下图展示了两种架构之间的区别：
 
-:::info
+::: info
 为了便于理解，图中简化了部分技术细节。原生 MagicString 实现会通过转换钩子的 `meta` 参数提供一个 `magicString` 对象，插件可以像使用 JavaScript 版本一样使用它。
 :::
 
@@ -63,52 +63,52 @@ Rolldown 的原生 MagicString 实现使用 Rust 重写核心功能，带来了�
 
 **字符串操作：**
 
-- `append(content)` - 在字符串末尾追加内容
-- `prepend(content)` - 在字符串开头添加内容
-- `appendLeft(index, content)` - 在指定索引的左侧追加内容
-- `appendRight(index, content)` - 在指定索引的右侧追加内容
-- `prependLeft(index, content)` - 在指定索引的左侧添加内容
-- `prependRight(index, content)` - 在指定索引的右侧添加内容
-- `overwrite(start, end, content)` - 替换某个范围内的内容
-- `update(start, end, content)` - 更新某个范围内的内容
-- `remove(start, end)` - 删除某个范围内的内容
-- `replace(from, to)` - 替换模式的第一次匹配
-- `replaceAll(from, to)` - 替换模式的所有匹配
+- `append(content)`：在字符串末尾追加内容
+- `prepend(content)`：在字符串开头添加内容
+- `appendLeft(index, content)`：在指定索引的左侧追加内容
+- `appendRight(index, content)`：在指定索引的右侧追加内容
+- `prependLeft(index, content)`：在指定索引的左侧添加内容
+- `prependRight(index, content)`：在指定索引的右侧添加内容
+- `overwrite(start, end, content)`：替换某个范围内的内容
+- `update(start, end, content)`：更新某个范围内的内容
+- `remove(start, end)`：删除某个范围内的内容
+- `replace(from, to)`：替换模式的第一次匹配
+- `replaceAll(from, to)`：替换模式的所有匹配
 
 **转换：**
 
-- `indent(indentor?)` - 缩进内容，可以指定自定义缩进字符串
-- `relocate(start, end, to)` - 将内容从一个位置移动到另一个位置
+- `indent(indentor?)`：缩进内容，可以指定自定义缩进字符串
+- `relocate(start, end, to)`：将内容从一个位置移动到另一个位置
 
 **实用方法：**
 
-- `toString()` - 返回转换后的字符串
-- `hasChanged()` - 检查字符串是否已被修改
-- `length()` - 返回转换后字符串的长度
-- `isEmpty()` - 检查字符串是否为空
-- `clone()` - 返回 MagicString 实例的副本
-- `trim(charType?)` - 移除两端的空白或指定字符
-- `trimStart(charType?)` - 移除开头的空白或指定字符
-- `trimEnd(charType?)` - 移除末尾的空白或指定字符
-- `trimLines()` - 移除两端的换行符
-- `snip(start, end)` - 返回一个移除了指定范围外内容的副本
-- `slice(start?, end?)` - 返回两个位置之间的内容
-- `reset(start, end)` - 将某个范围恢复为原始内容
-- `lastChar()` - 返回最后一个字符
-- `lastLine()` - 返回最后一个换行符之后的内容
+- `toString()`：返回转换后的字符串
+- `hasChanged()`：检查字符串是否已被修改
+- `length()`：返回转换后字符串的长度
+- `isEmpty()`：检查字符串是否为空
+- `clone()`：返回 MagicString 实例的副本
+- `trim(charType?)`：移除两端的空白或指定字符
+- `trimStart(charType?)`：移除开头的空白或指定字符
+- `trimEnd(charType?)`：移除末尾的空白或指定字符
+- `trimLines()`：移除两端的换行符
+- `snip(start, end)`：返回一个移除了指定范围外内容的副本
+- `slice(start?, end?)`：返回两个位置之间的内容
+- `reset(start, end)`：将某个范围恢复为原始内容
+- `lastChar()`：返回最后一个字符
+- `lastLine()`：返回最后一个换行符之后的内容
 
 **生成 source map：**
 
-- `generateMap(options?)` - 以 JSON 字符串形式生成 source map
-  - `options.source` - 源文件名
-  - `options.includeContent` - 是否在映射中包含原始源代码
-  - `options.hires` - 高分辨率模式：`true`、`false` 或 `"boundary"`
+- `generateMap(options?)`：以 JSON 字符串形式生成 source map
+  - `options.source`：源文件名
+  - `options.includeContent`：是否在映射中包含原始源代码
+  - `options.hires`：高分辨率模式：`true`、`false` 或 `"boundary"`
 
 ### 尚未实现
 
 以下功能计划在未来版本中实现：
 
-- `generateDecodedMap()` - 生成包含已解码映射的 source map
+- `generateDecodedMap()`：生成包含已解码映射的 source map
 
 ## 实际性能
 
@@ -130,7 +130,7 @@ Rolldown 的原生 MagicString 实现使用 Rust 重写核心功能，带来了�
 | 5000     | 455.4 ms                                 | 249.9 ms                                     | 205.5 ms | 1.82x  |
 | 10000    | 799.0 ms                                 | 353.0 ms                                     | 446.0 ms | 2.26x  |
 
-详细的基准测试结果请参阅[基准测试拉取请求](https://github.com/rolldown/benchmarks/pull/9/files)。
+详细的基准测试结果请参阅 [基准测试拉取请求](https://github.com/rolldown/benchmarks/pull/9/files)。
 
 ## 使用示例
 
