@@ -103,7 +103,7 @@ Rolldown 包含多项为提升效率而设计的内置功能。在可能的情�
 
 - `(0, eval)('x')`
 
-  这是最常见的间接 eval 用法。此外还有其他触发间接 eval 的方式，例如 `var eval2 = eval; eval2('x')`、`[eval][0]('x')` 和 `window.eval('x')` 都属于间接 eval 调用。使用间接 eval 时，代码会在全局作用域中求值，而不是在调用方的内联作用域中求值。
+  这是最常见的间接 eval 用法。此外还有其他触发间接 eval 的方式，例如 `var eval2 = eval; eval2('x')`、`[eval][0]('x')` 和 `window.eval('x')` 都属于间接 eval 调用。使用间接 eval 时，代码会在全局作用域中求值，而不是在调用方的局部作用域中求值。
 
 - `new Function('x')`
 
@@ -192,7 +192,7 @@ console.log(bar());
 
 ## 警告："Sourcemap is likely to be incorrect"
 
-如果你为打包产物生成 source map（[`sourcemap: true`](https://rolldown.rs/reference/OutputOptions.sourcemap) 或 `sourcemap: 'inline'`），但使用了一个或多个转换代码时未生成相应 source map 的插件，就会看到此警告。
+如果你为打包产物生成 source map（[`sourcemap: true`](https://rolldown.rs/reference/OutputOptions.sourcemap) 或 `sourcemap: 'inline'`），但使用了一个或多个在转换代码时未生成相应 source map 的插件，就会看到此警告。
 
 通常，插件只会在它自身（而非打包产物）配置了 `sourcemap: false` 时省略 source map，因此只需修改该配置即可。如果插件不支持生成 source map，可以考虑向插件作者提交 issue。
 

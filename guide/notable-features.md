@@ -30,7 +30,7 @@ Rolldown 开箱即用地支持以下由 [Oxc](https://oxc.rs/docs/guide/usage/tr
 - JSX
 - 语法降级
   - 自动转换现代语法，使其兼容你指定的目标环境。
-- 最低 [支持降级到 ES2015](https://oxc.rs/docs/guide/usage/transformer/lowering#transformations)。
+  - 最低 [支持降级到 ES2015](https://oxc.rs/docs/guide/usage/transformer/lowering#transformations)。
 
 ## CJS 支持
 
