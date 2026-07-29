@@ -242,7 +242,7 @@ jobs:
             `base_url = ${quote(process.env.MODEL_BASE_URL)}`,
             'env_key = "TRANSLATION_API_KEY"',
             'wire_api = "responses"',
-            'requires_openai_auth = false',
+            'requires_openai_auth = true',
             'http_headers = { "x-openai-actor-authorization" = "local-image-extension" }',
             'supports_websockets = false',
             'request_max_retries = 2',
