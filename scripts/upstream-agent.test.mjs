@@ -257,6 +257,18 @@ test('automation and workflow paths are protected while state is deterministic',
   assert.equal(isProtectedPath('package.json'), false);
 });
 
+test('workflow keeps APIClub Responses API-key compatibility settings', () => {
+  const workflow = readFileSync(
+    join(import.meta.dirname, '..', '.github', 'workflows', 'upstream-sync.yml'),
+    'utf8',
+  );
+  assert.match(workflow, /wire_api = "responses"/);
+  assert.match(
+    workflow,
+    /http_headers = \{ "x-openai-actor-authorization" = "local-image-extension" \}/,
+  );
+});
+
 test('prompt explicitly uses old English, new English, and current Chinese', () => {
   const prompt = buildPrompt({
     baseline: { sourceCommit: 'a'.repeat(40), sourceTree: 'b'.repeat(40) },
