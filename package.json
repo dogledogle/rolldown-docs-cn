@@ -7,6 +7,7 @@
     "build": "vitepress build",
     "preview": "vitepress preview",
     "sync:upstream": "node scripts/sync-upstream.mjs",
+    "test:upstream": "node --test scripts/upstream-agent.test.mjs",
     "void": "void"
   },
   "dependencies": {
