@@ -134,7 +134,7 @@ function dependentPlugin() {
 
 ## 描述性元数据
 
-插件可以为模块和插件自身附加描述性元数据。这些元数据仅用于提供信息，供 [Vite devtools](https://github.com/vitejs/devtools) 等检查构建的工具展示。
+插件可以为模块和插件自身附加描述性元数据。这些元数据仅用于提供信息，供 [Vite DevTools](https://github.com/vitejs/devtools) 等检查构建的工具展示。
 
 ### 模块描述
 

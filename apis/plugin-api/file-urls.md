@@ -1,6 +1,6 @@
 # 文件 URL
 
-要在 JS 代码中引用文件 URL，请使用 `import.meta.ROLLDOWN_FILE_URL_referenceId` 替换形式。它会生成相对于 `import.meta.url` 解析已生成文件的代码，并假定全局 `URL` 可用。该功能开箱即用于 `esm` 格式，也适用于 `node` 平台上的 `cjs` 格式，因为该环境会为 `import.meta.url` 提供 [polyfill](/in-depth/non-esm-output-formats#well-known-import-meta-properties)。对于 `iife` 和 `umd` 格式，需要为 `import.meta.url` 提供 polyfill，或者实现 [`resolveFileUrl`](https://rolldown.rs/reference/Interface.Plugin#resolvefileurl) 钩子，返回不依赖 `import.meta.url` 的代码。该钩子也可用于自定义其他格式的 URL 解析方式。
+要在 JS 代码中引用文件 URL，请使用 `import.meta.ROLLDOWN_FILE_URL_referenceId` 替换形式。它会生成相对于 `import.meta.url` 解析已生成文件的代码，并假定全局 `URL` 可用。该功能开箱即用，适用于 `esm` 格式，也适用于 `node` 平台上的 `cjs` 格式，因为该环境会为 `import.meta.url` 提供 [polyfill](/in-depth/non-esm-output-formats#well-known-import-meta-properties)。对于 `iife` 和 `umd` 格式，需要为 `import.meta.url` 提供 polyfill，或者实现 [`resolveFileUrl`](https://rolldown.rs/reference/Interface.Plugin#resolvefileurl) 钩子，返回不依赖 `import.meta.url` 的代码。该钩子也可用于自定义其他格式的 URL 解析方式。
 
 > [!TIP]
 > 为兼容 Rollup，Rolldown 也接受 `import.meta.ROLLUP_FILE_URL_referenceId`，将其作为 `import.meta.ROLLDOWN_FILE_URL_referenceId` 的别名。
@@ -37,7 +37,7 @@ function svgResolverPlugin() {
 }
 ```
 
-```js [main.js (usage)]
+```js [main.js (用法)]
 import logo from '../images/logo.svg';
 const image = document.createElement('img');
 image.src = logo;
@@ -84,13 +84,13 @@ function registerPaintWorkletPlugin() {
 }
 ```
 
-```js [main.js (usage)]
+```js [main.js (用法)]
 import 'register-paint-worklet:./worklet.js';
 import { color, size } from './config.js';
 document.body.innerHTML += `<h1 style="background-image: paint(vertical-lines);">color: ${color}, size: ${size}</h1>`;
 ```
 
-```js [worklet.js (usage)]
+```js [worklet.js (用法)]
 import { color, size } from './config.js';
 registerPaint(
   'vertical-lines',
@@ -107,7 +107,7 @@ registerPaint(
 );
 ```
 
-```js [config.js (usage)]
+```js [config.js (用法)]
 export const color = 'greenyellow';
 export const size = 6;
 ```

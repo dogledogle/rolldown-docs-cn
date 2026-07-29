@@ -70,9 +70,9 @@ Rolldown 会在 Rust 端判断过滤器，只在匹配时调用处理函数。
 
 各钩子支持以下属性：
 
-- `resolveId` hook: `id`
-- `load` hook: `id`
-- `transform` hook: `id`, `moduleType`, `code`
+- `resolveId` 钩子：`id`
+- `load` 钩子：`id`
+- `transform` 钩子：`id`、`moduleType`、`code`
 
 另请参阅 [`HookFilter`](https://rolldown.rs/reference/Interface.HookFilter)。
 
@@ -162,6 +162,6 @@ export default function myPlugin() {
 > [!TIP]
 > 支持旧版本时，请确保过滤器模式与内部检查保持同步，以免造成混淆。
 
-### `moduleType` Filter
+### `moduleType` 过滤器
 
 Rollup / Vite 7 及更低版本中不存在 [模块类型](/in-depth/module-types) 概念。因此，这些工具不支持 `moduleType` 过滤器，并会将其忽略。
