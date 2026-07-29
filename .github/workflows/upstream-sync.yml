@@ -1,0 +1,559 @@
+name: Upstream docs translation
+
+on:
+  schedule:
+    - cron: '0 22 * * *'
+  workflow_dispatch:
+
+concurrency:
+  group: upstream-docs-translation
+  cancel-in-progress: false
+
+permissions: {}
+
+env:
+  BOT_BRANCH: codex/upstream-sync
+  UPSTREAM_URL: https://github.com/rolldown/rolldown.git
+
+jobs:
+  sync:
+    name: Update upstream snapshot
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    outputs:
+      docs_changed: ${{ steps.sync.outputs.docs_changed }}
+      target_commit: ${{ steps.sync.outputs.target_commit }}
+      target_tree: ${{ steps.sync.outputs.target_tree }}
+    steps:
+      - name: Check out main with full history
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+
+      - name: Test upstream automation helpers
+        run: node --test scripts/upstream-agent.test.mjs
+
+      - name: Fetch and publish the upstream docs snapshot
+        id: sync
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'rolldown-docs-sync[bot]'
+          git config user.email 'rolldown-docs-sync[bot]@users.noreply.github.com'
+
+          if git remote get-url upstream >/dev/null 2>&1; then
+            git remote set-url upstream "$UPSTREAM_URL"
+          else
+            git remote add upstream "$UPSTREAM_URL"
+          fi
+          git fetch origin '+refs/heads/upstream-docs:refs/remotes/origin/upstream-docs'
+          git branch -f upstream-docs refs/remotes/origin/upstream-docs
+
+          previous_snapshot=$(git rev-parse upstream-docs)
+          node scripts/sync-upstream.mjs
+          current_snapshot=$(git rev-parse upstream-docs)
+          if [[ "$previous_snapshot" != "$current_snapshot" ]]; then
+            git push origin refs/heads/upstream-docs:refs/heads/upstream-docs
+          fi
+
+          target_commit=$(git rev-parse upstream/main)
+          target_tree=$(git rev-parse 'upstream/main:docs')
+          state_tree=$(node -e "process.stdout.write(JSON.parse(require('fs').readFileSync('.upstream-sync/state.json', 'utf8')).sourceTree)")
+          echo "target_commit=$target_commit" >> "$GITHUB_OUTPUT"
+          echo "target_tree=$target_tree" >> "$GITHUB_OUTPUT"
+          if [[ "$target_tree" == "$state_tree" ]]; then
+            echo 'docs_changed=false' >> "$GITHUB_OUTPUT"
+          else
+            echo 'docs_changed=true' >> "$GITHUB_OUTPUT"
+          fi
+
+  translate:
+    name: Translate in an isolated runner
+    needs: sync
+    if: needs.sync.outputs.docs_changed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      base_commit: ${{ steps.reconcile.outputs.base_commit }}
+      blocked: ${{ steps.reconcile.outputs.blocked }}
+      conflict_files: ${{ steps.reconcile.outputs.conflict_files }}
+      expected_remote_sha: ${{ steps.select.outputs.expected_remote_sha }}
+      has_patch: ${{ steps.patch.outputs.has_patch }}
+      outcome: ${{ steps.finalize.outputs.outcome }}
+      pr_number: ${{ steps.select.outputs.pr_number }}
+    steps:
+      - name: Select main or the open rolling PR
+        id: select
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          pull_requests=$(gh api --method GET "repos/$GITHUB_REPOSITORY/pulls" \
+            -f state=open \
+            -f base=main \
+            -f "head=${GITHUB_REPOSITORY_OWNER}:${BOT_BRANCH}")
+          count=$(jq 'length' <<<"$pull_requests")
+          if [[ "$count" -gt 1 ]]; then
+            echo 'More than one rolling upstream PR is open.' >&2
+            exit 1
+          fi
+          if [[ "$count" -eq 1 ]]; then
+            ref=$(jq -r '.[0].head.sha' <<<"$pull_requests")
+            pr_number=$(jq -r '.[0].number' <<<"$pull_requests")
+            echo "ref=$ref" >> "$GITHUB_OUTPUT"
+            echo "expected_remote_sha=$ref" >> "$GITHUB_OUTPUT"
+            echo "pr_number=$pr_number" >> "$GITHUB_OUTPUT"
+          else
+            echo 'ref=main' >> "$GITHUB_OUTPUT"
+            echo 'expected_remote_sha=' >> "$GITHUB_OUTPUT"
+            echo 'pr_number=' >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Check out the translation base
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ steps.select.outputs.ref }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Reconcile the rolling PR with main
+        id: reconcile
+        shell: bash
+        env:
+          PR_NUMBER: ${{ steps.select.outputs.pr_number }}
+        run: |
+          set -euo pipefail
+          git config user.name 'rolldown-docs-sync[bot]'
+          git config user.email 'rolldown-docs-sync[bot]@users.noreply.github.com'
+          git fetch origin '+refs/heads/main:refs/remotes/origin/main'
+          base_commit=$(git rev-parse refs/remotes/origin/main)
+          echo "base_commit=$base_commit" >> "$GITHUB_OUTPUT"
+          echo 'blocked=false' >> "$GITHUB_OUTPUT"
+          echo 'conflict_files=' >> "$GITHUB_OUTPUT"
+
+          if [[ -n "$PR_NUMBER" ]]; then
+            set +e
+            git rebase refs/remotes/origin/main
+            rebase_status=$?
+            set -e
+            if [[ "$rebase_status" -ne 0 ]]; then
+              conflicts=$(git diff --name-only --diff-filter=U | paste -sd ',' -)
+              git rebase --abort
+              echo 'blocked=true' >> "$GITHUB_OUTPUT"
+              echo "conflict_files=$conflicts" >> "$GITHUB_OUTPUT"
+            fi
+          fi
+
+      - name: Set up pnpm
+        if: steps.reconcile.outputs.blocked != 'true'
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+        with:
+          version: 11.13.1
+          run_install: false
+
+      - name: Set up Node.js
+        if: steps.reconcile.outputs.blocked != 'true'
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Prepare the three-way translation manifest
+        if: steps.reconcile.outputs.blocked != 'true'
+        id: prepare
+        shell: bash
+        env:
+          TARGET_COMMIT: ${{ needs.sync.outputs.target_commit }}
+        run: |
+          set -euo pipefail
+          git remote add upstream "$UPSTREAM_URL"
+          git fetch upstream main
+          git cat-file -e "${TARGET_COMMIT}^{commit}"
+          node scripts/upstream-agent.mjs prepare \
+            --source-ref "$TARGET_COMMIT" \
+            --output-dir "$RUNNER_TEMP/upstream-agent" \
+            --max-files 100 \
+            --max-lines 10000
+          cp scripts/upstream-agent.mjs "$RUNNER_TEMP/upstream-agent-tool.mjs"
+
+      - name: Validate model configuration
+        if: steps.prepare.outputs.has_changes == 'true'
+        shell: bash
+        env:
+          MODEL_BASE_URL: ${{ vars.MODEL_BASE_URL }}
+          MODEL_NAME: ${{ vars.MODEL_NAME }}
+          TRANSLATION_API_KEY: ${{ secrets.TRANSLATION_API_KEY }}
+        run: |
+          set -euo pipefail
+          [[ -n "$MODEL_BASE_URL" ]] || { echo 'MODEL_BASE_URL repository variable is missing.' >&2; exit 1; }
+          [[ -n "$MODEL_NAME" ]] || { echo 'MODEL_NAME repository variable is missing.' >&2; exit 1; }
+          [[ -n "$TRANSLATION_API_KEY" ]] || { echo 'TRANSLATION_API_KEY secret is missing.' >&2; exit 1; }
+          echo 'Required model configuration is present.'
+
+      - name: Install dependencies and Codex CLI
+        if: steps.prepare.outputs.has_changes == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          pnpm install --frozen-lockfile --ignore-scripts
+          npm install --global @openai/codex@0.146.0
+          codex --version
+
+      - name: Create an ephemeral Codex provider configuration
+        if: steps.prepare.outputs.has_changes == 'true'
+        shell: bash
+        env:
+          MODEL_BASE_URL: ${{ vars.MODEL_BASE_URL }}
+          MODEL_NAME: ${{ vars.MODEL_NAME }}
+        run: |
+          set -euo pipefail
+          codex_home="$RUNNER_TEMP/codex-home"
+          mkdir -p "$codex_home"
+          CODEX_CONFIG="$codex_home/config.toml" node <<'NODE'
+          const { writeFileSync } = require('node:fs')
+          const quote = JSON.stringify
+          const config = [
+            `model = ${quote(process.env.MODEL_NAME)}`,
+            'model_provider = "translation"',
+            'approval_policy = "never"',
+            'sandbox_mode = "workspace-write"',
+            '',
+            '[sandbox_workspace_write]',
+            'network_access = false',
+            '',
+            '[shell_environment_policy]',
+            'inherit = "all"',
+            'exclude = ["^TRANSLATION_API_KEY$", "^GITHUB_TOKEN$", "^GH_TOKEN$", "^ACTIONS_.*$", "^MODEL_BASE_URL$", "^MODEL_NAME$", "^CODEX_HOME$"]',
+            '',
+            '[model_providers.translation]',
+            'name = "Translation Responses API"',
+            `base_url = ${quote(process.env.MODEL_BASE_URL)}`,
+            'env_key = "TRANSLATION_API_KEY"',
+            'wire_api = "responses"',
+            'requires_openai_auth = false',
+            'supports_websockets = false',
+            'request_max_retries = 2',
+            'stream_max_retries = 2',
+            'stream_idle_timeout_ms = 120000',
+            '',
+          ].join('\n')
+          writeFileSync(process.env.CODEX_CONFIG, config, { mode: 0o600 })
+          NODE
+          echo "CODEX_HOME=$codex_home" >> "$GITHUB_ENV"
+
+      - name: Preflight Responses API and tool calling
+        if: steps.prepare.outputs.has_changes == 'true'
+        shell: bash
+        env:
+          TRANSLATION_API_KEY: ${{ secrets.TRANSLATION_API_KEY }}
+        run: |
+          set -euo pipefail
+          codex exec \
+            --strict-config \
+            --ephemeral \
+            --color never \
+            --sandbox read-only \
+            --cd "$GITHUB_WORKSPACE" \
+            --output-schema "$RUNNER_TEMP/upstream-agent/preflight.schema.json" \
+            --output-last-message "$RUNNER_TEMP/upstream-agent/preflight.json" \
+            'Use the shell tool to run git rev-parse --show-toplevel. Do not inspect the environment. Return ok=true and put the final directory name in toolResult.'
+
+      - name: Run the three-way translation agent
+        if: steps.prepare.outputs.has_changes == 'true'
+        shell: bash
+        env:
+          TRANSLATION_API_KEY: ${{ secrets.TRANSLATION_API_KEY }}
+        run: |
+          set -euo pipefail
+          codex exec \
+            --strict-config \
+            --ephemeral \
+            --color never \
+            --sandbox workspace-write \
+            --cd "$GITHUB_WORKSPACE" \
+            --output-schema "$RUNNER_TEMP/upstream-agent/agent-report.schema.json" \
+            --output-last-message "$RUNNER_TEMP/upstream-agent/agent-report.json" \
+            - < "$RUNNER_TEMP/upstream-agent/prompt.md"
+
+      - name: Validate agent edits before executing translated code
+        if: steps.prepare.outputs.has_changes == 'true'
+        shell: bash
+        env:
+          BASE_COMMIT: ${{ steps.reconcile.outputs.base_commit }}
+          TRANSLATION_API_KEY: ${{ secrets.TRANSLATION_API_KEY }}
+        run: |
+          set -euo pipefail
+          node "$RUNNER_TEMP/upstream-agent-tool.mjs" finalize \
+            --manifest "$RUNNER_TEMP/upstream-agent/manifest.json" \
+            --report "$RUNNER_TEMP/upstream-agent/agent-report.json" \
+            --base "$BASE_COMMIT"
+          node "$RUNNER_TEMP/upstream-agent-tool.mjs" validate \
+            --base "$BASE_COMMIT" \
+            --manifest "$RUNNER_TEMP/upstream-agent/manifest.json" \
+            --report "$RUNNER_TEMP/upstream-agent/agent-report.json"
+
+      - name: Refresh dependencies and build the translated site
+        if: steps.prepare.outputs.has_changes == 'true'
+        id: build
+        shell: bash
+        env:
+          BASE_COMMIT: ${{ steps.reconcile.outputs.base_commit }}
+        run: |
+          set -euo pipefail
+          if ! git diff --quiet "$BASE_COMMIT" -- package.json pnpm-workspace.yaml; then
+            env -i HOME="$HOME" PATH="$PATH" CI=true pnpm install --lockfile-only --ignore-scripts
+          fi
+          env -i HOME="$HOME" PATH="$PATH" CI=true pnpm install --frozen-lockfile --ignore-scripts
+          set +e
+          env -i HOME="$HOME" PATH="$PATH" CI=true pnpm exec vitepress build
+          build_code=$?
+          set -e
+          if [[ "$build_code" -eq 0 ]]; then
+            echo 'status=passed' >> "$GITHUB_OUTPUT"
+          else
+            echo "status=failed (exit $build_code)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Finalize and validate the agent result
+        if: steps.prepare.outputs.has_changes == 'true'
+        id: finalize
+        shell: bash
+        env:
+          BASE_COMMIT: ${{ steps.reconcile.outputs.base_commit }}
+          BUILD_STATUS: ${{ steps.build.outputs.status }}
+          TRANSLATION_API_KEY: ${{ secrets.TRANSLATION_API_KEY }}
+        run: |
+          set -euo pipefail
+          node "$RUNNER_TEMP/upstream-agent-tool.mjs" finalize \
+            --manifest "$RUNNER_TEMP/upstream-agent/manifest.json" \
+            --report "$RUNNER_TEMP/upstream-agent/agent-report.json" \
+            --build-status "$BUILD_STATUS" \
+            --allow-finalized \
+            --base "$BASE_COMMIT"
+          node "$RUNNER_TEMP/upstream-agent-tool.mjs" validate \
+            --base "$BASE_COMMIT" \
+            --manifest "$RUNNER_TEMP/upstream-agent/manifest.json" \
+            --report "$RUNNER_TEMP/upstream-agent/agent-report.json"
+
+      - name: Create the isolated translation patch
+        if: steps.prepare.outputs.has_changes == 'true'
+        id: patch
+        shell: bash
+        env:
+          BASE_COMMIT: ${{ steps.reconcile.outputs.base_commit }}
+          EXPECTED_REMOTE_SHA: ${{ steps.select.outputs.expected_remote_sha }}
+          PR_NUMBER: ${{ steps.select.outputs.pr_number }}
+        run: |
+          set -euo pipefail
+          node "$RUNNER_TEMP/upstream-agent-tool.mjs" patch \
+            --base "$BASE_COMMIT" \
+            --output "$RUNNER_TEMP/upstream-agent/translation.patch"
+          BASE_COMMIT="$BASE_COMMIT" EXPECTED_REMOTE_SHA="$EXPECTED_REMOTE_SHA" PR_NUMBER="$PR_NUMBER" \
+            node <<'NODE'
+          const { writeFileSync } = require('node:fs')
+          writeFileSync(`${process.env.RUNNER_TEMP}/upstream-agent/metadata.json`, JSON.stringify({
+            baseCommit: process.env.BASE_COMMIT,
+            expectedRemoteSha: process.env.EXPECTED_REMOTE_SHA,
+            prNumber: process.env.PR_NUMBER,
+          }, null, 2) + '\n')
+          NODE
+          echo 'has_patch=true' >> "$GITHUB_OUTPUT"
+
+      - name: Upload the validated translation patch
+        if: steps.patch.outputs.has_patch == 'true'
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: upstream-translation-${{ github.run_id }}
+          path: |
+            ${{ runner.temp }}/upstream-agent/translation.patch
+            ${{ runner.temp }}/upstream-agent/translation.patch.sha256
+            ${{ runner.temp }}/upstream-agent/manifest.json
+            ${{ runner.temp }}/upstream-agent/agent-report.json
+            ${{ runner.temp }}/upstream-agent/metadata.json
+          if-no-files-found: error
+          retention-days: 3
+
+  publish:
+    name: Publish or update the rolling PR
+    needs: [sync, translate]
+    if: needs.translate.outputs.has_patch == 'true' || needs.translate.outputs.blocked == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      checks: write
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Mark an unrebasable rolling PR as draft
+        if: needs.translate.outputs.blocked == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ needs.translate.outputs.pr_number }}
+          CONFLICT_FILES: ${{ needs.translate.outputs.conflict_files }}
+        run: |
+          set -euo pipefail
+          gh pr ready "$PR_NUMBER" --undo --repo "$GITHUB_REPOSITORY" || true
+          gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" \
+            --body "The rolling upstream translation branch could not be rebased onto main. Existing Chinese content was preserved. Conflicts: \`${CONFLICT_FILES:-unknown}\`."
+          exit 1
+
+      - name: Check out the exact publication base
+        if: needs.translate.outputs.has_patch == 'true'
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ needs.translate.outputs.base_commit }}
+          fetch-depth: 0
+
+      - name: Download the isolated patch
+        if: needs.translate.outputs.has_patch == 'true'
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: upstream-translation-${{ github.run_id }}
+          path: ${{ runner.temp }}/upstream-agent
+
+      - name: Verify and apply the patch
+        if: needs.translate.outputs.has_patch == 'true'
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP/upstream-agent"
+          sha256sum --check translation.patch.sha256
+          cd "$GITHUB_WORKSPACE"
+          metadata_base=$(jq -r '.baseCommit' "$RUNNER_TEMP/upstream-agent/metadata.json")
+          [[ "$(git rev-parse HEAD)" == "$metadata_base" ]] || { echo 'Publication base mismatch.' >&2; exit 1; }
+          cp scripts/upstream-agent.mjs "$RUNNER_TEMP/upstream-agent-tool.mjs"
+          git switch -C "$BOT_BRANCH"
+          git apply --check --binary "$RUNNER_TEMP/upstream-agent/translation.patch"
+          git apply --index --binary "$RUNNER_TEMP/upstream-agent/translation.patch"
+
+      - name: Set up pnpm
+        if: needs.translate.outputs.has_patch == 'true'
+        uses: pnpm/action-setup@f40ffcd9367d9f12939873eb1018b921a783ffaa # v4
+        with:
+          version: 11.13.1
+          run_install: false
+
+      - name: Set up Node.js
+        if: needs.translate.outputs.has_patch == 'true'
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Revalidate and build the publication tree
+        if: needs.translate.outputs.has_patch == 'true'
+        id: publish-build
+        shell: bash
+        env:
+          BASE_COMMIT: ${{ needs.translate.outputs.base_commit }}
+        run: |
+          set -euo pipefail
+          node "$RUNNER_TEMP/upstream-agent-tool.mjs" validate \
+            --base "$BASE_COMMIT" \
+            --manifest "$RUNNER_TEMP/upstream-agent/manifest.json" \
+            --report "$RUNNER_TEMP/upstream-agent/agent-report.json"
+          env -i HOME="$HOME" PATH="$PATH" CI=true pnpm install --frozen-lockfile --ignore-scripts
+          set +e
+          env -i HOME="$HOME" PATH="$PATH" CI=true pnpm exec vitepress build
+          build_code=$?
+          set -e
+          if [[ "$build_code" -eq 0 ]]; then
+            echo 'status=passed' >> "$GITHUB_OUTPUT"
+          else
+            echo "status=failed (exit $build_code)" >> "$GITHUB_OUTPUT"
+            node "$RUNNER_TEMP/upstream-agent-tool.mjs" finalize \
+              --manifest "$RUNNER_TEMP/upstream-agent/manifest.json" \
+              --report "$RUNNER_TEMP/upstream-agent/agent-report.json" \
+              --output "$RUNNER_TEMP/upstream-agent/agent-report.json" \
+              --build-status "failed during publication (exit $build_code)" \
+              --allow-finalized \
+              --base "$BASE_COMMIT"
+          fi
+
+      - name: Commit and push with a lease
+        if: needs.translate.outputs.has_patch == 'true'
+        id: push
+        shell: bash
+        env:
+          EXPECTED_REMOTE_SHA: ${{ needs.translate.outputs.expected_remote_sha }}
+          TARGET_COMMIT: ${{ needs.sync.outputs.target_commit }}
+        run: |
+          set -euo pipefail
+          git config user.name 'rolldown-docs-sync[bot]'
+          git config user.email 'rolldown-docs-sync[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m "docs: sync upstream through ${TARGET_COMMIT:0:12}"
+
+          remote_sha=$(git ls-remote origin "refs/heads/$BOT_BRANCH" | cut -f1)
+          if [[ -n "$EXPECTED_REMOTE_SHA" && "$remote_sha" != "$EXPECTED_REMOTE_SHA" ]]; then
+            echo 'The rolling branch changed after translation started.' >&2
+            exit 1
+          fi
+          if [[ -n "$remote_sha" ]]; then
+            git push --force-with-lease="refs/heads/$BOT_BRANCH:$remote_sha" origin "HEAD:refs/heads/$BOT_BRANCH"
+          else
+            git push --set-upstream origin "HEAD:refs/heads/$BOT_BRANCH"
+          fi
+          echo "head_sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Create or update the PR and validation check
+        if: needs.translate.outputs.has_patch == 'true'
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          HEAD_SHA: ${{ steps.push.outputs.head_sha }}
+          PR_NUMBER: ${{ needs.translate.outputs.pr_number }}
+          PUBLISH_BUILD: ${{ steps.publish-build.outputs.status }}
+          TARGET_COMMIT: ${{ needs.sync.outputs.target_commit }}
+        run: |
+          set -euo pipefail
+          node "$RUNNER_TEMP/upstream-agent-tool.mjs" pr-body \
+            --manifest "$RUNNER_TEMP/upstream-agent/manifest.json" \
+            --report "$RUNNER_TEMP/upstream-agent/agent-report.json" \
+            --output "$RUNNER_TEMP/upstream-agent/pr-body.md"
+          title="docs: sync upstream through ${TARGET_COMMIT:0:12}"
+
+          if [[ -n "$PR_NUMBER" ]]; then
+            gh pr edit "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --title "$title" --body-file "$RUNNER_TEMP/upstream-agent/pr-body.md"
+          else
+            pr_url=$(gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$BOT_BRANCH" --title "$title" --body-file "$RUNNER_TEMP/upstream-agent/pr-body.md")
+            PR_NUMBER=$(gh pr view "$pr_url" --repo "$GITHUB_REPOSITORY" --json number --jq '.number')
+          fi
+
+          outcome=$(jq -r '.outcome' "$RUNNER_TEMP/upstream-agent/agent-report.json")
+          if [[ "$outcome" == 'success' && "$PUBLISH_BUILD" == 'passed' ]]; then
+            conclusion=success
+            check_title='Upstream translation passed'
+            gh pr ready "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || true
+          else
+            conclusion=failure
+            check_title='Upstream translation needs review'
+            gh pr ready "$PR_NUMBER" --undo --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || true
+          fi
+
+          jq -n \
+            --arg name 'Upstream translation validation' \
+            --arg head_sha "$HEAD_SHA" \
+            --arg conclusion "$conclusion" \
+            --arg title "$check_title" \
+            --arg summary "See PR #$PR_NUMBER for the translation report." \
+            '{name: $name, head_sha: $head_sha, status: "completed", conclusion: $conclusion, output: {title: $title, summary: $summary}}' \
+            | gh api --method POST "repos/$GITHUB_REPOSITORY/check-runs" --input - >/dev/null
+
+          if [[ "$conclusion" != 'success' ]]; then
+            exit 1
+          fi
