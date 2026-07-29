@@ -191,41 +191,15 @@ export function buildPrompt(manifest) {
     `- Do not modify \`.github/**\`, \`.upstream-sync/**\`, \`scripts/sync-upstream.mjs\`, \`scripts/upstream-agent.mjs\`, or its tests.\n` +
     `- If an upstream change overlaps an intentional Chinese edit and cannot be resolved confidently, preserve the Chinese content and include the path and reason in \`unresolved\`.\n` +
     `- Do not commit. Do not install packages. You may run local read-only checks.\n\n` +
-    `Your final response must match the supplied JSON schema. Set \`outcome\` to \`needs_review\` whenever \`unresolved\` is non-empty.\n`;
-}
-
-function reportSchema(targetCommit) {
-  return {
-    $schema: 'https://json-schema.org/draft/2020-12/schema',
-    type: 'object',
-    additionalProperties: false,
-    required: ['targetCommit', 'changedFiles', 'unresolved', 'checks', 'outcome'],
-    properties: {
-      targetCommit: { type: 'string', const: targetCommit },
-      changedFiles: { type: 'array', items: { type: 'string' }, uniqueItems: true },
-      unresolved: {
-        type: 'array',
-        items: {
-          type: 'object',
-          additionalProperties: false,
-          required: ['path', 'reason'],
-          properties: { path: { type: 'string' }, reason: { type: 'string' } },
-        },
-      },
-      checks: { type: 'array', items: { type: 'string' }, uniqueItems: true },
-      outcome: { enum: ['success', 'needs_review'] },
-    },
-  };
-}
-
-function preflightSchema() {
-  return {
-    $schema: 'https://json-schema.org/draft/2020-12/schema',
-    type: 'object',
-    additionalProperties: false,
-    required: ['ok', 'toolResult'],
-    properties: { ok: { const: true }, toolResult: { type: 'string', minLength: 1 } },
-  };
+    `## Final response\n\n` +
+    `Return exactly one raw JSON object. Do not wrap it in Markdown fences and do not add commentary. ` +
+    `The object must contain exactly these fields:\n\n` +
+    `- \`targetCommit\`: the string \`${manifest.target.sourceCommit}\`\n` +
+    `- \`changedFiles\`: an array of unique repository-relative path strings\n` +
+    `- \`unresolved\`: an array of objects containing exactly non-empty string fields \`path\` and \`reason\`\n` +
+    `- \`checks\`: an array of unique non-empty strings describing checks performed\n` +
+    `- \`outcome\`: either \`success\` or \`needs_review\`\n\n` +
+    `Set \`outcome\` to \`needs_review\` whenever \`unresolved\` is non-empty.\n`;
 }
 
 export function prepare({
@@ -282,8 +256,6 @@ export function prepare({
   }
 
   writeJson(resolve(outputDir, 'manifest.json'), manifest);
-  writeJson(resolve(outputDir, 'agent-report.schema.json'), reportSchema(targetCommit));
-  writeJson(resolve(outputDir, 'preflight.schema.json'), preflightSchema());
   writeFileSync(resolve(outputDir, 'prompt.md'), buildPrompt(manifest), 'utf8');
   const hasChanges = state.sourceTree !== targetTree;
   setOutput('has_changes', hasChanges);
@@ -434,6 +406,109 @@ export function validateWorkspace({ cwd = process.cwd(), base, manifestPath, rep
   return paths;
 }
 
+function validateStringArray(value, field) {
+  if (!Array.isArray(value) || value.some((item) => typeof item !== 'string' || item.length === 0)) {
+    throw new Error(`${field} must be an array of non-empty strings`);
+  }
+  if (new Set(value).size !== value.length) throw new Error(`${field} must not contain duplicates`);
+}
+
+function validateAgentReport(report, targetCommit) {
+  if (!report || typeof report !== 'object' || Array.isArray(report)) {
+    throw new Error('report must be an object');
+  }
+  const expectedFields = ['targetCommit', 'changedFiles', 'unresolved', 'checks', 'outcome'];
+  const actualFields = Object.keys(report).sort();
+  if (actualFields.join('\0') !== [...expectedFields].sort().join('\0')) {
+    throw new Error(`report must contain exactly: ${expectedFields.join(', ')}`);
+  }
+  if (report.targetCommit !== targetCommit) throw new Error('targetCommit does not match the manifest');
+  validateStringArray(report.changedFiles, 'changedFiles');
+  validateStringArray(report.checks, 'checks');
+  if (!Array.isArray(report.unresolved)) throw new Error('unresolved must be an array');
+  for (const item of report.unresolved) {
+    if (!item || typeof item !== 'object' || Array.isArray(item)) {
+      throw new Error('each unresolved item must be an object');
+    }
+    const keys = Object.keys(item).sort();
+    if (keys.join('\0') !== 'path\0reason') {
+      throw new Error('each unresolved item must contain exactly path and reason');
+    }
+    if (typeof item.path !== 'string' || item.path.length === 0
+      || typeof item.reason !== 'string' || item.reason.length === 0) {
+      throw new Error('unresolved path and reason must be non-empty strings');
+    }
+  }
+  if (!['success', 'needs_review'].includes(report.outcome)) {
+    throw new Error('outcome must be success or needs_review');
+  }
+  if (report.unresolved.length > 0 && report.outcome !== 'needs_review') {
+    throw new Error('outcome must be needs_review when unresolved is non-empty');
+  }
+  return report;
+}
+
+export function normalizeAgentReport({ manifestPath, reportPath }) {
+  const manifest = readJson(manifestPath);
+  let report;
+  let failureReason;
+  try {
+    report = JSON.parse(readFileSync(reportPath, 'utf8'));
+  } catch {
+    failureReason = 'Agent final response was not valid JSON';
+  }
+  if (!failureReason) {
+    try {
+      validateAgentReport(report, manifest.target.sourceCommit);
+    } catch (error) {
+      failureReason = `Agent report failed local validation: ${error.message}`;
+    }
+  }
+  if (failureReason) {
+    report = {
+      targetCommit: manifest.target.sourceCommit,
+      changedFiles: [],
+      unresolved: [{ path: '(agent-report)', reason: failureReason }],
+      checks: [],
+      outcome: 'needs_review',
+    };
+  }
+  writeJson(reportPath, report);
+  return report;
+}
+
+function normalizeRoot(path) {
+  return path.trim().replaceAll('\\', '/').replace(/\/$/, '');
+}
+
+export function validatePreflight({ eventsPath, expectedRoot }) {
+  const lines = readFileSync(eventsPath, 'utf8').split(/\r?\n/).filter(Boolean);
+  const events = lines.map((line, index) => {
+    try {
+      return JSON.parse(line);
+    } catch {
+      throw new Error(`Invalid Codex JSONL event at line ${index + 1}`);
+    }
+  });
+  const expected = normalizeRoot(expectedRoot);
+  const commandSucceeded = events.some((event) => {
+    const item = event.type === 'item.completed' ? event.item : undefined;
+    if (item?.type !== 'command_execution' || item.status !== 'completed') return false;
+    if (typeof item.command !== 'string' || !item.command.includes('git rev-parse --show-toplevel')) return false;
+    if (typeof item.aggregated_output !== 'string') return false;
+    return item.aggregated_output.split(/\r?\n/).some((line) => normalizeRoot(line) === expected);
+  });
+  if (!commandSucceeded) {
+    throw new Error('Codex preflight did not successfully resolve the expected repository root');
+  }
+  const finalMessageSucceeded = events.some((event) => (
+    event.type === 'item.completed'
+    && event.item?.type === 'agent_message'
+    && event.item.text?.trim() === 'PREFLIGHT_OK'
+  ));
+  if (!finalMessageSucceeded) throw new Error('Codex preflight did not return PREFLIGHT_OK');
+}
+
 export function createPatch({ cwd = process.cwd(), base, outputPath }) {
   const untracked = git(['ls-files', '--others', '--exclude-standard', '-z'], { cwd })
     .split('\0').filter(Boolean);
@@ -480,6 +555,16 @@ async function main() {
       maxLines: options['max-lines'] ?? DEFAULT_MAX_LINES,
       applyBinary: options['apply-binary'] !== 'false',
     });
+  } else if (command === 'validate-preflight') {
+    validatePreflight({
+      eventsPath: required(options, 'events'),
+      expectedRoot: required(options, 'expected-root'),
+    });
+  } else if (command === 'normalize-report') {
+    normalizeAgentReport({
+      manifestPath: required(options, 'manifest'),
+      reportPath: required(options, 'report'),
+    });
   } else if (command === 'finalize') {
     finalize({
       statePath: options.state ?? STATE_PATH,
@@ -505,7 +590,7 @@ async function main() {
       outputPath: required(options, 'output'),
     });
   } else {
-    throw new Error('Usage: upstream-agent.mjs <prepare|finalize|validate|patch|pr-body> [options]');
+    throw new Error('Usage: upstream-agent.mjs <prepare|validate-preflight|normalize-report|finalize|validate|patch|pr-body> [options]');
   }
 }
 
