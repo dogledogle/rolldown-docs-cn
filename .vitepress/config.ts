@@ -279,7 +279,7 @@ const config = defineConfig({
     lightModeSwitchTitle: '切换到浅色模式',
     darkModeSwitchTitle: '切换到深色模式',
     variant: 'rolldown',
-    i18nRouting: false,
+    i18nRouting: true,
     langMenuLabel: '切换语言',
     search: {
       provider: 'local',
