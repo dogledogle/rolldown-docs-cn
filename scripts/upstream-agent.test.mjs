@@ -19,7 +19,6 @@ import {
   parseNameStatusZ,
   prepare,
   validateMarkdownStructure,
-  validatePreflight,
   validateState,
   validateWorkspace,
 } from './upstream-agent.mjs';
@@ -271,38 +270,8 @@ test('workflow keeps APIClub Responses API-key compatibility settings', () => {
   );
   assert.doesNotMatch(workflow, /--output-schema/);
   assert.match(workflow, /normalize-report/);
-  assert.match(workflow, /validate-preflight/);
-  assert.match(workflow, /preflight-events\.jsonl/);
-});
-
-test('preflight validation requires a successful shell result and final marker', () => {
-  const outputDir = mkdtempSync(join(tmpdir(), 'rolldown-upstream-preflight-'));
-  temporaryDirectories.push(outputDir);
-  const eventsPath = join(outputDir, 'events.jsonl');
-  const expectedRoot = '/home/runner/work/rolldown-docs-cn/rolldown-docs-cn';
-  const events = [
-    { type: 'thread.started' },
-    {
-      type: 'item.completed',
-      item: {
-        type: 'command_execution',
-        status: 'completed',
-        command: '/bin/bash -lc "git rev-parse --show-toplevel"',
-        aggregated_output: `${expectedRoot}\n`,
-      },
-    },
-    { type: 'item.completed', item: { type: 'agent_message', text: 'PREFLIGHT_OK' } },
-    { type: 'turn.completed' },
-  ];
-  writeFileSync(eventsPath, `${events.map(JSON.stringify).join('\n')}\n`);
-  assert.doesNotThrow(() => validatePreflight({ eventsPath, expectedRoot }));
-
-  events[1].item.status = 'declined';
-  writeFileSync(eventsPath, `${events.map(JSON.stringify).join('\n')}\n`);
-  assert.throws(
-    () => validatePreflight({ eventsPath, expectedRoot }),
-    /did not successfully resolve the expected repository root/,
-  );
+  assert.match(workflow, /Do not use tools\. Reply with exactly PREFLIGHT_OK\./);
+  assert.match(workflow, /grep -Fqx 'PREFLIGHT_OK'/);
 });
 
 test('agent reports are locally validated and canonicalized', () => {
