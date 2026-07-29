@@ -272,6 +272,11 @@ test('workflow keeps APIClub Responses API-key compatibility settings', () => {
   assert.match(workflow, /normalize-report/);
   assert.match(workflow, /Do not use tools\. Reply with exactly PREFLIGHT_OK\./);
   assert.match(workflow, /grep -Fqx 'PREFLIGHT_OK'/);
+  assert.match(workflow, /apt-get install --yes --no-install-recommends bubblewrap/);
+  assert.ok(
+    workflow.indexOf('apt-get install --yes --no-install-recommends bubblewrap')
+      < workflow.indexOf('npm install --global @openai\/codex@0.146.0'),
+  );
 });
 
 test('agent reports are locally validated and canonicalized', () => {
