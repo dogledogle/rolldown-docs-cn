@@ -15,9 +15,11 @@ import {
   createPatch,
   finalize,
   isProtectedPath,
+  normalizeAgentReport,
   parseNameStatusZ,
   prepare,
   validateMarkdownStructure,
+  validatePreflight,
   validateState,
   validateWorkspace,
 } from './upstream-agent.mjs';
@@ -267,6 +269,118 @@ test('workflow keeps APIClub Responses API-key compatibility settings', () => {
     workflow,
     /http_headers = \{ "x-openai-actor-authorization" = "local-image-extension" \}/,
   );
+  assert.doesNotMatch(workflow, /--output-schema/);
+  assert.match(workflow, /normalize-report/);
+  assert.match(workflow, /validate-preflight/);
+  assert.match(workflow, /preflight-events\.jsonl/);
+});
+
+test('preflight validation requires a successful shell result and final marker', () => {
+  const outputDir = mkdtempSync(join(tmpdir(), 'rolldown-upstream-preflight-'));
+  temporaryDirectories.push(outputDir);
+  const eventsPath = join(outputDir, 'events.jsonl');
+  const expectedRoot = '/home/runner/work/rolldown-docs-cn/rolldown-docs-cn';
+  const events = [
+    { type: 'thread.started' },
+    {
+      type: 'item.completed',
+      item: {
+        type: 'command_execution',
+        status: 'completed',
+        command: '/bin/bash -lc "git rev-parse --show-toplevel"',
+        aggregated_output: `${expectedRoot}\n`,
+      },
+    },
+    { type: 'item.completed', item: { type: 'agent_message', text: 'PREFLIGHT_OK' } },
+    { type: 'turn.completed' },
+  ];
+  writeFileSync(eventsPath, `${events.map(JSON.stringify).join('\n')}\n`);
+  assert.doesNotThrow(() => validatePreflight({ eventsPath, expectedRoot }));
+
+  events[1].item.status = 'declined';
+  writeFileSync(eventsPath, `${events.map(JSON.stringify).join('\n')}\n`);
+  assert.throws(
+    () => validatePreflight({ eventsPath, expectedRoot }),
+    /did not successfully resolve the expected repository root/,
+  );
+});
+
+test('agent reports are locally validated and canonicalized', () => {
+  const fixture = fixtureRepository();
+  const outputDir = mkdtempSync(join(tmpdir(), 'rolldown-upstream-report-'));
+  temporaryDirectories.push(outputDir);
+  const { manifest } = prepare({
+    cwd: fixture.cwd,
+    sourceRef: fixture.targetCommit,
+    outputDir,
+    applyBinary: false,
+  });
+  const reportPath = join(outputDir, 'agent-report.json');
+  const input = {
+    targetCommit: manifest.target.sourceCommit,
+    changedFiles: ['edit.md'],
+    unresolved: [],
+    checks: ['translation completed'],
+    outcome: 'success',
+  };
+  writeFileSync(reportPath, JSON.stringify(input));
+
+  assert.deepEqual(normalizeAgentReport({
+    manifestPath: join(outputDir, 'manifest.json'),
+    reportPath,
+  }), input);
+  assert.equal(readFileSync(reportPath, 'utf8'), `${JSON.stringify(input, null, 2)}\n`);
+});
+
+test('invalid agent reports fall back to needs_review without preserving raw output', () => {
+  const fixture = fixtureRepository();
+  const outputDir = mkdtempSync(join(tmpdir(), 'rolldown-upstream-invalid-report-'));
+  temporaryDirectories.push(outputDir);
+  const { manifest } = prepare({
+    cwd: fixture.cwd,
+    sourceRef: fixture.targetCommit,
+    outputDir,
+    applyBinary: false,
+  });
+  const reportPath = join(outputDir, 'agent-report.json');
+  writeFileSync(reportPath, 'not-json-and-must-not-survive');
+
+  const report = normalizeAgentReport({
+    manifestPath: join(outputDir, 'manifest.json'),
+    reportPath,
+  });
+  assert.equal(report.targetCommit, manifest.target.sourceCommit);
+  assert.equal(report.outcome, 'needs_review');
+  assert.deepEqual(report.changedFiles, []);
+  assert.deepEqual(report.checks, []);
+  assert.deepEqual(report.unresolved, [{
+    path: '(agent-report)',
+    reason: 'Agent final response was not valid JSON',
+  }]);
+  assert.doesNotMatch(readFileSync(reportPath, 'utf8'), /not-json-and-must-not-survive/);
+
+  writeFileSync(reportPath, JSON.stringify({
+    targetCommit: manifest.target.sourceCommit,
+    changedFiles: [],
+    unresolved: [{ path: 'edit.md', reason: 'manual review required' }],
+    checks: [],
+    outcome: 'success',
+  }));
+  const invalidContractReport = normalizeAgentReport({
+    manifestPath: join(outputDir, 'manifest.json'),
+    reportPath,
+  });
+  assert.equal(invalidContractReport.outcome, 'needs_review');
+  assert.match(invalidContractReport.unresolved[0].reason, /failed local validation/);
+
+  const finalized = finalize({
+    cwd: fixture.cwd,
+    manifestPath: join(outputDir, 'manifest.json'),
+    reportPath,
+    base: fixture.targetCommit,
+  });
+  assert.equal(finalized.outcome, 'needs_review');
+  assert.ok(finalized.unresolved.some((item) => item.path === '(agent-report)'));
 });
 
 test('prompt explicitly uses old English, new English, and current Chinese', () => {

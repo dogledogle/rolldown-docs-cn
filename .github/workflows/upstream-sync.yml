@@ -264,12 +264,15 @@ jobs:
           codex exec \
             --strict-config \
             --ephemeral \
+            --json \
             --color never \
             --sandbox read-only \
             --cd "$GITHUB_WORKSPACE" \
-            --output-schema "$RUNNER_TEMP/upstream-agent/preflight.schema.json" \
-            --output-last-message "$RUNNER_TEMP/upstream-agent/preflight.json" \
-            'Use the shell tool to run git rev-parse --show-toplevel. Do not inspect the environment. Return ok=true and put the final directory name in toolResult.'
+            'Use the shell tool to run git rev-parse --show-toplevel. Do not inspect the environment. Then reply with exactly PREFLIGHT_OK.' \
+            > "$RUNNER_TEMP/upstream-agent/preflight-events.jsonl"
+          node "$RUNNER_TEMP/upstream-agent-tool.mjs" validate-preflight \
+            --events "$RUNNER_TEMP/upstream-agent/preflight-events.jsonl" \
+            --expected-root "$GITHUB_WORKSPACE"
 
       - name: Run the three-way translation agent
         if: steps.prepare.outputs.has_changes == 'true'
@@ -284,7 +287,6 @@ jobs:
             --color never \
             --sandbox workspace-write \
             --cd "$GITHUB_WORKSPACE" \
-            --output-schema "$RUNNER_TEMP/upstream-agent/agent-report.schema.json" \
             --output-last-message "$RUNNER_TEMP/upstream-agent/agent-report.json" \
             - < "$RUNNER_TEMP/upstream-agent/prompt.md"
 
@@ -296,6 +298,9 @@ jobs:
           TRANSLATION_API_KEY: ${{ secrets.TRANSLATION_API_KEY }}
         run: |
           set -euo pipefail
+          node "$RUNNER_TEMP/upstream-agent-tool.mjs" normalize-report \
+            --manifest "$RUNNER_TEMP/upstream-agent/manifest.json" \
+            --report "$RUNNER_TEMP/upstream-agent/agent-report.json"
           node "$RUNNER_TEMP/upstream-agent-tool.mjs" finalize \
             --manifest "$RUNNER_TEMP/upstream-agent/manifest.json" \
             --report "$RUNNER_TEMP/upstream-agent/agent-report.json" \
