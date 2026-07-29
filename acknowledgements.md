@@ -12,7 +12,7 @@ const contributors = [
 
 # 致谢
 
-Rolldown 项目最初由 [Yinan Long](https://github.com/Brooooooklyn)（又名 Brooooooklyn，[NAPI-RS](https://napi.rs/) 作者）创建。如今，Rolldown 由 [Evan You](https://github.com/yyx990803)（[Vite](https://vitejs.dev/) 创建者）、全职[团队](./team.md)以及充满热情的开源[贡献者](https://github.com/rolldown/rolldown/graphs/contributors)共同领导和建设。
+Rolldown 项目最初由 [Yinan Long](https://github.com/Brooooooklyn)（又名 Brooooooklyn，[NAPI-RS](https://napi.rs/) 作者）创建。如今，Rolldown 由 [Evan You](https://github.com/yyx990803)（[Vite](https://vitejs.dev/) 创建者）、全职 [团队](./team.md) 以及充满热情的开源 [贡献者](https://github.com/rolldown/rolldown/graphs/contributors) 共同领导和建设。
 
 ## 过往贡献者
 

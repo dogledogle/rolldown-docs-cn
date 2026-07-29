@@ -100,7 +100,7 @@ const members = [
 
 ## 过往贡献者
 
-你可以在[致谢](./acknowledgements.md)页面中找到历任团队成员，以及多年来为 Rolldown 作出重要贡献的其他人士。
+你可以在 [致谢](./acknowledgements.md) 页面中找到过往团队成员，以及多年来为 Rolldown 作出重要贡献的其他人士。
 
 ## 加入我们
 

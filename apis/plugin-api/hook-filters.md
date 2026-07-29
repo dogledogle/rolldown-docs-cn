@@ -78,7 +78,7 @@ Rolldown 会在 Rust 端判断过滤器，只在匹配时调用处理函数。
 
 > [!NOTE]
 > 传入 `string` 时，`id` 会被视为 glob 模式；传入 `RegExp` 时，会被视为正则表达式。
-> 在 `resolve` 钩子中，`id` 必须是 `RegExp`，不允许使用 `string`。
+> 在 `resolveId` 钩子中，`id` 必须是 `RegExp`，不允许使用 `string`。
 > 这是因为 `resolveId` 中的 `id` 值就是导入语句里写下的原始文本，通常不是绝对路径，而 glob 模式是为匹配绝对路径设计的。
 
 ## 可组合过滤器

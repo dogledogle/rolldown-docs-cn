@@ -72,7 +72,7 @@ function readingPlugin() {
 
 如果多个插件添加元数据，或在不同钩子中添加元数据，这些 `meta` 对象会进行浅合并。假设插件 `first` 在 `resolveId` 钩子中添加 `{meta: {first: {resolved: "first"}}}`，又在 `load` 钩子中添加 `{meta: {first: {loaded: "first"}}}`；同时插件 `second` 在 `transform` 钩子中添加 `{meta: {second: {transformed: "second"}}}`，最终的 `meta` 对象会是 `{first: {loaded: "first"}, second: {transformed: "second"}}`。由于插件把两份数据都存放在顶层 `first` 属性下，`load` 钩子的结果会覆盖 `resolveId` 钩子的结果。另一个插件的 `transform` 数据则会放在它旁边。
 
-Rolldown 开始加载模块时就会创建该模块的 `meta` 对象，并在模块的每个生命周期钩子中更新它。如果保存了对此对象的引用，也可以手动更新。要访问尚未加载模块的 meta 对象，可以通过 [`this.load`](https://rolldown.rs/reference/Interface.PluginContext#load) 触发对象创建和模块加载：
+Rolldown 开始加载模块时就会创建该模块的 `meta` 对象，并在模块的每个生命周期钩子中更新它。如果保存了对此对象的引用，也可以手动更新。要访问尚未加载模块的 `meta` 对象，可以通过 [`this.load`](https://rolldown.rs/reference/Interface.PluginContext#load) 触发对象创建和模块加载：
 
 ```js
 function plugin() {

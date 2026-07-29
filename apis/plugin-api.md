@@ -63,7 +63,7 @@ export default defineConfig({
 ## 约定
 
 - 插件应使用带 `rolldown-plugin-` 前缀的清晰名称。
-- 在 package.json 的 `keywords` 字段中包含 `rolldown-plugin` 关键字。
+- 在 `package.json` 的 `keywords` 字段中包含 `rolldown-plugin` 关键字。
 - 如有需要，请确保插件输出正确的 source map。
 - 如果插件使用 [虚拟模块](#virtual-modules)，请遵循 [虚拟模块约定](#virtual-modules)。
 - （推荐）应为插件编写测试。
