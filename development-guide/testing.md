@@ -41,7 +41,7 @@
 
 数据驱动测试用例是一个包含 `_config.json` 文件的文件夹。测试运行器会从 `_config.json` 读取配置，打包输入文件，并执行输出文件以验证行为。
 
-`_config.json` 包含测试套件的配置。如果一切正常，得益于这项 [配置](https://github.com/rolldown/rolldown/blob/main/.vscode/settings.json#L36-L40)，编辑 `_config.json` 时应该能够获得自动补全。
+`_config.json` 包含测试套件的配置。如果一切正常，得益于这项 [配置](https://github.com/rolldown/rolldown/blob/main/.vscode/settings.json#L39-L43)，编辑 `_config.json` 时应该能够获得自动补全。
 
 所有可用选项请参阅：
 

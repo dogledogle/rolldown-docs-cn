@@ -15,23 +15,23 @@
 
 ::: code-group
 
-```sh [Npm]
+```sh [npm]
 npm install --global just-install
 ```
 
-```sh [Pnpm]
+```sh [pnpm]
 pnpm --global add just-install
 ```
 
-```sh [Yarn]
+```sh [yarn]
 yarn global add just-install
 ```
 
-```sh [Homebrew]
+```sh [homebrew]
 brew install just
 ```
 
-```sh [Cargo]
+```sh [cargo]
 cargo install just
 ```
 
