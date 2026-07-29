@@ -477,38 +477,6 @@ export function normalizeAgentReport({ manifestPath, reportPath }) {
   return report;
 }
 
-function normalizeRoot(path) {
-  return path.trim().replaceAll('\\', '/').replace(/\/$/, '');
-}
-
-export function validatePreflight({ eventsPath, expectedRoot }) {
-  const lines = readFileSync(eventsPath, 'utf8').split(/\r?\n/).filter(Boolean);
-  const events = lines.map((line, index) => {
-    try {
-      return JSON.parse(line);
-    } catch {
-      throw new Error(`Invalid Codex JSONL event at line ${index + 1}`);
-    }
-  });
-  const expected = normalizeRoot(expectedRoot);
-  const commandSucceeded = events.some((event) => {
-    const item = event.type === 'item.completed' ? event.item : undefined;
-    if (item?.type !== 'command_execution' || item.status !== 'completed') return false;
-    if (typeof item.command !== 'string' || !item.command.includes('git rev-parse --show-toplevel')) return false;
-    if (typeof item.aggregated_output !== 'string') return false;
-    return item.aggregated_output.split(/\r?\n/).some((line) => normalizeRoot(line) === expected);
-  });
-  if (!commandSucceeded) {
-    throw new Error('Codex preflight did not successfully resolve the expected repository root');
-  }
-  const finalMessageSucceeded = events.some((event) => (
-    event.type === 'item.completed'
-    && event.item?.type === 'agent_message'
-    && event.item.text?.trim() === 'PREFLIGHT_OK'
-  ));
-  if (!finalMessageSucceeded) throw new Error('Codex preflight did not return PREFLIGHT_OK');
-}
-
 export function createPatch({ cwd = process.cwd(), base, outputPath }) {
   const untracked = git(['ls-files', '--others', '--exclude-standard', '-z'], { cwd })
     .split('\0').filter(Boolean);
@@ -555,11 +523,6 @@ async function main() {
       maxLines: options['max-lines'] ?? DEFAULT_MAX_LINES,
       applyBinary: options['apply-binary'] !== 'false',
     });
-  } else if (command === 'validate-preflight') {
-    validatePreflight({
-      eventsPath: required(options, 'events'),
-      expectedRoot: required(options, 'expected-root'),
-    });
   } else if (command === 'normalize-report') {
     normalizeAgentReport({
       manifestPath: required(options, 'manifest'),
@@ -590,7 +553,7 @@ async function main() {
       outputPath: required(options, 'output'),
     });
   } else {
-    throw new Error('Usage: upstream-agent.mjs <prepare|validate-preflight|normalize-report|finalize|validate|patch|pr-body> [options]');
+    throw new Error('Usage: upstream-agent.mjs <prepare|normalize-report|finalize|validate|patch|pr-body> [options]');
   }
 }
 

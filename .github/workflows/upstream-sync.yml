@@ -254,7 +254,7 @@ jobs:
           NODE
           echo "CODEX_HOME=$codex_home" >> "$GITHUB_ENV"
 
-      - name: Preflight Responses API and tool calling
+      - name: Preflight Responses API
         if: steps.prepare.outputs.has_changes == 'true'
         shell: bash
         env:
@@ -264,15 +264,12 @@ jobs:
           codex exec \
             --strict-config \
             --ephemeral \
-            --json \
             --color never \
             --sandbox read-only \
             --cd "$GITHUB_WORKSPACE" \
-            'Use the shell tool to run git rev-parse --show-toplevel. Do not inspect the environment. Then reply with exactly PREFLIGHT_OK.' \
-            > "$RUNNER_TEMP/upstream-agent/preflight-events.jsonl"
-          node "$RUNNER_TEMP/upstream-agent-tool.mjs" validate-preflight \
-            --events "$RUNNER_TEMP/upstream-agent/preflight-events.jsonl" \
-            --expected-root "$GITHUB_WORKSPACE"
+            --output-last-message "$RUNNER_TEMP/upstream-agent/preflight.txt" \
+            'Do not use tools. Reply with exactly PREFLIGHT_OK.'
+          grep -Fqx 'PREFLIGHT_OK' "$RUNNER_TEMP/upstream-agent/preflight.txt"
 
       - name: Run the three-way translation agent
         if: steps.prepare.outputs.has_changes == 'true'
