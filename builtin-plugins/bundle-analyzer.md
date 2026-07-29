@@ -73,13 +73,13 @@ bundleAnalyzerPlugin({
       "id": "chunk-main",
       "name": "main-abc123.js",
       "size": 45230,
-      "type": "static-entry", // or "dynamic-entry" or "common"
+      "type": "static-entry", // 或 "dynamic-entry" 或 "common"
       "moduleIndices": [0, 1, 2],
       "entryModule": 0,
       "imports": [
         {
           "targetChunkIndex": 1,
-          "type": "static", // or "dynamic"
+          "type": "static", // 或 "dynamic"
         },
       ],
       "reachableModuleIndices": [0, 1, 2, 3, 4],

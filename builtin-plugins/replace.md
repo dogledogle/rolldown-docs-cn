@@ -60,8 +60,8 @@ replacePlugin({ DEBUG: 'false' }, { preventAssignment: true });
 
 ### `objectGuards`
 
-- **Type:** `boolean`
-- **Default:** `false`
+- **类型：** `boolean`
+- **默认值：** `false`
 
 自动替换针对对象路径的 `typeof` 检查。
 
@@ -75,8 +75,8 @@ replacePlugin({ 'process.env.NODE_ENV': JSON.stringify('production') }, { object
 
 ### `sourcemap`
 
-- **Type:** `boolean`
-- **Default:** `false`
+- **类型：** `boolean`
+- **默认值：** `false`
 
 为替换结果生成 source map。
 
