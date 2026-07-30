@@ -273,6 +273,9 @@ test('workflow keeps APIClub Responses API-key compatibility settings', () => {
   assert.match(workflow, /Do not use tools\. Reply with exactly PREFLIGHT_OK\./);
   assert.match(workflow, /grep -Fqx 'PREFLIGHT_OK'/);
   assert.match(workflow, /apt-get install --yes --no-install-recommends bubblewrap/);
+  assert.match(workflow, /kernel\.apparmor_restrict_unprivileged_userns=0/);
+  assert.match(workflow, /kernel\.unprivileged_userns_clone=1/);
+  assert.match(workflow, /bwrap --unshare-net --ro-bind \/ \/ --proc \/proc --dev \/dev \/bin\/true/);
   assert.ok(
     workflow.indexOf('apt-get install --yes --no-install-recommends bubblewrap')
       < workflow.indexOf('npm install --global @openai\/codex@0.146.0'),
