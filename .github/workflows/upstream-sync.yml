@@ -12,7 +12,8 @@ concurrency:
 permissions: {}
 
 env:
-  BOT_BRANCH: codex/upstream-sync
+  BASE_BRANCH: dev
+  BOT_BRANCH: codex/upstream-sync-dev
   UPSTREAM_URL: https://github.com/rolldown/rolldown.git
 
 jobs:
@@ -27,10 +28,10 @@ jobs:
       target_commit: ${{ steps.sync.outputs.target_commit }}
       target_tree: ${{ steps.sync.outputs.target_tree }}
     steps:
-      - name: Check out main with full history
+      - name: Check out the base branch with full history
         uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
         with:
-          ref: main
+          ref: ${{ env.BASE_BRANCH }}
           fetch-depth: 0
 
       - name: Set up Node.js
@@ -93,7 +94,7 @@ jobs:
       outcome: ${{ steps.finalize.outputs.outcome }}
       pr_number: ${{ steps.select.outputs.pr_number }}
     steps:
-      - name: Select main or the open rolling PR
+      - name: Select the base branch or the open rolling PR
         id: select
         shell: bash
         env:
@@ -102,7 +103,7 @@ jobs:
           set -euo pipefail
           pull_requests=$(gh api --method GET "repos/$GITHUB_REPOSITORY/pulls" \
             -f state=open \
-            -f base=main \
+            -f "base=$BASE_BRANCH" \
             -f "head=${GITHUB_REPOSITORY_OWNER}:${BOT_BRANCH}")
           count=$(jq 'length' <<<"$pull_requests")
           if [[ "$count" -gt 1 ]]; then
@@ -116,7 +117,7 @@ jobs:
             echo "expected_remote_sha=$ref" >> "$GITHUB_OUTPUT"
             echo "pr_number=$pr_number" >> "$GITHUB_OUTPUT"
           else
-            echo 'ref=main' >> "$GITHUB_OUTPUT"
+            echo "ref=$BASE_BRANCH" >> "$GITHUB_OUTPUT"
             echo 'expected_remote_sha=' >> "$GITHUB_OUTPUT"
             echo 'pr_number=' >> "$GITHUB_OUTPUT"
           fi
@@ -128,7 +129,7 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Reconcile the rolling PR with main
+      - name: Reconcile the rolling PR with the base branch
         id: reconcile
         shell: bash
         env:
@@ -137,15 +138,15 @@ jobs:
           set -euo pipefail
           git config user.name 'rolldown-docs-sync[bot]'
           git config user.email 'rolldown-docs-sync[bot]@users.noreply.github.com'
-          git fetch origin '+refs/heads/main:refs/remotes/origin/main'
-          base_commit=$(git rev-parse refs/remotes/origin/main)
+          git fetch origin "+refs/heads/$BASE_BRANCH:refs/remotes/origin/$BASE_BRANCH"
+          base_commit=$(git rev-parse "refs/remotes/origin/$BASE_BRANCH")
           echo "base_commit=$base_commit" >> "$GITHUB_OUTPUT"
           echo 'blocked=false' >> "$GITHUB_OUTPUT"
           echo 'conflict_files=' >> "$GITHUB_OUTPUT"
 
           if [[ -n "$PR_NUMBER" ]]; then
             set +e
-            git rebase refs/remotes/origin/main
+            git rebase "refs/remotes/origin/$BASE_BRANCH"
             rebase_status=$?
             set -e
             if [[ "$rebase_status" -ne 0 ]]; then
@@ -426,7 +427,7 @@ jobs:
           set -euo pipefail
           gh pr ready "$PR_NUMBER" --undo --repo "$GITHUB_REPOSITORY" || true
           gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" \
-            --body "The rolling upstream translation branch could not be rebased onto main. Existing Chinese content was preserved. Conflicts: \`${CONFLICT_FILES:-unknown}\`."
+            --body "The rolling upstream translation branch could not be rebased onto $BASE_BRANCH. Existing Chinese content was preserved. Conflicts: \`${CONFLICT_FILES:-unknown}\`."
           exit 1
 
       - name: Check out the exact publication base
@@ -549,7 +550,7 @@ jobs:
           if [[ -n "$PR_NUMBER" ]]; then
             gh pr edit "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --title "$title" --body-file "$RUNNER_TEMP/upstream-agent/pr-body.md"
           else
-            pr_url=$(gh pr create --repo "$GITHUB_REPOSITORY" --base main --head "$BOT_BRANCH" --title "$title" --body-file "$RUNNER_TEMP/upstream-agent/pr-body.md")
+            pr_url=$(gh pr create --repo "$GITHUB_REPOSITORY" --base "$BASE_BRANCH" --head "$BOT_BRANCH" --title "$title" --body-file "$RUNNER_TEMP/upstream-agent/pr-body.md")
             PR_NUMBER=$(gh pr view "$pr_url" --repo "$GITHUB_REPOSITORY" --json number --jq '.number')
           fi
 

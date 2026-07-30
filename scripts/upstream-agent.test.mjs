@@ -276,6 +276,11 @@ test('workflow keeps APIClub Responses API-key compatibility settings', () => {
   assert.match(workflow, /kernel\.apparmor_restrict_unprivileged_userns=0/);
   assert.match(workflow, /kernel\.unprivileged_userns_clone=1/);
   assert.match(workflow, /bwrap --unshare-net --ro-bind \/ \/ --proc \/proc --dev \/dev \/bin\/true/);
+  assert.match(workflow, /BASE_BRANCH: dev/);
+  assert.match(workflow, /BOT_BRANCH: codex\/upstream-sync-dev/);
+  assert.match(workflow, /-f "base=\$BASE_BRANCH"/);
+  assert.match(workflow, /--base "\$BASE_BRANCH"/);
+  assert.doesNotMatch(workflow, /base=main|ref: main|origin\/main|--base main/);
   assert.ok(
     workflow.indexOf('apt-get install --yes --no-install-recommends bubblewrap')
       < workflow.indexOf('npm install --global @openai\/codex@0.146.0'),
