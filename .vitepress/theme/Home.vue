@@ -15,7 +15,7 @@ import Footer from '@voidzero-dev/vitepress-theme/src/components/oss/Footer.vue'
   <HeadingSection heading="性能 + 特性 + 生态系统" />
   <RolldownFeatureGrid />
   <Sponsors
-    description="Rolldown 是自由开源软件，由全职团队和充满热情的开源贡献者共同打造。"
+    description="Rolldown 是免费且开源的软件，由全职团队和充满热情的开源贡献者共同打造。"
     sponsorLinkText="参与贡献"
     sponsorLink="/contribution-guide"
   />

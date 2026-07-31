@@ -39,6 +39,38 @@
             </svg>
           </a>
         </div>
+        <p class="text-sm text-white/60 text-pretty">
+          本站为社区维护的简体中文文档
+          <span aria-hidden="true"> · </span>
+          <a
+            href="https://github.com/dogledogle/rolldown-docs-cn"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-1 text-fire transition-colors hover:text-white"
+          >
+            <span>中文文档仓库</span>
+            <svg
+              class="size-3"
+              viewBox="0 0 12 12"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              aria-hidden="true"
+            >
+              <path
+                d="M3.18228 2.81797L9.54624 2.81797L9.54624 9.18193"
+                stroke="currentColor"
+                stroke-width="1.35"
+                stroke-linejoin="round"
+              />
+              <path
+                d="M9.5459 2.81799L3.18194 9.18195"
+                stroke="currentColor"
+                stroke-width="1.35"
+                stroke-linejoin="round"
+              />
+            </svg>
+          </a>
+        </p>
       </div>
       <div class="px-3 py-1.5 bg-slate rounded w-fit flex gap-2 items-center mt-8 md:mt-0">
         <a href="https://repl.rolldown.rs/" target="_blank">

@@ -355,6 +355,10 @@ const config = defineConfig({
             text: '路线图',
             link: 'https://github.com/rolldown/rolldown/discussions/153',
           },
+          {
+            text: '中文文档仓库',
+            link: 'https://github.com/dogledogle/rolldown-docs-cn',
+          },
         ],
       },
     ],
@@ -413,6 +417,10 @@ const config = defineConfig({
               link: 'https://github.com/rolldown/rolldown/discussions/153',
             },
             { text: '团队', link: '/team' },
+            {
+              text: '中文文档仓库',
+              link: 'https://github.com/dogledogle/rolldown-docs-cn',
+            },
           ],
         },
       ],
