@@ -343,7 +343,7 @@ jobs:
           if [[ "$build_code" -eq 0 ]]; then
             echo 'status=passed' >> "$GITHUB_OUTPUT"
           else
-            echo "status=failed (exit $build_code)" >> "$GITHUB_OUTPUT"
+            echo "status=失败（退出码 $build_code）" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Finalize and validate the agent result
@@ -427,7 +427,7 @@ jobs:
           set -euo pipefail
           gh pr ready "$PR_NUMBER" --undo --repo "$GITHUB_REPOSITORY" || true
           gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" \
-            --body "The rolling upstream translation branch could not be rebased onto $BASE_BRANCH. Existing Chinese content was preserved. Conflicts: \`${CONFLICT_FILES:-unknown}\`."
+            --body "上游翻译分支无法变基到 $BASE_BRANCH，现有中文内容已保留。冲突文件：\`${CONFLICT_FILES:-未知}\`。"
           exit 1
 
       - name: Check out the exact publication base
@@ -493,12 +493,12 @@ jobs:
           if [[ "$build_code" -eq 0 ]]; then
             echo 'status=passed' >> "$GITHUB_OUTPUT"
           else
-            echo "status=failed (exit $build_code)" >> "$GITHUB_OUTPUT"
+            echo "status=失败（退出码 $build_code）" >> "$GITHUB_OUTPUT"
             node "$RUNNER_TEMP/upstream-agent-tool.mjs" finalize \
               --manifest "$RUNNER_TEMP/upstream-agent/manifest.json" \
               --report "$RUNNER_TEMP/upstream-agent/agent-report.json" \
               --output "$RUNNER_TEMP/upstream-agent/agent-report.json" \
-              --build-status "failed during publication (exit $build_code)" \
+              --build-status "在发布阶段失败（退出码 $build_code）" \
               --allow-finalized \
               --base "$BASE_COMMIT"
           fi
@@ -545,7 +545,7 @@ jobs:
             --manifest "$RUNNER_TEMP/upstream-agent/manifest.json" \
             --report "$RUNNER_TEMP/upstream-agent/agent-report.json" \
             --output "$RUNNER_TEMP/upstream-agent/pr-body.md"
-          title="docs: sync upstream through ${TARGET_COMMIT:0:12}"
+          title="docs: sync upstream docs through ${TARGET_COMMIT:0:12}"
 
           if [[ -n "$PR_NUMBER" ]]; then
             gh pr edit "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --title "$title" --body-file "$RUNNER_TEMP/upstream-agent/pr-body.md"
@@ -557,11 +557,11 @@ jobs:
           outcome=$(jq -r '.outcome' "$RUNNER_TEMP/upstream-agent/agent-report.json")
           if [[ "$outcome" == 'success' && "$PUBLISH_BUILD" == 'passed' ]]; then
             conclusion=success
-            check_title='Upstream translation passed'
+            check_title='上游文档翻译已通过'
             gh pr ready "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || true
           else
             conclusion=failure
-            check_title='Upstream translation needs review'
+            check_title='上游文档翻译需要人工审核'
             gh pr ready "$PR_NUMBER" --undo --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || true
           fi
 
@@ -570,7 +570,7 @@ jobs:
             --arg head_sha "$HEAD_SHA" \
             --arg conclusion "$conclusion" \
             --arg title "$check_title" \
-            --arg summary "See PR #$PR_NUMBER for the translation report." \
+            --arg summary "请查看 PR #$PR_NUMBER 中的翻译报告。" \
             '{name: $name, head_sha: $head_sha, status: "completed", conclusion: $conclusion, output: {title: $title, summary: $summary}}' \
             | gh api --method POST "repos/$GITHUB_REPOSITORY/check-runs" --input - >/dev/null
 

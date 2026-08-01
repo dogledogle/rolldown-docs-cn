@@ -18,6 +18,7 @@ import {
   normalizeAgentReport,
   parseNameStatusZ,
   prepare,
+  renderPrBody,
   validateMarkdownStructure,
   validateState,
   validateWorkspace,
@@ -280,6 +281,9 @@ test('workflow keeps APIClub Responses API-key compatibility settings', () => {
   assert.match(workflow, /BOT_BRANCH: codex\/upstream-sync-dev/);
   assert.match(workflow, /-f "base=\$BASE_BRANCH"/);
   assert.match(workflow, /--base "\$BASE_BRANCH"/);
+  assert.match(workflow, /title="docs: sync upstream docs through \$\{TARGET_COMMIT:0:12\}"/);
+  assert.match(workflow, /check_title='上游文档翻译已通过'/);
+  assert.match(workflow, /请查看 PR #\$PR_NUMBER 中的翻译报告/);
   assert.doesNotMatch(workflow, /base=main|ref: main|origin\/main|--base main/);
   assert.ok(
     workflow.indexOf('apt-get install --yes --no-install-recommends bubblewrap')
@@ -336,8 +340,8 @@ test('invalid agent reports fall back to needs_review without preserving raw out
   assert.deepEqual(report.changedFiles, []);
   assert.deepEqual(report.checks, []);
   assert.deepEqual(report.unresolved, [{
-    path: '(agent-report)',
-    reason: 'Agent final response was not valid JSON',
+    path: '(代理报告)',
+    reason: '代理最终响应不是有效的 JSON',
   }]);
   assert.doesNotMatch(readFileSync(reportPath, 'utf8'), /not-json-and-must-not-survive/);
 
@@ -353,7 +357,7 @@ test('invalid agent reports fall back to needs_review without preserving raw out
     reportPath,
   });
   assert.equal(invalidContractReport.outcome, 'needs_review');
-  assert.match(invalidContractReport.unresolved[0].reason, /failed local validation/);
+  assert.match(invalidContractReport.unresolved[0].reason, /未通过本地校验/);
 
   const finalized = finalize({
     cwd: fixture.cwd,
@@ -362,7 +366,7 @@ test('invalid agent reports fall back to needs_review without preserving raw out
     base: fixture.targetCommit,
   });
   assert.equal(finalized.outcome, 'needs_review');
-  assert.ok(finalized.unresolved.some((item) => item.path === '(agent-report)'));
+  assert.ok(finalized.unresolved.some((item) => item.path === '(代理报告)'));
 });
 
 test('prompt explicitly uses old English, new English, and current Chinese', () => {
@@ -374,4 +378,35 @@ test('prompt explicitly uses old English, new English, and current Chinese', () 
   assert.match(prompt, /Old English/);
   assert.match(prompt, /New English/);
   assert.match(prompt, /Current Simplified Chinese/);
+  assert.match(prompt, /write every `reason` in Simplified Chinese/);
+  assert.match(prompt, /write every item in Simplified Chinese/);
+});
+
+test('PR report is rendered in Simplified Chinese', () => {
+  const outputDir = mkdtempSync(join(tmpdir(), 'rolldown-upstream-pr-body-'));
+  temporaryDirectories.push(outputDir);
+  const manifestPath = join(outputDir, 'manifest.json');
+  const reportPath = join(outputDir, 'agent-report.json');
+  const outputPath = join(outputDir, 'pr-body.md');
+  writeFileSync(manifestPath, JSON.stringify({
+    baseline: { sourceCommit: 'a'.repeat(40) },
+    target: { sourceCommit: 'b'.repeat(40) },
+    totals: { files: 2, lines: 12 },
+  }));
+  writeFileSync(reportPath, JSON.stringify({
+    changedFiles: ['guide.md'],
+    unresolved: [{ path: 'api.md', reason: '术语需要人工确认' }],
+    checks: ['站点构建通过'],
+    outcome: 'needs_review',
+  }));
+
+  renderPrBody({ manifestPath, reportPath, outputPath });
+  const body = readFileSync(outputPath, 'utf8');
+  assert.match(body, /这是 Rolldown 上游文档变更的自动化三方增量移植报告/);
+  assert.match(body, /## 上游变更/);
+  assert.match(body, /## 翻译结果/);
+  assert.match(body, /状态：需要人工审核/);
+  assert.match(body, /`api\.md`：术语需要人工确认/);
+  assert.match(body, /## 检查结果\n\n- 站点构建通过/);
+  assert.doesNotMatch(body, /## (Upstream|Agent result|Unresolved|Checks)/);
 });

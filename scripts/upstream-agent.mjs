@@ -196,8 +196,8 @@ export function buildPrompt(manifest) {
     `The object must contain exactly these fields:\n\n` +
     `- \`targetCommit\`: the string \`${manifest.target.sourceCommit}\`\n` +
     `- \`changedFiles\`: an array of unique repository-relative path strings\n` +
-    `- \`unresolved\`: an array of objects containing exactly non-empty string fields \`path\` and \`reason\`\n` +
-    `- \`checks\`: an array of unique non-empty strings describing checks performed\n` +
+    `- \`unresolved\`: an array of objects containing exactly non-empty string fields \`path\` and \`reason\`; write every \`reason\` in Simplified Chinese\n` +
+    `- \`checks\`: an array of unique non-empty strings describing checks performed; write every item in Simplified Chinese\n` +
     `- \`outcome\`: either \`success\` or \`needs_review\`\n\n` +
     `Set \`outcome\` to \`needs_review\` whenever \`unresolved\` is non-empty.\n`;
 }
@@ -344,12 +344,12 @@ export function finalize({
     const wasHandled = candidatePaths.some((path) => actualPathSet.has(path) || unresolvedPathSet.has(path));
     if (!wasHandled) {
       const path = change.newPath ?? change.oldPath;
-      unresolved.push({ path, reason: 'Agent did not produce a change or explicitly resolve this upstream delta' });
+      unresolved.push({ path, reason: '代理未修改此文件，也未明确说明如何处理该上游变更' });
       unresolvedPathSet.add(normalizePath(path));
     }
   }
-  if (buildStatus === 'passed') checks.push('pnpm build passed');
-  else if (buildStatus) unresolved.push({ path: '(build)', reason: `pnpm build ${buildStatus}` });
+  if (buildStatus === 'passed') checks.push('pnpm build 构建通过');
+  else if (buildStatus) unresolved.push({ path: '(构建)', reason: `pnpm build 构建${buildStatus}` });
   const outcome = report.outcome === 'needs_review' || unresolved.length > 0 ? 'needs_review' : 'success';
   const normalizedReport = {
     targetCommit: manifest.target.sourceCommit,
@@ -408,42 +408,42 @@ export function validateWorkspace({ cwd = process.cwd(), base, manifestPath, rep
 
 function validateStringArray(value, field) {
   if (!Array.isArray(value) || value.some((item) => typeof item !== 'string' || item.length === 0)) {
-    throw new Error(`${field} must be an array of non-empty strings`);
+    throw new Error(`${field} 必须是由非空字符串组成的数组`);
   }
-  if (new Set(value).size !== value.length) throw new Error(`${field} must not contain duplicates`);
+  if (new Set(value).size !== value.length) throw new Error(`${field} 不能包含重复项`);
 }
 
 function validateAgentReport(report, targetCommit) {
   if (!report || typeof report !== 'object' || Array.isArray(report)) {
-    throw new Error('report must be an object');
+    throw new Error('report 必须是对象');
   }
   const expectedFields = ['targetCommit', 'changedFiles', 'unresolved', 'checks', 'outcome'];
   const actualFields = Object.keys(report).sort();
   if (actualFields.join('\0') !== [...expectedFields].sort().join('\0')) {
-    throw new Error(`report must contain exactly: ${expectedFields.join(', ')}`);
+    throw new Error(`report 必须且只能包含以下字段：${expectedFields.join(', ')}`);
   }
-  if (report.targetCommit !== targetCommit) throw new Error('targetCommit does not match the manifest');
+  if (report.targetCommit !== targetCommit) throw new Error('targetCommit 与变更清单不一致');
   validateStringArray(report.changedFiles, 'changedFiles');
   validateStringArray(report.checks, 'checks');
-  if (!Array.isArray(report.unresolved)) throw new Error('unresolved must be an array');
+  if (!Array.isArray(report.unresolved)) throw new Error('unresolved 必须是数组');
   for (const item of report.unresolved) {
     if (!item || typeof item !== 'object' || Array.isArray(item)) {
-      throw new Error('each unresolved item must be an object');
+      throw new Error('unresolved 中的每一项都必须是对象');
     }
     const keys = Object.keys(item).sort();
     if (keys.join('\0') !== 'path\0reason') {
-      throw new Error('each unresolved item must contain exactly path and reason');
+      throw new Error('unresolved 中的每一项必须且只能包含 path 和 reason');
     }
     if (typeof item.path !== 'string' || item.path.length === 0
       || typeof item.reason !== 'string' || item.reason.length === 0) {
-      throw new Error('unresolved path and reason must be non-empty strings');
+      throw new Error('unresolved 中的 path 和 reason 必须是非空字符串');
     }
   }
   if (!['success', 'needs_review'].includes(report.outcome)) {
-    throw new Error('outcome must be success or needs_review');
+    throw new Error('outcome 必须是 success 或 needs_review');
   }
   if (report.unresolved.length > 0 && report.outcome !== 'needs_review') {
-    throw new Error('outcome must be needs_review when unresolved is non-empty');
+    throw new Error('unresolved 非空时 outcome 必须是 needs_review');
   }
   return report;
 }
@@ -455,20 +455,20 @@ export function normalizeAgentReport({ manifestPath, reportPath }) {
   try {
     report = JSON.parse(readFileSync(reportPath, 'utf8'));
   } catch {
-    failureReason = 'Agent final response was not valid JSON';
+    failureReason = '代理最终响应不是有效的 JSON';
   }
   if (!failureReason) {
     try {
       validateAgentReport(report, manifest.target.sourceCommit);
     } catch (error) {
-      failureReason = `Agent report failed local validation: ${error.message}`;
+      failureReason = `代理报告未通过本地校验：${error.message}`;
     }
   }
   if (failureReason) {
     report = {
       targetCommit: manifest.target.sourceCommit,
       changedFiles: [],
-      unresolved: [{ path: '(agent-report)', reason: failureReason }],
+      unresolved: [{ path: '(代理报告)', reason: failureReason }],
       checks: [],
       outcome: 'needs_review',
     };
@@ -493,21 +493,22 @@ export function renderPrBody({ manifestPath, reportPath, outputPath }) {
   const manifest = readJson(manifestPath);
   const report = readJson(reportPath);
   const unresolved = report.unresolved.length === 0
-    ? '- None'
-    : report.unresolved.map((item) => `- \`${item.path}\`: ${item.reason}`).join('\n');
-  const checks = report.checks.length === 0 ? '- None reported' : report.checks.map((item) => `- ${item}`).join('\n');
-  const body = `Automated three-way port of Rolldown's upstream documentation changes.\n\n` +
-    `## Upstream\n\n` +
-    `- Commit: \`${manifest.target.sourceCommit}\`\n` +
-    `- Previous commit: \`${manifest.baseline.sourceCommit}\`\n` +
-    `- Files in this increment: ${manifest.totals.files}\n` +
-    `- Changed lines in this increment: ${manifest.totals.lines}\n\n` +
-    `## Agent result\n\n` +
-    `- Outcome: \`${report.outcome}\`\n` +
-    `- Files changed in the cumulative PR: ${report.changedFiles.length}\n\n` +
-    `## Unresolved\n\n${unresolved}\n\n` +
-    `## Checks\n\n${checks}\n\n` +
-    `This PR is never merged automatically. Review the Chinese wording and standalone-site adaptations before merging.\n`;
+    ? '- 无'
+    : report.unresolved.map((item) => `- \`${item.path}\`：${item.reason}`).join('\n');
+  const checks = report.checks.length === 0 ? '- 未报告检查项' : report.checks.map((item) => `- ${item}`).join('\n');
+  const outcome = report.outcome === 'success' ? '已通过' : '需要人工审核';
+  const body = `这是 Rolldown 上游文档变更的自动化三方增量移植报告。\n\n` +
+    `## 上游变更\n\n` +
+    `- 当前提交：\`${manifest.target.sourceCommit}\`\n` +
+    `- 上次同步提交：\`${manifest.baseline.sourceCommit}\`\n` +
+    `- 本次增量涉及文件数：${manifest.totals.files}\n` +
+    `- 本次增量变更行数：${manifest.totals.lines}\n\n` +
+    `## 翻译结果\n\n` +
+    `- 状态：${outcome}\n` +
+    `- 当前 PR 累计变更文件数：${report.changedFiles.length}\n\n` +
+    `## 未解决项\n\n${unresolved}\n\n` +
+    `## 检查结果\n\n${checks}\n\n` +
+    `此 PR 不会自动合并。合并前请检查中文表述和独立站点适配。\n`;
   writeFileSync(outputPath, body, 'utf8');
 }
 
