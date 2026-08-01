@@ -130,7 +130,7 @@ Rolldown 的原生 MagicString 实现使用 Rust 重写核心功能，带来了�
 | 5000     | 455.4 ms                                 | 249.9 ms                                     | 205.5 ms | 1.82x  |
 | 10000    | 799.0 ms                                 | 353.0 ms                                     | 446.0 ms | 2.26x  |
 
-详细的基准测试结果请参阅 [基准测试拉取请求](https://github.com/rolldown/benchmarks/pull/9/files)。
+详细的基准测试结果请参阅 [基准测试 PR](https://github.com/rolldown/benchmarks/pull/9/files)。
 
 ## 使用示例
 
