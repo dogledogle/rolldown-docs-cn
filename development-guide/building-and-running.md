@@ -16,7 +16,7 @@
 - `just test`：运行所有测试。
 - `just lint`：格式化并检查代码库。
 - `just fix`：修复格式和 lint 问题。
-- `just build`：构建 `rolldown` Node.js 包（以及 `@rolldown/pluginutils` Node.js 包）。
+- `just build`：构建 `rolldown` Node.js 包。
 - `just run`：使用 Node.js 运行 `rolldown` CLI。
 
 > 大多数命令会同时运行 Rust 和 Node.js 脚本。如果只想处理其中一端，请在 just 命令后附加 `-rust` 或 `-node`，例如 `just lint-rust` 或 `just test-node`。
