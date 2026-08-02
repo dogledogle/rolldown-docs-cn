@@ -8,8 +8,8 @@ Rolldown 为 CommonJS 模块提供一等支持。本文介绍 Rolldown 如何处
 
 Rolldown 会自动识别并处理 CommonJS 模块，无需任何额外插件或包。原生支持意味着：
 
-- 无需安装额外依赖。
-- 与基于插件的方案相比，性能更好。
+- 无需安装额外依赖
+- 与基于插件的方案相比，性能更好
 
 ### 按需执行
 
@@ -103,8 +103,8 @@ console.log(import_foo.value);
 
 使用 [`platform: 'node'`](../guide/notable-features.md#平台预设) 时，Rolldown 会通过 [`module.createRequire`](https://nodejs.org/docs/latest/api/module.html#modulecreaterequirefilename) 生成 `require` 函数，完整保留 `require` 的语义。与转换为 `import` 相比，这种方式有两个缺点：
 
-1. 要求运行时支持 `module.createRequire` 函数，而部分兼容 Node.js 的环境可能不提供该函数。
-2. 不适合预期会再次打包的库，因为 `require` 函数会成为局部变量，使打包器更难静态分析代码。
+1. 要求运行时支持 `module.createRequire` 函数，而部分兼容 Node.js 的环境可能不提供该函数
+2. 不适合预期会再次打包的库，因为 `require` 函数会成为局部变量，使打包器更难静态分析代码
 
 对于其他平台，Rolldown 会原样保留 `require`，由运行环境提供该函数，或由用户手动注入。例如，可以使用 [`inject` 功能](../guide/notable-features.md#inject)，注入一个返回 `import` 所得值的 `require` 函数。
 
@@ -138,12 +138,12 @@ export default (id) => {
 
 如果满足以下任一条件，`default` 导入就是被导入 CJS 模块的 `module.exports` 值。否则，`default` 导入就是被导入 CJS 模块的 `module.exports.default` 值。
 
-- 导入方是 `.mjs` 或 `.mts` 文件。
-- （动态导入时）导入方是 `.cjs` 或 `.cts` 文件。
-- 距离导入方最近的 `package.json` 将 `type` 字段设为 `module`。
-- （动态导入时）距离导入方最近的 `package.json` 将 `type` 字段设为 `commonjs`。
-- 被导入 CJS 模块的 `module.exports.__esModule` 值未设为 `true`。
-- 被导入 CJS 模块的 `module.exports` 值没有自身的 `default` 属性。
+- 导入方是 `.mjs` 或 `.mts` 文件
+- （动态导入时）导入方是 `.cjs` 或 `.cts` 文件
+- 距离导入方最近的 `package.json` 将 `type` 字段设为 `module`
+- （动态导入时）距离导入方最近的 `package.json` 将 `type` 字段设为 `commonjs`
+- 被导入 CJS 模块的 `module.exports.__esModule` 值未设为 `true`
+- 被导入 CJS 模块的 `module.exports` 值没有自身的 `default` 属性
 
 最后一项用于处理设置了 `__esModule`、但实际没有提供 `default` 导出的 CJS 模块（例如 tslib 的 UMD 构建）。没有这项规则时，`default` 导入会是 `undefined`。`@rollup/plugin-commonjs` 使用相同的回退方式处理这种情况。
 
@@ -213,5 +213,5 @@ console.log(foo);
 
 Rolldown 对 CommonJS 模块的一等支持为多种潜在优化奠定基础：
 
-- 针对 CommonJS 模块的高级摇树优化能力。
-- 更好的无用代码消除。
+- 针对 CommonJS 模块的高级摇树优化能力
+- 更好的无用代码消除

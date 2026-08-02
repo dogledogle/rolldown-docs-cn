@@ -16,7 +16,7 @@
 :::
 
 - `just test`：运行所有测试。
-- `just test-update`：运行所有测试并自动更新快照。
+- `just test-update`：运行所有测试并自动更新快照
 - `just test-rust`：运行所有 Rust 测试。
 - `just test-node`：运行所有 Node.js 测试。
 - `just test-node-rolldown`：仅运行 Rolldown 的 Node.js 测试。

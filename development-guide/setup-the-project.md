@@ -8,8 +8,8 @@
 
 构建和运行 Rolldown 只需要少量工具。你需要：
 
-- 通过 [rustup](https://www.rust-lang.org/tools/install) 安装 Rust。
-- 安装 `just`。
+- 通过 [rustup](https://www.rust-lang.org/tools/install) 安装 Rust
+- 安装 `just`
 
 可以运行以下命令快速安装 `just`，也可以按照官方 [指南](https://github.com/casey/just?tab=readme-ov-file#installation) 安装：
 
@@ -37,11 +37,11 @@ cargo install just
 
 :::
 
-- 安装 `cmake`。
+- 安装 `cmake`
 
 可以按照官方 [下载说明](https://cmake.org/download/) 进行安装。
 
-- 安装 Node.js {{ data.nodeVersion }} / 21.2.0 或更高版本。
+- 安装 Node.js {{ data.nodeVersion }} / 21.2.0 或更高版本
 
 ## `just setup`
 

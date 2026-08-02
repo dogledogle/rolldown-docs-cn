@@ -86,10 +86,10 @@ diff --git a/apps/10000/src/index.jsx b/apps/10000/src/index.jsx
 
 **测试设置：**
 
-- 10 个 CSS 文件（`foo1.css` 到 `foo10.css`）。
-- 每个插件只转换一个特定 CSS 文件（例如，插件 1 只关心 `foo1.css`）。
-- 通过 `PLUGIN_COUNT` 控制插件数量。
-- 插件采用标准模式：检查文件是否匹配，不匹配则提前返回。
+- 10 个 CSS 文件（`foo1.css` 到 `foo10.css`）
+- 每个插件只转换一个特定 CSS 文件（例如，插件 1 只关心 `foo1.css`）
+- 通过 `PLUGIN_COUNT` 控制插件数量
+- 插件采用标准模式：检查文件是否匹配，不匹配则提前返回
 
 ### 不使用过滤器（传统方式）
 
@@ -165,9 +165,9 @@ index 822af995..dee07e68 100644
 
 **变更内容：**
 
-- 将 `transform` 函数包装在带 `handler` 和 `filter` 属性的对象中。
-- 添加 `filter.id.include`，使用正则表达式只匹配插件关心的文件。
-- Rolldown 现在会在调用 JavaScript **之前**，先在 Rust 中检查过滤器。
+- 将 `transform` 函数包装在带 `handler` 和 `filter` 属性的对象中
+- 添加 `filter.id.include`，使用正则表达式只匹配插件关心的文件
+- Rolldown 现在会在调用 JavaScript **之前**，先在 Rust 中检查过滤器
 
 ### 使用过滤器（优化后）
 
@@ -259,10 +259,10 @@ digraph {
 
 瓶颈在于：**JavaScript 插件在单线程中运行**。尽管 Rolldown 的 Rust 核心可以并行处理，每个模块仍必须：
 
-1. 在“菱形”处停止（钩子调用阶段）。
-2. 跨越 FFI 边界，从 Rust 进入 JavaScript。
-3. 等待**所有**插件依次运行。
-4. 再从 JavaScript 返回 Rust。
+1. 在“菱形”处停止（钩子调用阶段）
+2. 跨越 FFI 边界，从 Rust 进入 JavaScript
+3. 等待**所有**插件依次运行
+4. 再从 JavaScript 返回 Rust
 
 这个串行点会成为主要瓶颈。可以看到，随着插件增加，菱形区域越来越宽，而 CPU 核心只能空闲等待 JavaScript。
 
@@ -284,10 +284,10 @@ digraph {
 
 **在以下情况下使用过滤器：**
 
-- 插件只处理特定文件类型（例如 `.css`、`.svg`、`.md`）。
-- 插件只针对特定目录（例如 `src/**`、`node_modules/**`）。
-- 构建中包含多个插件。
-- 关注构建性能。
+- 插件只处理特定文件类型（例如 `.css`、`.svg`、`.md`）
+- 插件只针对特定目录（例如 `src/**`、`node_modules/**`）
+- 构建中包含多个插件
+- 关注构建性能
 
 ## 快速参考
 

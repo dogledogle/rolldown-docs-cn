@@ -269,9 +269,9 @@ renderError .-> closeBundle
 
 具体区别如下：
 
-- 在 Rolldown 中，[`outputOptions`](https://rolldown.rs/reference/Interface.FunctionPluginHooks#outputoptions) 钩子在构建钩子**之前**调用，而 Rollup 在构建钩子**之后**调用。
-- 每个输出都会分别调用构建钩子，而 Rollup 只为所有输出调用一次。
-- 只有至少调用过一次 [`generate()`](https://rolldown.rs/reference/Interface.RolldownBuild#generate) 或 [`write()`](https://rolldown.rs/reference/Interface.RolldownBuild#write) 时，Rolldown 才会调用 [`closeBundle`](https://rolldown.rs/reference/Interface.FunctionPluginHooks#closebundle) 钩子；Rollup 则无论是否调用过 `generate()` 或 `write()` 都会调用。
+- 在 Rolldown 中，[`outputOptions`](https://rolldown.rs/reference/Interface.FunctionPluginHooks#outputoptions) 钩子在构建钩子**之前**调用，而 Rollup 在构建钩子**之后**调用
+- 每个输出都会分别调用构建钩子，而 Rollup 只为所有输出调用一次
+- 只有至少调用过一次 [`generate()`](https://rolldown.rs/reference/Interface.RolldownBuild#generate) 或 [`write()`](https://rolldown.rs/reference/Interface.RolldownBuild#write) 时，Rolldown 才会调用 [`closeBundle`](https://rolldown.rs/reference/Interface.FunctionPluginHooks#closebundle) 钩子；Rollup 则无论是否调用过 `generate()` 或 `write()` 都会调用
 
 ### 监听模式中的钩子行为
 

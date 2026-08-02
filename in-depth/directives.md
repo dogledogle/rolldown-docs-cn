@@ -29,9 +29,9 @@ export default defineConfig({
 
 当 `output.format` 不是 `'es'` 且 `output.strict` 为 `'auto'` 时，Rolldown 会在以下任一情况下输出 `"use strict"` 指令：
 
-- 指令不在顶层作用域中，且不在严格模式作用域内（[REPL](https://repl.rolldown.rs/#eNptjk0KAyEMha8SsrGF4gGE3mQ24mhxsMmgsR0YvHu1pT+LbpJ8L+G97BjQ7Bhp9pteypgJzZdP6Dr6beUsRQdmOEOo5CQygT0cYZ8IQNXioUiOTtTg7KVmAtXvO7eJuo9HI7n6dsLMKc18J+2YQrxo+cT+2fw+ALMPtibpoXnEcJW1inkjQOB8tV1QbinqJbbRngVbz751s2TFF8H2AIc5VRY=)）。
-- 指令位于顶层作用域中，且该模块是入口模块（[REPL](https://repl.rolldown.rs/#eNptUEtuhDAMvYqVDVCN6Kobuuw12FBwpqmCQx2nTYVy9zGD5qPRbJK8Z7+PshprutU4mjC333F7k+lu+GBGhVWKCFHYjVK99+TmJbDA1/+C/JE+ESyHGar2Nf6kgVF121ZPY6AYPLY+HOvrcv3WNDpVZzSdcMJyMFfdJf9GPC3QE+ZzhQntkLyATTSKCwS7sM4NrD0BMEpiggwvkFVXNFfjOHg/hT9qtaB1x7vcJ5O9wEPe2vNmH5IsSboLBLCB50GJatQ/2MmyXefDFM3+VTM/CEYx5QSMo4I7)）。
-- 指令位于顶层作用域中，且启用了 `output.preserveModules`（[REPL](https://repl.rolldown.rs/#eNptkE1uhDAMha9iZQNUiK66ocuuewM2FJwpVYip40ypUO5eZxAz1Wg2Sfzz/L14M9a0m5n8iGvzFfLbm/YW12bQsIgBIQhPgxSvnZ/mhVjg83dBfosfCJZphqJ5Dt+xZ1Rd7ur8QD6Qw8bRqbw2ly9VpVWdjKYVjphqc9Ud/FvioQFcLwZGtH10Ajb6QSbysMvKtYKt8wCMEtnDCk+wqiopVWFMzo304xu1Z6fTP+qDyo6/420d5/EUZYnSHiGAJZ57TRSDbqA+sgtjQD7jO43RYWghf3ovpnxdDpPU2VlRrhcMYtIfQpqMFA==)）。
+- 指令不在顶层作用域中，且不在严格模式作用域内（[REPL](https://repl.rolldown.rs/#eNptjk0KAyEMha8SsrGF4gGE3mQ24mhxsMmgsR0YvHu1pT+LbpJ8L+G97BjQ7Bhp9pteypgJzZdP6Dr6beUsRQdmOEOo5CQygT0cYZ8IQNXioUiOTtTg7KVmAtXvO7eJuo9HI7n6dsLMKc18J+2YQrxo+cT+2fw+ALMPtibpoXnEcJW1inkjQOB8tV1QbinqJbbRngVbz751s2TFF8H2AIc5VRY=)）
+- 指令位于顶层作用域中，且该模块是入口模块（[REPL](https://repl.rolldown.rs/#eNptUEtuhDAMvYqVDVCN6Kobuuw12FBwpqmCQx2nTYVy9zGD5qPRbJK8Z7+PshprutU4mjC333F7k+lu+GBGhVWKCFHYjVK99+TmJbDA1/+C/JE+ESyHGar2Nf6kgVF121ZPY6AYPLY+HOvrcv3WNDpVZzSdcMJyMFfdJf9GPC3QE+ZzhQntkLyATTSKCwS7sM4NrD0BMEpiggwvkFVXNFfjOHg/hT9qtaB1x7vcJ5O9wEPe2vNmH5IsSboLBLCB50GJatQ/2MmyXefDFM3+VTM/CEYx5QSMo4I7)）
+- 指令位于顶层作用域中，且启用了 `output.preserveModules`（[REPL](https://repl.rolldown.rs/#eNptkE1uhDAMha9iZQNUiK66ocuuewM2FJwpVYip40ypUO5eZxAz1Wg2Sfzz/L14M9a0m5n8iGvzFfLbm/YW12bQsIgBIQhPgxSvnZ/mhVjg83dBfosfCJZphqJ5Dt+xZ1Rd7ur8QD6Qw8bRqbw2ly9VpVWdjKYVjphqc9Ud/FvioQFcLwZGtH10Ajb6QSbysMvKtYKt8wCMEtnDCk+wqiopVWFMzo304xu1Z6fTP+qDyo6/420d5/EUZYnSHiGAJZ57TRSDbqA+sgtjQD7jO43RYWghf3ovpnxdDpPU2VlRrhcMYtIfQpqMFA==)）
 
 ## 其他指令
 
@@ -39,9 +39,9 @@ ECMAScript 规范允许各实现定义额外指令。由于这些额外指令并
 
 Rolldown 会在以下任一情况下输出指令：
 
-- 指令不在顶层作用域中（[REPL](https://repl.rolldown.rs/#eNptjt0KwyAMhV8l5MYNig8g7E16I1ZHi02Kxq1QfPfpxn4udpPkOwnn5MCA5sCZJr/rJfeZ0Hx5QNfQ7xsnyTowwwVCISczE9jTGY6RAFTJHlzJwqvqnLyURKDafeM6UvPxaCQVXwdMHOPEd9KOKcxXLZ/YP5vfB2DywZYoLTT1GC6yFTFvBAicVtsE5ZasXmLt7VmwtuxbM4tWfBasD4hqVRg=)）。
-- 指令位于顶层作用域中，且该模块是入口模块（[REPL](https://repl.rolldown.rs/#eNptUM1OwzAMfhUrl7ZolBOXcuQ1eimtM4pSuzgOdKr67riLtiHYJYn9/Sqr865Z3UgDLvVH3N/kmtt8cL2NRYoIfYrK0yOSyql4aWmcZhaF99OM8preELzwBEX9FD9TJ2jqndVSzxQ5YB34WF7J5XNVGWr+6BqVhNvBXXWXFrfF/xoZywm4nJsM6LsUFHyiXkcmyJxyqWBtCUBQkxAs8ACL6TaLt1ThEAb+ptp6+vH4K/4Oknv8yVtb2e056Zy0uYwAnmXqbFH09hV5ue3X+XCbZX+ZWegUo7rtB/Gqh1w=)）。
-- 指令位于顶层作用域中，且启用了 `output.preserveModules`（[REPL](https://repl.rolldown.rs/#eNptkM9ShDAMxl8l0wvgIJ684NGzb8AFIV1xSoNps7LD8O6mMOw6upe2+fPl+zWLsaZezOB7nKvPkN7e1Le4NJ2GmQSETkKk8RF95Ev20vhhnIgjfFwm5Fd5R7BMI2TVU/iSllHVqavxHflADitHp/zanD8XhVZ1Ppo6suBamqvuoLgl/mOM1IvD5IDzxtGjbcVFsOK7OJCHXZ3PBSyNB2CMwh5meIBZVauaqyeTcz19+0op7XD6ZX6nslP88VsaTuNJ4iSxPkIASzy2msg6XUR5ZCfGgHzGtw0/1JD+vhfXdG2HWZXsrFaujRiiWX8ALR2RKg==)）。
+- 指令不在顶层作用域中（[REPL](https://repl.rolldown.rs/#eNptjt0KwyAMhV8l5MYNig8g7E16I1ZHi02Kxq1QfPfpxn4udpPkOwnn5MCA5sCZJr/rJfeZ0Hx5QNfQ7xsnyTowwwVCISczE9jTGY6RAFTJHlzJwqvqnLyURKDafeM6UvPxaCQVXwdMHOPEd9KOKcxXLZ/YP5vfB2DywZYoLTT1GC6yFTFvBAicVtsE5ZasXmLt7VmwtuxbM4tWfBasD4hqVRg=)）
+- 指令位于顶层作用域中，且该模块是入口模块（[REPL](https://repl.rolldown.rs/#eNptUM1OwzAMfhUrl7ZolBOXcuQ1eimtM4pSuzgOdKr67riLtiHYJYn9/Sqr865Z3UgDLvVH3N/kmtt8cL2NRYoIfYrK0yOSyql4aWmcZhaF99OM8preELzwBEX9FD9TJ2jqndVSzxQ5YB34WF7J5XNVGWr+6BqVhNvBXXWXFrfF/xoZywm4nJsM6LsUFHyiXkcmyJxyqWBtCUBQkxAs8ACL6TaLt1ThEAb+ptp6+vH4K/4Oknv8yVtb2e056Zy0uYwAnmXqbFH09hV5ue3X+XCbZX+ZWegUo7rtB/Gqh1w=)）
+- 指令位于顶层作用域中，且启用了 `output.preserveModules`（[REPL](https://repl.rolldown.rs/#eNptkM9ShDAMxl8l0wvgIJ684NGzb8AFIV1xSoNps7LD8O6mMOw6upe2+fPl+zWLsaZezOB7nKvPkN7e1Le4NJ2GmQSETkKk8RF95Ev20vhhnIgjfFwm5Fd5R7BMI2TVU/iSllHVqavxHflADitHp/zanD8XhVZ1Ppo6suBamqvuoLgl/mOM1IvD5IDzxtGjbcVFsOK7OJCHXZ3PBSyNB2CMwh5meIBZVauaqyeTcz19+0op7XD6ZX6nslP88VsaTuNJ4iSxPkIASzy2msg6XUR5ZCfGgHzGtw0/1JD+vhfXdG2HWZXsrFaujRiiWX8ALR2RKg==)）
 
 如果希望向所有文件添加自定义指令，可以使用 `output.banner` 选项：
 

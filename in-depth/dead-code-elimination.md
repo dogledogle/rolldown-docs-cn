@@ -4,8 +4,8 @@
 
 Rolldown 会移除**同时**满足以下两个条件的代码：
 
-1. **未使用**：该值从未被使用。
-2. **没有副作用**：移除代码不会改变程序行为。
+1. **未使用**：该值从未被使用
+2. **没有副作用**：移除代码不会改变程序行为
 
 以下是一个简单示例：
 
@@ -34,9 +34,9 @@ console.log(add(2, 3));
 
 副作用是指任何影响自身作用域之外内容的操作。常见副作用包括：
 
-- 修改全局变量或 DOM。
-- 导入 CSS 文件（会向页面应用样式）。
-- 修改原型或全局对象的 polyfill。
+- 修改全局变量或 DOM
+- 导入 CSS 文件（会向页面应用样式）
+- 修改原型或全局对象的 polyfill
 
 ```js
 // 副作用：应用样式
@@ -53,9 +53,9 @@ Array.prototype.first = function () {
 
 Rolldown 会自动分析代码，并通过检查以下内容检测副作用：
 
-- 模块是否包含导入时运行的顶层代码。
-- 函数调用是否可能修改外部状态。
-- 属性访问是否可能触发具有副作用的 getter。
+- 模块是否包含导入时运行的顶层代码
+- 函数调用是否可能修改外部状态
+- 属性访问是否可能触发具有副作用的 getter
 
 不过，静态分析存在局限。有些模式过于动态，无法分析；不确定时，Rolldown 可能会保守地保留代码。可以使用 [`treeshake.unknownGlobalSideEffects`](https://rolldown.rs/reference/InputOptions.treeshake#unknownglobalsideeffects) 和 [`treeshake.propertyReadSideEffects`](https://rolldown.rs/reference/InputOptions.treeshake#propertyreadsideeffects) 调整此行为。
 
@@ -146,8 +146,8 @@ export { divide };
 
 本例中：
 
-- 如果执行 `import { add } from './utils.js'`，模块会被视为“已使用”，因为 `add` 在 `utils.js` 中定义。
-- 如果只执行 `import { multiply } from './utils.js'`，模块会被视为“未使用”，因为 `multiply` 只是重新导出，并非在此处定义。
+- 如果执行 `import { add } from './utils.js'`，模块会被视为“已使用”，因为 `add` 在 `utils.js` 中定义
+- 如果只执行 `import { multiply } from './utils.js'`，模块会被视为“未使用”，因为 `multiply` 只是重新导出，并非在此处定义
 
 :::
 
@@ -282,11 +282,11 @@ export default {
 
 确定模块副作用时，优先级顺序如下：
 
-1. `transform` 钩子返回的 `moduleSideEffects`。
-2. `load` 钩子返回的 `moduleSideEffects`。
-3. `resolveId` 钩子返回的 `moduleSideEffects`。
-4. [`treeshake.moduleSideEffects`](https://rolldown.rs/reference/InputOptions.treeshake#modulesideeffects) 选项。
-5. `package.json` 中的 `sideEffects` 字段。
+1. `transform` 钩子返回的 `moduleSideEffects`
+2. `load` 钩子返回的 `moduleSideEffects`
+3. `resolveId` 钩子返回的 `moduleSideEffects`
+4. [`treeshake.moduleSideEffects`](https://rolldown.rs/reference/InputOptions.treeshake#modulesideeffects) 选项
+5. `package.json` 中的 `sideEffects` 字段
 
 ## 示例：优化组件库
 
@@ -339,7 +339,7 @@ render(<Button />);
 
 Rolldown 将会：
 
-1. 包含 `components/Button.js`（因为使用了 `Button`）。
-2. 包含 `components/Button.css`（因为 `components/Button.js` 导入了它，且它被标记为具有副作用）。
-3. 排除 `components/Modal.js`（因为未使用 `Modal`）。
-4. 排除 `components/Modal.css`（因为 `components/Modal.js` 被排除）。
+1. 包含 `components/Button.js`（因为使用了 `Button`）
+2. 包含 `components/Button.css`（因为 `components/Button.js` 导入了它，且它被标记为具有副作用）
+3. 排除 `components/Modal.js`（因为未使用 `Modal`）
+4. 排除 `components/Modal.css`（因为 `components/Modal.js` 被排除）
