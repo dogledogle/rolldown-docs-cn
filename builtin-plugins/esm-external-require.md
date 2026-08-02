@@ -81,17 +81,17 @@ Found 2 duplicate external: `react`, `vue`. Remove them from top-level `external
 
 由于该插件会把 `require()` 调用改为 `import` 语句，打包后存在一些语义差异：
 
-- 解析基于 `import` 而非 `require` 的行为。
-  - 例如，会使用 `import` 条件而不是 `require` 条件。
+- 解析基于 `import` 而非 `require` 的行为
+  - 例如，会使用 `import` 条件而不是 `require` 条件
 - 得到的值可能与原始 `require()` 调用不同，尤其是包含默认导出的模块。
 
 ## 工作原理
 
 该插件会拦截针对选项中指定依赖的 `require()` 调用，并创建虚拟门面模块来：
 
-1. 使用 ESM `import * as m from '...'` 导入依赖。
-2. 使用 `module.exports = m` 重新导出，以兼容 CommonJS。
-3. 将原始 `require()` 替换为对虚拟模块的引用。
+1. 使用 ESM `import * as m from '...'` 导入依赖
+2. 使用 `module.exports = m` 重新导出，以兼容 CommonJS
+3. 将原始 `require()` 替换为对虚拟模块的引用
 
 对于非外部模块的 `require()` 调用，Rolldown 会自动包装并转换为 ESM import。
 

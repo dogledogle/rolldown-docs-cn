@@ -34,4 +34,4 @@ Rolldown 项目最初由 [Yinan Long](https://github.com/Brooooooklyn)（又名 
 
 此外，我们还要感谢：
 
-- [Charlike Mike Reagent](https://github.com/tunnckoCore) 允许我们在 npm 上使用 `rolldown` 包名。
+- [Charlike Mike Reagent](https://github.com/tunnckoCore) 允许我们在 npm 上使用 `rolldown` 包名
