@@ -223,6 +223,17 @@ const sidebarForResources: DefaultTheme.SidebarItem[] = [
   },
 ];
 
+const maintenanceDocFiles = ['README.md', 'UPSTREAM.md'];
+
+const sidebarForLlms: DefaultTheme.SidebarItem[] = [
+  ...sidebarForGuide,
+  ...sidebarForPlugins,
+  ...sidebarForApi,
+  ...sidebarForReference,
+  ...sidebarForDevGuide,
+  ...sidebarForResources,
+];
+
 // https://vitepress.dev/reference/site-config
 const config = defineConfig({
   lang: 'zh-CN',
@@ -240,6 +251,7 @@ const config = defineConfig({
   },
   title: 'Rolldown',
   description: '基于 Rust 的高性能 JavaScript 打包器，提供兼容 Rollup 的 API',
+  srcExclude: maintenanceDocFiles,
   lastUpdated: true,
   cleanUrls: true,
   head: [
@@ -450,7 +462,8 @@ const config = defineConfig({
         },
       }) as any,
       llmstxt({
-        ignoreFiles: ['index.md', 'README.md', 'team.md'],
+        ignoreFiles: [...maintenanceDocFiles, 'index.md', 'team.md'],
+        sidebar: sidebarForLlms,
         description: '基于 Rust 的高性能 JavaScript 打包器，提供兼容 Rollup 的 API',
         details: '',
       }),
