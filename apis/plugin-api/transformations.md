@@ -19,3 +19,57 @@ return {
   map: null,
 };
 ```
+
+## 转换代码块
+
+可以使用 [`renderChunk`](https://rolldown.rs/reference/Interface.Plugin#renderchunk) 转换代码块。如果返回所应用转换的 sourcemap，Rolldown 会将该映射与之前的转换组合起来，并根据选项重新构建 `x_google_ignoreList` 字段：
+
+```js
+import MagicString from 'magic-string';
+
+export default function myPlugin() {
+  return {
+    name: 'example',
+    renderChunk(code) {
+      const s = new MagicString(code);
+      s.prepend('/* banner */\n');
+      return { code: s.toString(), map: s.generateMap({ hires: 'boundary' }) };
+    },
+  };
+}
+```
+
+我们不建议在 [`generateBundle`](https://rolldown.rs/reference/Interface.Plugin#generatebundle) 中进行转换。它在哈希计算之后运行，因此输出文件名保留的是未转换代码的哈希；同时它在 `.map` 资源构建之后运行，因此编辑 `chunk.map` 不会改变该文件。不过，如果必须在那里转换，请组合映射并自行写入资源：
+
+```js
+import remapping from '@jridgewell/remapping';
+import MagicString from 'magic-string';
+
+export default function myPlugin() {
+  return {
+    name: 'example',
+    generateBundle(options, bundle) {
+      for (const chunk of Object.values(bundle)) {
+        if (chunk.type !== 'chunk') continue;
+
+        const s = new MagicString(chunk.code);
+        // ...your transform...
+        if (!s.hasChanged()) continue;
+
+        // A low-resolution map can compose down to nothing, so keep the mappings at the boundaries.
+        const step = s.generateMap({ source: chunk.fileName, hires: 'boundary' });
+        chunk.code = s.toString();
+
+        if (chunk.map) {
+          // compose the sourcemap
+          chunk.map = remapping([step, chunk.map], () => null);
+
+          // The emitted file comes from this asset, not from `chunk.map`.
+          const asset = bundle[`${chunk.fileName}.map`];
+          if (asset) asset.source = chunk.map.toString();
+        }
+      }
+    },
+  };
+}
+```

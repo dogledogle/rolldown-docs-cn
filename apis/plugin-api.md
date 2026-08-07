@@ -282,3 +282,12 @@ renderError .-> closeBundle
 在 Rollup 中，[`writeBundle`](https://rolldown.rs/reference/Interface.FunctionPluginHooks#writebundle) 等部分钩子默认是“并行”的，也就是会跨多个插件并发运行。如果需要钩子依次运行，插件必须显式设置 `sequential: true`。
 
 在 Rolldown 中，[`writeBundle`](https://rolldown.rs/reference/Interface.FunctionPluginHooks#writebundle) 钩子默认已经顺序执行，因此插件无需为该钩子指定 `sequential: true`。
+
+### Sourcemap 校验
+
+Rollup 不会根据插件 sourcemap 自身的 `sources` 和 `names` 检查映射。指向缺失 source 的映射会被丢弃；指向缺失 name 的映射会被保留，但不带 name。Rolldown 在将映射转换为内部表示时会检查每个索引，因此 Rollup 能接受的无效映射可能会在这里导致构建失败。例如：
+
+```
+Failed to convert json sourcemap to struct
+Reference to non-existing source at position 1
+```
