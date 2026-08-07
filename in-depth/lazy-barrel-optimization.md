@@ -43,9 +43,9 @@ console.log(a);
 
 使用惰性聚合模块优化后：
 
-- 加载并分析 `barrel/index.js`。
-- 由于导入了 `a`，只编译 `a.js`。
-- 由于未使用 `b`，**不编译** `b.js`。
+- 加载并分析 `barrel/index.js`
+- 由于导入了 `a`，只编译 `a.js`
+- 由于未使用 `b`，**不编译** `b.js`
 
 ## 支持的导出模式
 
@@ -230,11 +230,11 @@ import { index, c } from './barrel';
 
 本例中，导入 `index` 时会加载 `a.js`、`b.js`、`c.js`、`d.js` 和 `e.js`：
 
-- `import './a'`：加载 `a.js`，不请求任何说明符。
-- `import { b } from './b'`：加载 `b.js` 并请求 `b`（聚合模块自身的代码使用了它）。
-- `import { e } from './e'; export { e }`（先导入再导出）：加载 `e.js` 并请求 `e`，因为 Rolldown 无法静态判断聚合模块自身的代码是否也使用了 `e`。
-- `export { c } from './c'`（专用重新导出）：加载 `c.js` 并请求 `c`（因为 main.js 导入了 `c`）。
-- `export { d } from './d'`（专用重新导出）：加载 `d.js`，但不请求任何说明符（类似 `import './d'`，因为 main.js 没有导入 `d`）。
+- `import './a'`：加载 `a.js`，不请求任何说明符
+- `import { b } from './b'`：加载 `b.js` 并请求 `b`（聚合模块自身的代码使用了它）
+- `import { e } from './e'; export { e }`（先导入再导出）：加载 `e.js` 并请求 `e`，因为 Rolldown 无法静态判断聚合模块自身的代码是否也使用了 `e`
+- `export { c } from './c'`（专用重新导出）：加载 `c.js` 并请求 `c`（因为 main.js 导入了 `c`）
+- `export { d } from './d'`（专用重新导出）：加载 `d.js`，但不请求任何说明符（类似 `import './d'`，因为 main.js 没有导入 `d`）
 
 请注意专用重新导出记录（`export { .. } from '..'`、`export * as ns from '..'`）与先导入再导出模式生成的共享导入记录之间的区别。当 main.js 加载聚合模块的自身导出、使聚合模块必须执行时，如果 main.js 没有请求专用重新导出记录的绑定，该记录仍可回退到空说明符集合。相比之下，共享导入记录始终保留完整说明符，因为聚合模块自身的代码可能引用这些绑定。
 
@@ -263,9 +263,9 @@ export default {
 
 要让惰性聚合模块优化生效，需要明确将聚合模块标记为无副作用：
 
-1. **包声明**：在 `package.json` 中添加 `"sideEffects": false`。
+1. **包声明**：在 `package.json` 中添加 `"sideEffects": false`
 
-2. **Rolldown 插件钩子**：从 `resolveId`、`load` 或 `transform` 钩子返回 `moduleSideEffects: false`。
+2. **Rolldown 插件钩子**：从 `resolveId`、`load` 或 `transform` 钩子返回 `moduleSideEffects: false`
 
 ```js
 // rolldown.config.js
@@ -283,7 +283,7 @@ export default {
 };
 ```
 
-3. **Rolldown 配置**：使用 `treeshake.moduleSideEffects` 选项。
+3. **Rolldown 配置**：使用 `treeshake.moduleSideEffects` 选项
 
 ```js
 // rolldown.config.js
@@ -318,8 +318,8 @@ export default {
 
 惰性聚合模块优化在以下情况下尤其有益：
 
-- 代码库包含许多聚合模块（常见于组件库）。
-- 聚合模块重新导出大量模块，但使用者通常只用到少数几个。
+- 代码库包含许多聚合模块（常见于组件库）
+- 聚合模块重新导出大量模块，但使用者通常只用到少数几个
 
 ## 大型聚合模块
 
@@ -352,7 +352,7 @@ import Search from '@mui/icons-material/esm/Search';
 
 ## 限制
 
-- 无法优化具有副作用的聚合模块。
-- 无法匹配的命名导入需要加载所有星号重新导出才能完成解析。
-- 入口文件、`import * as ns`、`import('..')`、`require('..')` 等会使聚合模块加载全部导出项。
-- 如果聚合模块包含自身导出（不只是重新导出），使用任何自身导出都会导致加载其所有导入记录。
+- 无法优化具有副作用的聚合模块
+- 无法匹配的命名导入需要加载所有星号重新导出才能完成解析
+- 入口文件、`import * as ns`、`import('..')`、`require('..')` 等会使聚合模块加载全部导出项
+- 如果聚合模块包含自身导出（不只是重新导出），使用任何自身导出都会导致加载其所有导入记录

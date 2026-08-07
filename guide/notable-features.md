@@ -5,8 +5,8 @@
 ## 平台预设
 
 - 通过 [`platform`](https://rolldown.rs/reference/InputOptions.platform) 选项配置。
-- 默认值：输出格式为 `cjs` 时是 `'node'`，其他情况下是 `'browser'`。
-- 可选值：`browser | node | neutral`。
+- 默认值：输出格式为 `cjs` 时是 `'node'`，其他情况下是 `'browser'`
+- 可选值：`browser | node | neutral`
 
 与 [esbuild 的 `platform` 选项](https://esbuild.github.io/api/#platform) 类似，该选项为模块解析和 `process.env.NODE_ENV` 的处理方式提供了一组合理的默认值。
 
@@ -40,8 +40,8 @@ Rolldown 开箱即用地支持混合 ESM / CJS 模块图，无需使用 `@rollup
 
 ## 模块解析
 
-- 通过 [`resolve`](https://rolldown.rs/reference/InputOptions.resolve) 选项配置。
-- 由 [oxc-resolver](https://github.com/oxc-project/oxc-resolver) 驱动，并与 webpack 的 [enhanced-resolve](https://github.com/webpack/enhanced-resolve) 保持一致。
+- 通过 [`resolve`](https://rolldown.rs/reference/InputOptions.resolve) 选项配置
+- 由 [oxc-resolver](https://github.com/oxc-project/oxc-resolver) 驱动，并与 webpack 的 [enhanced-resolve](https://github.com/webpack/enhanced-resolve) 保持一致
 
 Rolldown 默认按照 TypeScript 和 Node.js 的行为解析模块，无需使用 `@rollup/plugin-node-resolve`。
 

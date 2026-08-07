@@ -26,23 +26,23 @@ Rolldown 提供了与 Rollup 大体兼容的 API（尤其是插件接口），�
 
 不过，Rolldown 的功能范围更接近 esbuild，内置了以下 [额外功能](./notable-features)：
 
-- 平台预设。
-- TypeScript / JSX / 语法降级转换。
-- 兼容 Node.js 的模块解析。
-- ESM / CJS 模块互操作。
+- 平台预设
+- TypeScript / JSX / 语法降级转换
+- 兼容 Node.js 的模块解析
+- ESM / CJS 模块互操作
 - `define`
 - `inject`
-- 代码压缩（开发中）。
+- 代码压缩（开发中）
 
 Rolldown 还包含一些在 esbuild 中有相近实现、但 Rollup 并不具备的概念：
 
-- [模块类型](./notable-features#module-types)（实验性功能）。
-- [插件钩子过滤器](/apis/plugin-api/hook-filters)。
+- [模块类型](./notable-features#module-types)（实验性功能）
+- [插件钩子过滤器](/apis/plugin-api/hook-filters)
 
 最后，Rolldown 还提供了 esbuild 和 Rollup 都没有（也可能并不打算）实现的功能：
 
-- [手动代码拆分](./notable-features#manual-code-splitting)。
-- HMR 支持（开发中）。
+- [手动代码拆分](./notable-features#manual-code-splitting)
+- HMR 支持（开发中）
 
 ## 致谢
 

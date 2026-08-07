@@ -128,9 +128,9 @@ export default defineConfig({
 
 一些标志既接受布尔值，也接受对象（例如 `codeSplitting`）。对于这类标志，可以：
 
-- 使用默认值启用：`--codeSplitting`。
-- 禁用：`--no-codeSplitting`。
-- 使用点号表示法设置嵌套字段：`--codeSplitting.minSize 30000`。
+- 使用默认值启用：`--codeSplitting`
+- 禁用：`--no-codeSplitting`
+- 使用点号表示法设置嵌套字段：`--codeSplitting.minSize 30000`
 
 :::
 
@@ -138,9 +138,9 @@ export default defineConfig({
 
 请注意，在 Rolldown 收到参数前，shell 会先解释参数，因此引号和通配符的行为可能出乎意料。对于高级构建流程或与其他工具的集成，请考虑改用 [JavaScript API](/apis/bundler-api)。从配置文件切换到 API 时，主要区别如下：
 
-- 配置必须是对象，不能是 Promise 或函数。
-- 针对每组 `inputOptions` 分别运行 [`rolldown.rolldown`](https://rolldown.rs/reference/Function.rolldown)，不能使用配置数组。
-- 使用 [`bundle.generate(outputOptions)`](https://rolldown.rs/reference/Interface.RolldownBuild#generate) 或 [`bundle.write(outputOptions)`](https://rolldown.rs/reference/Interface.RolldownBuild#write)，而不是 `output` 选项。
+- 配置必须是对象，不能是 Promise 或函数
+- 针对每组 `inputOptions` 分别运行 [`rolldown.rolldown`](https://rolldown.rs/reference/Function.rolldown)，不能使用配置数组
+- 使用 [`bundle.generate(outputOptions)`](https://rolldown.rs/reference/Interface.RolldownBuild#generate) 或 [`bundle.write(outputOptions)`](https://rolldown.rs/reference/Interface.RolldownBuild#write)，而不是 `output` 选项
 
 :::
 
