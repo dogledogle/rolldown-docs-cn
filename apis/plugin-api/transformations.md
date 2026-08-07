@@ -53,18 +53,18 @@ export default function myPlugin() {
         if (chunk.type !== 'chunk') continue;
 
         const s = new MagicString(chunk.code);
-        // ...your transform...
+        // ……你的转换逻辑……
         if (!s.hasChanged()) continue;
 
-        // A low-resolution map can compose down to nothing, so keep the mappings at the boundaries.
+        // 低分辨率映射在组合时可能退化为空，因此请保留边界处的映射。
         const step = s.generateMap({ source: chunk.fileName, hires: 'boundary' });
         chunk.code = s.toString();
 
         if (chunk.map) {
-          // compose the sourcemap
+          // 组合 source map
           chunk.map = remapping([step, chunk.map], () => null);
 
-          // The emitted file comes from this asset, not from `chunk.map`.
+          // 输出文件来自此资源，而不是来自 `chunk.map`。
           const asset = bundle[`${chunk.fileName}.map`];
           if (asset) asset.source = chunk.map.toString();
         }
