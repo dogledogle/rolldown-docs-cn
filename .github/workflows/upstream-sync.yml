@@ -550,7 +550,7 @@ jobs:
           if [[ -n "$PR_NUMBER" ]]; then
             gh pr edit "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --title "$title" --body-file "$RUNNER_TEMP/upstream-agent/pr-body.md"
           else
-            pr_url=$(gh pr create --repo "$GITHUB_REPOSITORY" --base "$BASE_BRANCH" --head "$BOT_BRANCH" --title "$title" --body-file "$RUNNER_TEMP/upstream-agent/pr-body.md")
+            pr_url=$(gh pr create --repo "$GITHUB_REPOSITORY" --base "$BASE_BRANCH" --head "$BOT_BRANCH" --title "$title" --body-file "$RUNNER_TEMP/upstream-agent/pr-body.md" --reviewer dogledogle)
             PR_NUMBER=$(gh pr view "$pr_url" --repo "$GITHUB_REPOSITORY" --json number --jq '.number')
           fi
 

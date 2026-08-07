@@ -281,6 +281,7 @@ test('workflow keeps APIClub Responses API-key compatibility settings', () => {
   assert.match(workflow, /BOT_BRANCH: codex\/upstream-sync-dev/);
   assert.match(workflow, /-f "base=\$BASE_BRANCH"/);
   assert.match(workflow, /--base "\$BASE_BRANCH"/);
+  assert.match(workflow, /gh pr create[^\n]*--reviewer dogledogle/);
   assert.match(workflow, /title="docs: sync upstream docs through \$\{TARGET_COMMIT:0:12\}"/);
   assert.match(workflow, /check_title='上游文档翻译已通过'/);
   assert.match(workflow, /请查看 PR #\$PR_NUMBER 中的翻译报告/);
