@@ -15,7 +15,7 @@
     "vue": "^3.5.35"
   },
   "devDependencies": {
-    "@voidzero-dev/vitepress-theme": "^5.0.0",
+    "@voidzero-dev/vitepress-theme": "^5.0.6",
     "typedoc": "^0.28.19",
     "typedoc-plugin-markdown": "^4.12.0",
     "typedoc-plugin-merge-modules": "^7.0.0",
