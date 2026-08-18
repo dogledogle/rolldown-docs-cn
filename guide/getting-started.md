@@ -54,6 +54,7 @@ $ bun add -D rolldown
 - 其他
   - Linux arm64 musl (`aarch64-unknown-linux-musl`)
   - Android arm64 (`aarch64-linux-android`)
+  - Android armv7 (`armv7-linux-androideabi`)
   - Wasm + Wasi (`wasm32-wasip1-threads`)
 
 如果你使用的平台没有预构建二进制文件，可以选择以下方案：
