@@ -73,6 +73,7 @@ Rolldown 会在 Rust 端判断过滤器，只在匹配时调用处理函数。
 - `resolveId` 钩子：`id`
 - `load` 钩子：`id`
 - `transform` 钩子：`id`、`moduleType`、`code`
+- `renderChunk` 钩子：`code`
 
 另请参阅 [`HookFilter`](https://rolldown.rs/reference/Interface.HookFilter)。
 
