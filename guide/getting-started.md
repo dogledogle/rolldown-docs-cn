@@ -211,7 +211,7 @@ Rolldown 支持大多数 [Rollup 配置选项](https://rollupjs.org/configuratio
 
 ### 在同一配置中执行多次构建
 
-也可以通过数组指定多份配置，Rolldown 会并行执行这些打包任务。
+也可以通过数组指定多份配置。CLI 会按配置列出的顺序逐一打包；`build()` API 则会并发打包数组中的多个配置。
 
 ```js [rolldown.config.js]
 import { defineConfig } from 'rolldown';
