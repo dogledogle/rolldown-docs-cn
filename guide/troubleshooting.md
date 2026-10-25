@@ -42,6 +42,20 @@
 
 <!-- 也许还可以介绍 macOS？ -->
 
+#### 容器与 CPU 模拟
+
+Rolldown 的原生运行时会将物理 CPU 数量与进程可用并行度的较小值乘以 1.5，并向下取整。在 Linux 上，可用并行度会考虑 CPU 亲和性和 cgroup CPU 配额。这样可以避免容器根据宿主机未受限制的物理 CPU 数量来确定其运行时规模。
+
+在 QEMU 等 CPU 模拟环境下构建时，降低并发度有助于诊断卡顿或过高的开销：
+
+```sh
+ROLLDOWN_WORKER_THREADS=2 RAYON_NUM_THREADS=2 npm run build
+```
+
+请在启动进程前设置这些变量。原生运行时会在计算默认值之前，依次使用 `ROLLDOWN_WORKER_THREADS`、`TOKIO_WORKER_THREADS` 中第一个有效的正整数。显式覆盖不受 CPU 可用性限制。`RAYON_NUM_THREADS` 控制 Rayon 独立的线程池，也可能影响同一进程中的其他基于 Rust 的插件。`UV_THREADPOOL_SIZE` 控制 Node.js 独立的 libuv 线程池，而不是 Rolldown 的运行时。
+
+如果可能，优先在构建机的原生架构上运行构建。降低并发度后构建成功本身并不能确定挂起的原因；报告此类问题时，请附上确切的依赖版本、容器镜像、模拟器版本、CPU 限制以及复现步骤。
+
 ### 插件
 
 插件可以扩展 Rolldown 的功能，但也可能带来性能开销。
