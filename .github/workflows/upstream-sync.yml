@@ -520,8 +520,19 @@ jobs:
 
           remote_sha=$(git ls-remote origin "refs/heads/$BOT_BRANCH" | cut -f1)
           if [[ -n "$EXPECTED_REMOTE_SHA" && "$remote_sha" != "$EXPECTED_REMOTE_SHA" ]]; then
-            echo 'The rolling branch changed after translation started.' >&2
-            exit 1
+            # A re-run of this job legitimately re-pushes the bot branch after
+            # its own first attempt: allow the lease when the remote head is
+            # the commit we fetched at checkout and it was committed by the
+            # bot. Anything else means an outside push — keep failing.
+            tracked_sha=$(git rev-parse --verify --quiet "refs/remotes/origin/$BOT_BRANCH" || true)
+            remote_committer=''
+            if [[ -n "$remote_sha" && "$remote_sha" == "$tracked_sha" ]]; then
+              remote_committer=$(git log -1 --format='%ce' "$remote_sha" || true)
+            fi
+            if [[ "$remote_committer" != 'rolldown-docs-sync[bot]@users.noreply.github.com' ]]; then
+              echo 'The rolling branch changed after translation started.' >&2
+              exit 1
+            fi
           fi
           if [[ -n "$remote_sha" ]]; then
             git push --force-with-lease="refs/heads/$BOT_BRANCH:$remote_sha" origin "HEAD:refs/heads/$BOT_BRANCH"
@@ -554,9 +565,16 @@ jobs:
             --json number --jq '.[0].number // empty')
           if [[ -n "$pr_number" ]]; then
             gh pr edit "$pr_number" --repo "$GITHUB_REPOSITORY" --title "$title" --body-file "$RUNNER_TEMP/upstream-agent/pr-body.md"
-          else
-            pr_url=$(gh pr create --repo "$GITHUB_REPOSITORY" --base "$BASE_BRANCH" --head "$BOT_BRANCH" --title "$title" --body-file "$RUNNER_TEMP/upstream-agent/pr-body.md" --reviewer dogledogle)
+          elif pr_url=$(gh pr create --repo "$GITHUB_REPOSITORY" --base "$BASE_BRANCH" --head "$BOT_BRANCH" --title "$title" --body-file "$RUNNER_TEMP/upstream-agent/pr-body.md" --reviewer dogledogle); then
             pr_number=$(gh pr view "$pr_url" --repo "$GITHUB_REPOSITORY" --json number --jq '.number')
+          else
+            # Lost a creation race (e.g. an overlapping re-run already opened
+            # the PR between our list and create): adopt the existing PR.
+            pr_number=$(gh pr list --repo "$GITHUB_REPOSITORY" \
+              --head "$BOT_BRANCH" --base "$BASE_BRANCH" --state open \
+              --json number --jq '.[0].number // empty')
+            [[ -n "$pr_number" ]] || { echo 'Could not create or find the rolling PR.' >&2; exit 1; }
+            gh pr edit "$pr_number" --repo "$GITHUB_REPOSITORY" --title "$title" --body-file "$RUNNER_TEMP/upstream-agent/pr-body.md"
           fi
 
           outcome=$(jq -r '.outcome' "$RUNNER_TEMP/upstream-agent/agent-report.json")
