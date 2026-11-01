@@ -536,7 +536,6 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           HEAD_SHA: ${{ steps.push.outputs.head_sha }}
-          PR_NUMBER: ${{ needs.translate.outputs.pr_number }}
           PUBLISH_BUILD: ${{ steps.publish-build.outputs.status }}
           TARGET_COMMIT: ${{ needs.sync.outputs.target_commit }}
         run: |
@@ -547,22 +546,28 @@ jobs:
             --output "$RUNNER_TEMP/upstream-agent/pr-body.md"
           title="docs: sync upstream docs through ${TARGET_COMMIT:0:12}"
 
-          if [[ -n "$PR_NUMBER" ]]; then
-            gh pr edit "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --title "$title" --body-file "$RUNNER_TEMP/upstream-agent/pr-body.md"
+          # Re-detect the rolling PR at publish time instead of trusting the
+          # stale translate-job output: the PR may have been created after
+          # translation started (e.g. when re-running failed jobs).
+          pr_number=$(gh pr list --repo "$GITHUB_REPOSITORY" \
+            --head "$BOT_BRANCH" --base "$BASE_BRANCH" --state open \
+            --json number --jq '.[0].number // empty')
+          if [[ -n "$pr_number" ]]; then
+            gh pr edit "$pr_number" --repo "$GITHUB_REPOSITORY" --title "$title" --body-file "$RUNNER_TEMP/upstream-agent/pr-body.md"
           else
             pr_url=$(gh pr create --repo "$GITHUB_REPOSITORY" --base "$BASE_BRANCH" --head "$BOT_BRANCH" --title "$title" --body-file "$RUNNER_TEMP/upstream-agent/pr-body.md" --reviewer dogledogle)
-            PR_NUMBER=$(gh pr view "$pr_url" --repo "$GITHUB_REPOSITORY" --json number --jq '.number')
+            pr_number=$(gh pr view "$pr_url" --repo "$GITHUB_REPOSITORY" --json number --jq '.number')
           fi
 
           outcome=$(jq -r '.outcome' "$RUNNER_TEMP/upstream-agent/agent-report.json")
           if [[ "$outcome" == 'success' && "$PUBLISH_BUILD" == 'passed' ]]; then
             conclusion=success
             check_title='上游文档翻译已通过'
-            gh pr ready "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || true
+            gh pr ready "$pr_number" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || true
           else
             conclusion=failure
             check_title='上游文档翻译需要人工审核'
-            gh pr ready "$PR_NUMBER" --undo --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || true
+            gh pr ready "$pr_number" --undo --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1 || true
           fi
 
           jq -n \
@@ -570,7 +575,7 @@ jobs:
             --arg head_sha "$HEAD_SHA" \
             --arg conclusion "$conclusion" \
             --arg title "$check_title" \
-            --arg summary "请查看 PR #$PR_NUMBER 中的翻译报告。" \
+            --arg summary "请查看 PR #$pr_number 中的翻译报告。" \
             '{name: $name, head_sha: $head_sha, status: "completed", conclusion: $conclusion, output: {title: $title, summary: $summary}}' \
             | gh api --method POST "repos/$GITHUB_REPOSITORY/check-runs" --input - >/dev/null
 
