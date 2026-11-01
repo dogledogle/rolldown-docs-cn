@@ -157,20 +157,6 @@ jobs:
             fi
           fi
 
-      - name: Set up pnpm
-        if: steps.reconcile.outputs.blocked != 'true'
-        uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288 # v5
-        with:
-          version: 11.13.1
-          run_install: false
-
-      - name: Set up Node.js
-        if: steps.reconcile.outputs.blocked != 'true'
-        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
-        with:
-          node-version: 22
-          cache: pnpm
-
       - name: Prepare the three-way translation manifest
         if: steps.reconcile.outputs.blocked != 'true'
         id: prepare
@@ -188,6 +174,20 @@ jobs:
             --max-files 100 \
             --max-lines 10000
           cp scripts/upstream-agent.mjs "$RUNNER_TEMP/upstream-agent-tool.mjs"
+
+      - name: Set up pnpm
+        if: steps.prepare.outputs.has_changes == 'true'
+        uses: pnpm/action-setup@a8198c4bff370c8506180b035930dea56dbd5288 # v5
+        with:
+          version: 11.13.1
+          run_install: false
+
+      - name: Set up Node.js
+        if: steps.prepare.outputs.has_changes == 'true'
+        uses: actions/setup-node@249970729cb0ef3589644e2896645e5dc5ba9c38 # v6
+        with:
+          node-version: 22
+          cache: pnpm
 
       - name: Validate model configuration
         if: steps.prepare.outputs.has_changes == 'true'
