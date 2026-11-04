@@ -11,6 +11,8 @@ return {
 };
 ```
 
+此时没有任何输出映射会指向模块先前的代码，因此输出 sourcemap 会将这部分代码从 `sources`、`sourcesContent` 和 `names` 中排除。
+
 如果转换没有移动代码，可以返回 `null` 来保留现有 source map：
 
 ```js
