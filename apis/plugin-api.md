@@ -291,3 +291,7 @@ Rollup 不会根据插件 sourcemap 自身的 `sources` 和 `names` 检查映射
 Failed to convert json sourcemap to struct
 Reference to non-existing source at position 1
 ```
+
+### 导入属性
+
+Rollup 4 会将导入属性传递给插件钩子。Rolldown 仅在启用 `experimental.importAttributes` 时这样做，并遵循 Rollup 5。该选项默认关闭，因此钩子会收到 `{}`，且 `resolveId` 返回的属性会被忽略。请参阅[导入属性](/in-depth/import-attributes)。

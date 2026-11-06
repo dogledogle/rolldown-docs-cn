@@ -73,3 +73,10 @@ export default defineConfig({
 ### 其他属性和 `import.meta` 对象本身
 
 其他属性以及 `import.meta` 对象本身都会被替换为 `{}`。由于这种处理无法保留原始值，Rolldown 会在此情况下发出警告。
+
+## 导入属性 {#import-attributes}
+
+对[外部模块](/in-depth/external-modules)的导入可以带有[导入属性](/in-depth/import-attributes)，例如 `with { type: 'json' }`。在非 ESM 格式中：
+
+- 静态导入会变成 `require()` 或全局变量。这两者都无法携带属性，因此 Rolldown 会丢弃属性且不发出警告。
+- 带选项的动态 `import()` 会保持为 `import()` 并保留其选项。即使启用了 [`dynamicImportInCjs: false`](/reference/OutputOptions.dynamicImportInCjs)，Rolldown 也不会将其转换为 `require()`，因为 `require()` 无法携带属性。

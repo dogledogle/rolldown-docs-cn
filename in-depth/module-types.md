@@ -18,6 +18,8 @@ export default {
 };
 ```
 
+启用 `experimental.importAttributes` 后，`type` 导入属性也可以设置单次导入的模块类型。例如，`import data from './data.txt' with { type: 'json' }` 会将 `data.txt` 作为 JSON 加载；未启用该选项时，则作为文本加载。请参阅[导入属性](/in-depth/import-attributes)。
+
 ## 模块类型与插件
 
 插件可以通过 `load` 和 `transform` 钩子指定某个文件的模块类型：
