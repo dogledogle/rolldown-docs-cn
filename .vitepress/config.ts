@@ -30,6 +30,7 @@ const sidebarForGuide: DefaultTheme.SidebarItem[] = [
         link: '/in-depth/why-plugin-hook-filter.md',
       },
       { text: '模块类型', link: '/in-depth/module-types.md' },
+      { text: '导入属性', link: '/in-depth/import-attributes.md' },
       { text: '外部模块', link: '/in-depth/external-modules.md' },
       { text: '指令', link: '/in-depth/directives.md' },
       { text: '自动代码拆分', link: '/in-depth/automatic-code-splitting.md' },
@@ -44,6 +45,8 @@ const sidebarForGuide: DefaultTheme.SidebarItem[] = [
       { text: '无用代码消除', link: '/in-depth/dead-code-elimination.md' },
       { text: '惰性聚合模块优化', link: '/in-depth/lazy-barrel-optimization.md' },
       { text: '原生 MagicString', link: '/in-depth/native-magic-string.md' },
+      { text: '构建报告', link: '/in-depth/build-report.md' },
+      { text: 'Perf Kit', link: '/in-depth/perf-kit.md' },
     ],
   },
   {

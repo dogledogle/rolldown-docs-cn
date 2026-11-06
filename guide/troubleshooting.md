@@ -58,11 +58,13 @@ ROLLDOWN_WORKER_THREADS=2 RAYON_NUM_THREADS=2 npm run build
 
 ### 插件
 
-插件可以扩展 Rolldown 的功能，但也可能带来性能开销。
+插件可以扩展 Rolldown 的功能，但也可能带来性能开销。要查看 `resolveId`、`load`、`transform` 和 `renderChunk` 的插件耗时，请开启[构建报告](/in-depth/build-report)并查看其中的 `timing.md`。
 
 #### 插件钩子过滤器
 
 Rolldown 提供了名为**插件钩子过滤器**的功能。它允许你精确指定插件钩子应该处理哪些模块，从而减少 JavaScript 与 Rust 之间的通信开销。有关过滤器内部工作原理的详细信息，请参阅 [钩子过滤器](/apis/plugin-api/hook-filters) 页面。
+
+[构建报告](/in-depth/build-report#files) 的 `timing.md` 文件会列出没有做任何工作的钩子。这些钩子最适合优先添加过滤器。
 
 如果你是插件使用者，而所使用的插件没有指定钩子过滤器，可以使用 Rolldown 导出的 `withFilter` 实用函数为它添加过滤器。
 
