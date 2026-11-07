@@ -15,6 +15,10 @@
 
 ::: code-group
 
+```sh [vp]
+vp add -g just-install
+```
+
 ```sh [npm]
 npm install --global just-install
 ```

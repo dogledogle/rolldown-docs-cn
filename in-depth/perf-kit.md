@@ -27,11 +27,19 @@ perf-kit 为智能体提供固定基线、对渲染输出的检查，以及一�
 
 perf-kit 没有依赖，因此无需安装步骤即可运行：
 
-```sh
+::: code-group
+
+```sh [vp]
+$ vp dlx @rolldown/perf-kit help
+```
+
+```sh [npm]
 $ npx @rolldown/perf-kit help
 ```
 
-要将其添加到项目中，请运行 `npm i -D @rolldown/perf-kit`。之后命令为 `npx perf-kit`。perf-kit 会将状态保存在运行目录下的 `.perf-kit/` 中。它会在其中写入 `.gitignore`，因此状态不会进入提交。
+:::
+
+要将其添加到项目中，请运行 `vp add -D @rolldown/perf-kit` 或 `npm i -D @rolldown/perf-kit`。之后命令为 `vp exec perf-kit` 或 `npx perf-kit`。perf-kit 会将状态保存在运行目录下的 `.perf-kit/` 中。它会在其中写入 `.gitignore`，因此状态不会进入提交。
 
 ### 开启构建报告 {#turn-on-the-build-report}
 
@@ -51,7 +59,7 @@ $ npx @rolldown/perf-kit help
 ::: info 使用 Cloudflare Worker 提示词之前
 应用必须使用 Rolldown 构建。
 
-1. 在应用中运行 `npm i -D @rolldown/perf-kit`。
+1. 在应用中运行 `vp add -D @rolldown/perf-kit` 或 `npm i -D @rolldown/perf-kit`。
 2. 将 `dist-attrib/` 和 `perf-kit.vite.config.ts` 添加到 `.gitignore`，以免智能体提交它们。
 
 与其他两个提示词不同，这个提示词列出了命令。我们已与编码智能体测试过这种形式。请保持 `<command>`、`<module>` 和 `<class modules>` 原样，因为智能体会填写它们。如果应用构建了多个 Worker，请为第一个 `worker-scan` 添加 `--worker <name>`。
@@ -350,14 +358,25 @@ $ npx @rolldown/perf-kit node-scan --entry dist/server.js --ready port:3000
 
 在应用文件夹中运行以下命令：
 
-```sh
+::: code-group
+
+```sh [vp]
+$ vp add -D @rolldown/perf-kit
+$ vp exec perf-kit worker-config --app .
+$ vp exec vite build --config perf-kit.vite.config.ts
+$ vp exec perf-kit worker-scan --app . --request /
+```
+
+```sh [npm]
 $ npm i -D @rolldown/perf-kit
 $ npx perf-kit worker-config --app .
 $ npx vite build --config perf-kit.vite.config.ts
 $ npx perf-kit worker-scan --app . --request /
 ```
 
-`worker-config` 会写入一个包装应用配置的 Vite 配置。`--request` 添加启动后要调用的路由。保留改动后，请运行 `npx perf-kit worker-scan --pin`。数字来自本地 CPU。请在改动前后使用 `wrangler check startup` 获取 Cloudflare 报告的数字。
+:::
+
+`worker-config` 会写入一个包装应用配置的 Vite 配置。`--request` 添加启动后要调用的路由。保留改动后，请运行 `worker-scan --pin`。数字来自本地 CPU。请在改动前后使用 `wrangler check startup` 获取 Cloudflare 报告的数字。
 
 ### 已部署的站点
 
