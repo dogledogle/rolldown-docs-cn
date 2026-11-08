@@ -86,7 +86,7 @@ $ bun add -D rolldown
 ### 发布渠道
 
 - [latest](https://npmx.dev/package/rolldown#versions)：目前为 `1.x.x`。
-- [pkg.pr.new](https://pkg.pr.new/~/rolldown/rolldown)：从 `main` 分支持续发布。使用 `npm i https://pkg.pr.new/rolldown@sha` 安装，其中 `sha` 是 [pkg.pr.new](https://pkg.pr.new/~/rolldown/rolldown) 上列出的成功构建。
+- [pkg.pr.new](https://pkg.pr.new/~/rolldown/rolldown)：从 `main` 分支持续发布。使用 `vp add https://pkg.pr.new/rolldown@sha` 或 `npm i https://pkg.pr.new/rolldown@sha` 安装，其中 `sha` 是 [pkg.pr.new](https://pkg.pr.new/~/rolldown/rolldown) 上列出的成功构建。如果项目使用 pnpm（未设置包管理器时，`vp` 会选择 pnpm），请先在 `pnpm-workspace.yaml` 中添加 `blockExoticSubdeps: false`。
 
 ## 使用 CLI
 
