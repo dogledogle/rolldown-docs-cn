@@ -219,7 +219,7 @@ Rolldown 会将整个公共代码块包装在一个工厂函数中，因此其�
 即使低于 `maxSize`，公共代码块在以下情况下也不会被内联：
 
 - 包含顶层 await，或静态依赖于包含顶层 await 的模块。
-- 包含经无用代码消除后仍然存在的 `import.meta`。
+- 包含经无用代码消除后仍然存在的 `import.meta`，但 `import.meta.ROLLDOWN_FILE_URL_referenceId` 除外。
 - 包含无法解析的动态导入，或导入了外部模块。
 - 另一个输出代码块重新导出了它的某个绑定。
 - 包含声明模块或内置的 `asset` 或 `copy` 模块。
@@ -239,6 +239,8 @@ Rolldown 会将整个公共代码块包装在一个工厂函数中，因此其�
 
   :::
 
-- 如果 `renderChunk` 钩子为各副本提供了不同的值，则首次注册的副本会决定所有使用方得到的值。请对受影响的模块使用 [`exclude`](/reference/TypeAlias.ExperimentalInlineCommonChunksOptions#exclude)。
+- Rolldown 会为每个副本调用一次 [`resolveFileUrl`](/reference/Interface.Plugin#resolvefileurl)，并传入该副本所在代码块的 `chunkId` 和 `relativePath`。
+
+- 如果 `renderChunk` 或 `resolveFileUrl` 钩子为各副本提供了不同的值，则首次注册的副本会决定所有使用方得到的值。请对受影响的模块使用 [`exclude`](/reference/TypeAlias.ExperimentalInlineCommonChunksOptions#exclude)。
 
 更多背景信息，请参阅[设计 RFC](https://github.com/rolldown/rolldown/discussions/10693)。欢迎在[反馈 issue](https://github.com/rolldown/rolldown/issues/11040)中分享应用结果并报告缺陷。
