@@ -24,7 +24,7 @@ export default defineConfig({
 
 `maxSize` 基于转换后的源代码大小，并在渲染、代码压缩和传输压缩之前按代码块汇总。它的默认值为 `0`（禁用）；`Infinity` 表示不限制大小。
 
-入口、动态导入目标和手动代码块不会被内联。只要任一模块与 [`exclude`](/reference/TypeAlias.ExperimentalInlineCommonChunksOptions#exclude) 匹配，它所在的整个公共代码块就不会被内联。
+入口和手动代码块不会被内联。如果动态导入也会加载某个公共代码块，该公共代码块仍可被内联到静态导入它的代码块中；此时动态导入会加载一个仅用于注册该模块的文件（参见[使用 `import()` 加载的模块](#modules-loaded-with-import)）。只要任一模块与 [`exclude`](/reference/TypeAlias.ExperimentalInlineCommonChunksOptions#exclude) 匹配，它所在的整个公共代码块就不会被内联。
 
 内联需要满足以下条件：
 
@@ -207,6 +207,39 @@ console.log((0, helper.inc)());
 ```
 
 Rolldown 只有在来自配置入口或插件生成入口的每条已知路径都先提供该工厂函数时，才会省略副本。更早的静态依赖也可以提供该工厂函数。
+
+### 使用 `import()` 加载的模块 {#modules-loaded-with-import}
+
+一个模块可以由一个入口静态导入，而另一个入口通过 `import()` 加载：
+
+::: code-group
+
+```js [src/a.js]
+import { inc } from './helper.js';
+
+console.log(inc());
+```
+
+```js [src/d.js]
+button.onclick = () => import('./helper.js').then((helper) => helper.inc());
+```
+
+:::
+
+辅助模块的代码会进入一个由 A 和该 `import()` 共同加载的公共代码块。当该公共代码块被内联后，A 会包含一份辅助模块的代码副本，而 `import()` 会加载一个负责注册该辅助模块且不导出任何内容的文件。随后，调用点会从共享运行时读取辅助模块（名称已简化）：
+
+```js [d.js]
+import { __share_require } from './rolldown-runtime.js';
+
+button.onclick = () =>
+  import('./helper.js')
+    .then((n) => ((n = __share_require('helper')), n.init_helper(), n.helper_namespace))
+    .then((helper) => helper.inc());
+```
+
+无论哪份副本先注册，所有调用方都会使用这一份，因此辅助模块只会运行一次，其命名空间对象也会共享。A 不会请求该辅助模块的文件；即使 A 已经注册了该辅助模块，D 也只会在 `import()` 运行时请求它。如果每个调用该 `import()` 的文件都已注册该辅助模块，Rolldown 就不会为它生成文件。
+
+这要求将 `import()` 的目标合并到公共代码块中。如果一个模块同时也是入口，或者在某个模块使用顶层 await 的构建中存在任意 `import()` 目标，那么该目标会保留自己的文件并从公共代码块重新导出，而该公共代码块不会被内联。
 
 ### 让模块保持在同一作用域
 

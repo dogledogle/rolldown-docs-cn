@@ -41,12 +41,43 @@ $ npx @rolldown/perf-kit help
 
 要将其添加到项目中，请运行 `vp add -D @rolldown/perf-kit` 或 `npm i -D @rolldown/perf-kit`。之后命令为 `vp exec perf-kit` 或 `npx perf-kit`。perf-kit 会将状态保存在运行目录下的 `.perf-kit/` 中。它会在其中写入 `.gitignore`，因此状态不会进入提交。
 
-### 开启构建报告 {#turn-on-the-build-report}
+### 配置构建 {#configure-the-build}
 
-此步骤是可选的。如果应用使用 Rolldown 构建，请开启[构建报告](/in-depth/build-report#usage)并重新构建应用。随后 perf-kit 会读取其中 2 个文件：
+设置以下选项并重新构建应用：
 
-- `module-graph.json`，用于[查找可以延迟加载的代码](#find-code-that-can-load-later)的命令。
-- `chunk-graph.json`，用于找出启动较晚的代码块的检查。自 Rolldown 1.3.0 起可用。Vite manifest（`build.manifest: true`）也可以。
+::: code-group
+
+```js [rolldown.config.js]
+import { defineConfig } from 'rolldown';
+
+export default defineConfig({
+  input: 'src/main.js',
+  devtools: { mode: 'report' },
+  output: { sourcemap: true },
+});
+```
+
+```js [vite.config.js]
+import { defineConfig } from 'vite';
+
+export default defineConfig({
+  build: {
+    sourcemap: true,
+    rolldownOptions: {
+      devtools: { mode: 'report' },
+    },
+  },
+});
+```
+
+:::
+
+- `sourcemap: true`：当页面的入口代码块没有 sourcemap 时，`scan` 和 `coverage` 会报错停止。无论使用哪种打包器，都要启用 sourcemap。
+- `devtools: { mode: 'report' }` 会写入[构建报告](/in-depth/build-report)。这需要 Rolldown，而 Vite 8 使用 Rolldown。perf-kit 会读取其中 2 个文件：
+  - `module-graph.json`，用于[查找可以延迟加载的代码](#find-code-that-can-load-later)的命令。
+  - `chunk-graph.json`，用于找出启动较晚的代码块的检查。Vite manifest（`build.manifest: true`）也可以。
+
+对于 Worker，请跳过此步骤。`worker-config` 构建会设置这两个选项。
 
 ## 与编码智能体配合使用
 
@@ -395,7 +426,7 @@ $ npx @rolldown/perf-kit replay --archive <dir> --dist base=<dir> --dist candida
 
 ### 查找可以延迟加载的代码 {#find-code-that-can-load-later}
 
-以 `npx @rolldown/perf-kit <command>` 的形式运行每条命令。这些命令需要[构建报告](#turn-on-the-build-report)，且不需要运行浏览器。它们的数字是线索而非测量值，因此请用 `scan` 检查每项改动。
+以 `npx @rolldown/perf-kit <command>` 的形式运行每条命令。这些命令需要[构建报告](#configure-the-build)，且不需要运行浏览器。它们的数字是线索而非测量值，因此请用 `scan` 检查每项改动。
 
 | 命令                  | 回答的问题                                                                                     |
 | --------------------- | ---------------------------------------------------------------------------------------------- |
