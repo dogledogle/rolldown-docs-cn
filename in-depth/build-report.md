@@ -318,4 +318,4 @@ my-css-plugin transform 10012/10012
 
 - 默认的 `'full'` 模式会写入完整的 devtools 事件日志。当你需要在 `@rolldown/debug` 或 Vite DevTools 中查看每个事件时，请使用该模式。
 - [`bundleAnalyzerPlugin`](/builtin-plugins/bundle-analyzer) 会将一份包含代码块和模块的分析文件写入输出文件夹。报告则增加构建和插件耗时、包数据以及构建之间的变化。Rolldown 会将报告写在输出文件夹之外。
-- [`@rolldown/perf-kit`](/in-depth/perf-kit) 为编码智能体测量页面加载、服务器启动和 Cloudflare Worker 启动时间，帮助应用更快启动。它会读取 `module-graph.json` 来[查找可以延迟加载的代码](/in-depth/perf-kit#find-code-that-can-load-later)，并读取 `chunk-graph.json` 来[查找启动较晚的代码块](/in-depth/perf-kit#turn-on-the-build-report)。
+- [`@rolldown/perf-kit`](/in-depth/perf-kit) 为编码智能体测量页面加载、服务器启动和 Cloudflare Worker 启动时间，帮助应用更快启动。它会读取 `module-graph.json` 来[查找可以延迟加载的代码](/in-depth/perf-kit#find-code-that-can-load-later)，并读取 `chunk-graph.json` 来[查找启动较晚的代码块](/in-depth/perf-kit#configure-the-build)。

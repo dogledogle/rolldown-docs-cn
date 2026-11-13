@@ -82,6 +82,14 @@ console.log(import_foo.value);
 
 `__toESM` 辅助函数会确保 CommonJS 导出被正确转换为 ES 模块格式，从而无缝访问导出值。
 
+### ESM 输出中的 CommonJS 路径变量
+
+当配置了 [`platform: 'node'`](../guide/notable-features.md#平台预设) 和 `format: 'esm'` 时，Rolldown 会使用 Node 的 [`import.meta.dirname`](https://nodejs.org/api/esm.html#importmetadirname) 和 [`import.meta.filename`](https://nodejs.org/api/esm.html#importmetafilename)，为打包后的 CommonJS 模块提供 `__dirname` 和 `__filename` 绑定。这样可避免 CommonJS 依赖在 ESM 输出中使用这些变量时因 `ReferenceError` 而失败。ESM 源模块、本地声明的绑定、其他平台以及其他输出格式均不受影响。
+
+每个生成的 CommonJS 包装器都会获得自己的可变绑定，这与 Node 的模块级隔离行为一致。这些绑定的初始值指向包含该包装器的已输出 ESM 代码块，而不是原始源模块。这对于定位随包一起输出的资源很有用，但如果代码期望使用相对于未打包源代码的路径，则可能需要考虑新的输出位置。
+
+生成的输出要求 Node 版本支持 `import.meta.dirname` 和 `import.meta.filename`。这两个属性从 Node 20.11.0 起可用，并且只存在于本地的 `file:` 模块中。
+
 ## 注意事项
 
 ### `require` 外部模块

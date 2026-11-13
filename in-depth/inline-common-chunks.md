@@ -24,7 +24,7 @@ export default defineConfig({
 
 `maxSize` 基于转换后的源代码大小，并在渲染、代码压缩和传输压缩之前按代码块汇总。它的默认值为 `0`（禁用）；`Infinity` 表示不限制大小。
 
-入口、动态导入目标和手动代码块不会被内联。只要任一模块与 [`exclude`](/reference/TypeAlias.ExperimentalInlineCommonChunksOptions#exclude) 匹配，它所在的整个公共代码块就不会被内联。
+入口和手动代码块不会被内联。如果动态导入也会加载某个公共代码块，该公共代码块仍可被内联到静态导入它的代码块中；此时动态导入会加载一个仅用于注册该模块的文件（参见[使用 `import()` 加载的模块](#modules-loaded-with-import)）。只要任一模块与 [`exclude`](/reference/TypeAlias.ExperimentalInlineCommonChunksOptions#exclude) 匹配，它所在的整个公共代码块就不会被内联。
 
 内联需要满足以下条件：
 
@@ -208,6 +208,39 @@ console.log((0, helper.inc)());
 
 Rolldown 只有在来自配置入口或插件生成入口的每条已知路径都先提供该工厂函数时，才会省略副本。更早的静态依赖也可以提供该工厂函数。
 
+### 使用 `import()` 加载的模块 {#modules-loaded-with-import}
+
+一个模块可以由一个入口静态导入，而另一个入口通过 `import()` 加载：
+
+::: code-group
+
+```js [src/a.js]
+import { inc } from './helper.js';
+
+console.log(inc());
+```
+
+```js [src/d.js]
+button.onclick = () => import('./helper.js').then((helper) => helper.inc());
+```
+
+:::
+
+辅助模块的代码会进入一个由 A 和该 `import()` 共同加载的公共代码块。当该公共代码块被内联后，A 会包含一份辅助模块的代码副本，而 `import()` 会加载一个负责注册该辅助模块且不导出任何内容的文件。随后，调用点会从共享运行时读取辅助模块（名称已简化）：
+
+```js [d.js]
+import { __share_require } from './rolldown-runtime.js';
+
+button.onclick = () =>
+  import('./helper.js')
+    .then((n) => ((n = __share_require('helper')), n.init_helper(), n.helper_namespace))
+    .then((helper) => helper.inc());
+```
+
+无论哪份副本先注册，所有调用方都会使用这一份，因此辅助模块只会运行一次，其命名空间对象也会共享。A 不会请求该辅助模块的文件；即使 A 已经注册了该辅助模块，D 也只会在 `import()` 运行时请求它。如果每个调用该 `import()` 的文件都已注册该辅助模块，Rolldown 就不会为它生成文件。
+
+这要求将 `import()` 的目标合并到公共代码块中。如果一个模块同时也是入口，或者在某个模块使用顶层 await 的构建中存在任意 `import()` 目标，那么该目标会保留自己的文件并从公共代码块重新导出，而该公共代码块不会被内联。
+
 ### 让模块保持在同一作用域
 
 Rolldown 会将整个公共代码块包装在一个工厂函数中，因此其中的模块可以直接相互引用。代码压缩器可以在该作用域内重命名和内联代码。从工厂函数外部发起的引用会经过其导出对象，从而限制跨边界的优化。
@@ -219,7 +252,7 @@ Rolldown 会将整个公共代码块包装在一个工厂函数中，因此其�
 即使低于 `maxSize`，公共代码块在以下情况下也不会被内联：
 
 - 包含顶层 await，或静态依赖于包含顶层 await 的模块。
-- 包含经无用代码消除后仍然存在的 `import.meta`。
+- 包含经无用代码消除后仍然存在的 `import.meta`，但 `import.meta.ROLLDOWN_FILE_URL_referenceId` 除外。
 - 包含无法解析的动态导入，或导入了外部模块。
 - 另一个输出代码块重新导出了它的某个绑定。
 - 包含声明模块或内置的 `asset` 或 `copy` 模块。
@@ -239,6 +272,8 @@ Rolldown 会将整个公共代码块包装在一个工厂函数中，因此其�
 
   :::
 
-- 如果 `renderChunk` 钩子为各副本提供了不同的值，则首次注册的副本会决定所有使用方得到的值。请对受影响的模块使用 [`exclude`](/reference/TypeAlias.ExperimentalInlineCommonChunksOptions#exclude)。
+- Rolldown 会为每个副本调用一次 [`resolveFileUrl`](/reference/Interface.Plugin#resolvefileurl)，并传入该副本所在代码块的 `chunkId` 和 `relativePath`。
+
+- 如果 `renderChunk` 或 `resolveFileUrl` 钩子为各副本提供了不同的值，则首次注册的副本会决定所有使用方得到的值。请对受影响的模块使用 [`exclude`](/reference/TypeAlias.ExperimentalInlineCommonChunksOptions#exclude)。
 
 更多背景信息，请参阅[设计 RFC](https://github.com/rolldown/rolldown/discussions/10693)。欢迎在[反馈 issue](https://github.com/rolldown/rolldown/issues/11040)中分享应用结果并报告缺陷。
