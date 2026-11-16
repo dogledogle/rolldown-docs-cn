@@ -25,7 +25,7 @@ perf-kit 为智能体提供固定基线、对渲染输出的检查，以及一�
 - 对于页面：机器上安装 Chrome 或 Edge。`CHROME_PATH` 用于选择浏览器。
 - 对于 Worker：应用的 devDependencies 中包含 `@cloudflare/vite-plugin` 和 `wrangler`。覆盖率功能需要 Wrangler 4.108.0 或更高版本。
 
-perf-kit 没有依赖，因此无需安装步骤即可运行：
+无需将 perf-kit 添加为项目依赖即可运行：
 
 ::: code-group
 
