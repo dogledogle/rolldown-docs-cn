@@ -106,11 +106,11 @@ Rolldown 的原生 MagicString 实现使用 Rust 重写核心功能，带来了�
 
 构造器还接受 `hires` 选项，而 `magic-string` 没有这个选项：`new RolldownMagicString(code, { hires: false })`。该选项设置从此实例生成的 source map 的分辨率。
 
-当 `transform` 或 `renderChunk` 钩子返回原生 MagicString 且未提供 `map` 时，Rolldown 会为这一步生成映射。它会使用该 MagicString 的 `hires` 选项；如果未设置该选项，则使用 `"boundary"`。使用 `"boundary"` 时，该映射与映射链中的其他映射组合后，输出 source map 仍会保留列位置和名称。使用 `hires: false` 时，这一步生成的映射更小、生成更快，但其中每个位置都会解析到所在行的开头。
+当 `transform` 或 `renderChunk` 钩子返回原生 MagicString 且未提供 `map` 时，Rolldown 会为这一步生成映射。它会使用该 MagicString 的 `hires` 选项；如果未设置该选项，则使用 `"boundary"`。使用 `"boundary"` 时，该映射与映射链中的其他映射组合后，输出 source map 仍会保留列位置和名称。使用 `hires: false` 时，这一步生成的映射更小、生成更快，但其中每个位置都会解析到所在行的开头。使用 `hires: true` 时，这一步生成的映射更大，生成速度也更慢。输出 source map 中的位置通常与使用 `"boundary"` 时相同，因为 Rolldown 在打印模块和 chunk 时生成的映射会在 token 起始位置包含分段，而 `"boundary"` 会在每个单词开头，以及每个不是字母、数字或 `_` 的字符（例如 `"`、`[` 或 `!`）处包含分段。在 `renderChunk` 中，`hires: true` 还可能使输出 source map 更大。
 
 要使用不同的分辨率，请在创建 MagicString 时传入 `hires` 选项。`meta.magicString` 不提供选项，因为它由 Rolldown 创建，所以请基于 `code` 创建自己的实例。使用该选项后，在启用 `experimental.nativeMagicString` 和 source map 时，Rolldown 仍会在后台线程中生成 `transform` 映射。
 
-也可以随 MagicString 返回你自己的映射，例如 `{ code: magicString, map: magicString.generateMap({ hires: true }) }`。这样 Rolldown 会使用你的映射，不再生成映射，但你的钩子会在 JS 线程上生成该映射。`map: null` 告诉 Rolldown 这一步没有移动代码，因此 Rolldown 不会为它生成映射。如果这一步移动了代码，输出 source map 会指向错误的位置。
+也可以随 MagicString 返回你自己的映射，例如 `{ code: magicString, map: magicString.generateMap({ hires: 'boundary' }) }`。这样 Rolldown 会使用你的映射，不再生成映射，但你的钩子会在 JS 线程上生成该映射。`map: null` 告诉 Rolldown 这一步没有移动代码，因此 Rolldown 不会为它生成映射。如果这一步移动了代码，输出 source map 会指向错误的位置。
 
 ### 尚未实现
 
