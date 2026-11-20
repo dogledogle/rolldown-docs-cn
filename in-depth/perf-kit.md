@@ -25,7 +25,7 @@ perf-kit 为智能体提供固定基线、对渲染输出的检查，以及一�
 - 对于页面：机器上安装 Chrome 或 Edge。`CHROME_PATH` 用于选择浏览器。
 - 对于 Worker：应用的 devDependencies 中包含 `@cloudflare/vite-plugin` 和 `wrangler`。覆盖率功能需要 Wrangler 4.108.0 或更高版本。
 
-perf-kit 没有依赖，因此无需安装步骤即可运行：
+无需将 perf-kit 添加为项目依赖即可运行：
 
 ::: code-group
 
@@ -489,4 +489,3 @@ make each import dynamic (import()) -> frees 273.6KB / 4 module(s) from the init
 - 延迟加载只是转移工作，并不会删除工作。首次请求或交互需要该模块时，仍需承担其加载成本。
 - 渲染输出检查看到的是服务器发送的页面，不包含交互。它不会比较点击、登录或实时数据之后的状态，因此请保持应用自身的测试通过。
 - perf-kit 不会收集真实用户的指标。field 模式测量的是一个账户、一个网络和一台机器。
-- 目前，`--ready exit` 和以 `^` 开头的 `stdout:` 模式在 inspector 下会超时。
