@@ -401,6 +401,25 @@ digraph {
 
 这个示例揭示了问题：打包前代码输出 `hello, world`，打包后却输出 `undefined`。目前没有简单方法解决此问题，其他输出 ESM 的打包器也面临同样情况。
 
+当所有入口都是静态入口时，也会发生同样的情况。只被一个入口导入的模块会留在该入口的代码块中，而代码块的代码会在其所导入的代码块之后运行。因此，即使入口先导入该模块，该模块也会在该入口所导入的公共代码块中的模块之后运行：
+
+```js
+// e0.js（包含在 `input` 选项中）
+import './s1.js';
+
+// e1.js（包含在 `input` 选项中）
+import './s0.js';
+import './s1.js';
+
+// s0.js
+console.log('s0');
+
+// s1.js
+console.log('s1');
+```
+
+`s1.js` 会进入公共代码块，因为两个入口都导入了它；而 `s0.js` 会留在 `e1.js` 代码块中。打包前，`e1.js` 会先输出 `s0`，再输出 `s1`。打包后，它会先输出 `s1`，再输出 `s0`。如果你的代码依赖这个顺序，请启用 [`strictExecutionOrder`](https://rolldown.rs/reference/OutputOptions.strictExecutionOrder)。
+
 ::: info 其他打包器的相关 issue
 
 - [evanw/esbuild#399](https://github.com/evanw/esbuild/issues/399)
