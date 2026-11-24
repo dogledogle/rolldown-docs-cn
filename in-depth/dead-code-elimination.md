@@ -122,55 +122,34 @@ const input = createComponent('input');
 
 ## 将整个模块标记为无副作用
 
-除了标记单个表达式或函数，也可以把整个模块标记为无副作用。如果模块被标记为无副作用，并且它自身的导出项均未使用，Rolldown 就会把该模块中的每条语句都视为无副作用。
+将模块标记为无副作用后，Rolldown 可以移除 `import './setup.js'` 这样的裸导入。当 Rolldown 跳过对某个模块的求值时，也会跳过只能通过该次求值访问到的依赖，即使这些依赖具有副作用。
 
-::: details “它自身的导出项均未使用”是什么意思？
+如果模块是入口，或者为了提供其本地定义的导出项或命名空间对象而必须执行，Rolldown 会保留其顶层副作用，并照常对未使用的纯语句执行摇树优化。
 
-这里指**在模块自身中定义**的导出项，不包括从其他模块重新导出的内容。
+### 导出与重新导出
+
+Rolldown 可以沿着具名重新导出、`export *`，或对先前导入绑定的导出，经由无副作用的模块追溯到定义该绑定的模块。
 
 ```js [utils.js]
-// 假设该文件被标记为无副作用
-window.loaded = true; // 副作用
+// utils.js 被标记为无副作用
+console.log('utils initialized');
 
-// 在该文件中定义，算作“它自身的导出项”
-export function add(a, b) {
-  return a + b;
-}
-
-// 从其他文件重新导出，不计入其中
-export { multiply } from './math.js';
-export * from './math2.js';
-import { divide } from './math3.js';
-export { divide };
-```
-
-本例中：
-
-- 如果执行 `import { add } from './utils.js'`，模块会被视为“已使用”，因为 `add` 在 `utils.js` 中定义
-- 如果只执行 `import { multiply } from './utils.js'`，模块会被视为“未使用”，因为 `multiply` 只是重新导出，并非在此处定义
-
-:::
-
-例如，请考虑以下情况：
-
-```js
-// math.js
-window.myGlobal = 'hello'; // 副作用：修改全局对象
+import { multiply } from './math.js';
+export { multiply };
 
 export function add(a, b) {
   return a + b;
 }
-
-// main.js
-import './math.js';
-console.log('main');
 ```
 
-如果将 `math.js` 标记为无副作用，输出将是：
+在 `utils.js` 被标记为无副作用时：
 
-```js
-console.log('main');
-```
+- 如果没有任何其他内容需要 `utils.js`，裸导入 `import './utils.js'` 会被移除。
+- 如果从 `utils.js` 使用的唯一绑定是 `multiply`，Rolldown 会直接将其解析到 `math.js`，并跳过 `utils.js` 中的日志输出。
+- 如果执行 `import { add } from './utils.js'` 并随后使用 `add`，则会保留 `utils.js` 及其日志输出。
+- `import * as utils from './utils.js'` 后接 `Object.keys(utils)` 时会使用命名空间对象，并保留 `utils.js` 及其日志输出。像 `utils.multiply` 这样可静态解析的属性访问，可以直接沿重新导出追踪。
+
+对于已导入的 `multiply`，`export { multiply as default }` 会转发该导入绑定。而表达式 `export default multiply` 会创建一个以该绑定值初始化的本地默认导出。
 
 ::: details `import()` 呢？
 
@@ -199,54 +178,35 @@ console.log('main');
 
 :::
 
-:::: warning 这是有条件的
+### 重新导出与代码拆分
 
-只有模块自身的导出项均未使用时，其中的语句才会被视为无副作用。如果使用了任何导出项，副作用仍会保留。
-
-::: details 示例
-
-例如，请考虑以下情况：
+当多个入口从同一个无副作用的 [聚合模块](/glossary/barrel-module) 导入时，对于只使用转发绑定的入口，Rolldown 可以跳过聚合模块。另一个入口如果使用了其中定义的绑定，仍会加载该聚合模块。
 
 ```js
-// math.js（标记为无副作用）
-window.myGlobal = 'hello'; // 副作用：修改全局对象
+// barrel.js（标记为无副作用）
+import { HeavyService } from './heavy.js';
 
-export function add(a, b) {
-  return a + b;
-}
+console.log('barrel initialized');
 
-// main.js
-import { add } from './math.js';
-console.log('main', add(2, 3));
+export const createService = () => new HeavyService();
+export { light } from './light.js';
+
+// entry-light.js
+import { light } from './barrel.js';
+console.log(light());
+
+// entry-heavy.js
+import { createService } from './barrel.js';
+console.log(createService().run());
 ```
 
-输出将是：
+将 `barrel.js` 标记为无副作用后，`entry-light.js` 入口会直接加载 `light.js`。`entry-heavy.js` 入口会加载聚合模块和 `heavy.js`，并输出 `barrel initialized`。在默认的副作用分析下，Rolldown 会检测到这条日志，因此两个入口都会加载聚合模块。
 
-```js
-window.myGlobal = 'hello';
+### 如何将模块标记为无副作用
 
-function add(a, b) {
-  return a + b;
-}
+可以使用 `package.json` 中的 `sideEffects` 字段、[`treeshake.moduleSideEffects`](https://rolldown.rs/reference/InputOptions.treeshake#modulesideeffects)，或插件钩子返回的 `moduleSideEffects` 结果。
 
-console.log('main', add(2, 3));
-```
-
-另一方面，如果将 `math.js` 中的每条语句都标记为无副作用，输出将是：
-
-```js
-function add(a, b) {
-  return a + b;
-}
-
-console.log('main', add(2, 3));
-```
-
-:::
-
-::::
-
-### package.json 中的 `sideEffects`
+#### package.json 中的 `sideEffects`
 
 `package.json` 中的 `sideEffects` 字段告诉打包器，包中的哪些文件具有副作用：
 
@@ -268,7 +228,7 @@ console.log('main', add(2, 3));
 }
 ```
 
-这会告诉 Rolldown，大多数文件没有副作用，未使用时可以移除；但 `polyfill.js` 和 CSS 文件必须保留。
+这会将 `polyfill.js` 和匹配的 CSS 文件标记为具有副作用；包中的其他所有文件都会被标记为无副作用。
 
 数组接受 glob 模式（支持 `*`、`**`、`{a,b}`、`[a-z]`）。`*.css` 等不包含 `/` 的模式会被视为 `**/*.css`。
 
@@ -284,7 +244,7 @@ console.log('main', add(2, 3));
 
 :::
 
-### 插件钩子：`moduleSideEffects`
+#### 插件钩子：`moduleSideEffects`
 
 插件可以从 `resolveId`、`load` 或 `transform` 钩子返回 [`moduleSideEffects`](https://rolldown.rs/reference/Interface.SourceDescription#modulesideeffects)，覆盖特定模块的副作用检测结果：
 
@@ -307,13 +267,16 @@ export default {
 };
 ```
 
-确定模块副作用时，优先级顺序如下：
+Rolldown 会按以下顺序检查这些来源，以确定模块的副作用：
 
 1. `transform` 钩子返回的 `moduleSideEffects`
 2. `load` 钩子返回的 `moduleSideEffects`
 3. `resolveId` 钩子返回的 `moduleSideEffects`
-4. [`treeshake.moduleSideEffects`](https://rolldown.rs/reference/InputOptions.treeshake#modulesideeffects) 选项
-5. `package.json` 中的 `sideEffects` 字段
+4. [`treeshake.moduleSideEffects`](https://rolldown.rs/reference/InputOptions.treeshake#modulesideeffects)，当该选项能为模块给出结论时
+5. 针对打包模块，`package.json` 中的 `sideEffects` 字段
+6. 针对打包模块的静态分析，以及 Rolldown 对外部模块默认的副作用假设
+
+选项的默认值 `true`、未匹配任何规则，以及回调返回 `undefined` 的情况，都会继续交由后续来源处理。钩子返回 `moduleSideEffects: true` 时，会将打包模块直接交给静态分析，绕过该选项和包元数据。
 
 ## 示例：优化组件库
 
