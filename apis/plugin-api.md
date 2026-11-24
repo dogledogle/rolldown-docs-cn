@@ -196,7 +196,7 @@ postFooter: option, sync
 augmentChunkHash(https://rolldown.rs/reference/Interface.Plugin#augmentchunkhash): sequential, async
 generateBundle(https://rolldown.rs/reference/Interface.Plugin#generatebundle): sequential, sync
 writeBundle(https://rolldown.rs/reference/Interface.Plugin#writebundle): parallel, sync
-renderError(https://rolldown.rs/reference/Interface.Plugin#rendererror): parallel, sync
+renderError(https://rolldown.rs/reference/Interface.Plugin#rendererror): parallel, async
 closeBundle(https://rolldown.rs/reference/Interface.Plugin#closebundle): parallel, sync
 beforeImportMeta: invisible
 beforeAddons: invisible
