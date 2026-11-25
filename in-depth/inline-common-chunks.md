@@ -22,7 +22,7 @@ export default defineConfig({
 });
 ```
 
-`maxSize` 基于转换后的源代码大小，并在渲染、代码压缩和传输压缩之前按代码块汇总。它的默认值为 `0`（禁用）；`Infinity` 表示不限制大小。
+`maxSize` 使用转换后的源代码大小，或 `load`、`transform` 钩子返回的 `declaredModuleSize`，并在渲染、代码压缩和传输压缩之前按代码块汇总。它的默认值为 `0`（禁用）；`Infinity` 表示不限制大小。
 
 入口和手动代码块不会被内联。如果动态导入也会加载某个公共代码块，该公共代码块仍可被内联到静态导入它的代码块中；此时动态导入会加载一个仅用于注册该模块的文件（参见[使用 `import()` 加载的模块](#modules-loaded-with-import)）。只要任一模块与 [`exclude`](/reference/TypeAlias.ExperimentalInlineCommonChunksOptions#exclude) 匹配，它所在的整个公共代码块就不会被内联。
 
