@@ -99,23 +99,28 @@ Rolldown 的原生 MagicString 实现使用 Rust 重写核心功能，带来了�
 
 **生成 source map：**
 
+- `addSourcemapLocation(index)`：为 `hires: false` 的映射注册原始源代码中的一个 UTF-16 索引。`offset` 选项不会改变该索引。`sourcemapLocations` 属性会按升序返回每个已注册的索引，且每个索引只返回一次。
 - `generateMap(options?)`：生成 source map 对象。其 `toString()` 会将映射返回为 JSON 字符串，`toUrl()` 会将其返回为 data URL
   - `options.source`：源文件名
   - `options.includeContent`：是否在映射中包含原始源代码
   - `options.hires`：高分辨率模式：`true`、`false` 或 `"boundary"`。默认值为实例的 `hires` 选项；如果未设置该选项，则为 `false`
 - `generateDecodedMap(options?)`：生成一个包含已解码 `mappings` 的 source map 对象。其 `mappings` 是一个数组，每一行对应一个分段数组。它接受与 `generateMap` 相同的选项
 
+`generateMap()` 和 `generateDecodedMap()` 生成的映射会包含末尾没有映射分段的输出行。
+
 构造器还接受 `hires` 选项，而 `magic-string` 没有这个选项：`new RolldownMagicString(code, { hires: false })`。该选项设置从此实例生成的 source map 的分辨率。
 
 当 `transform` 或 `renderChunk` 钩子返回原生 MagicString 且未提供 `map` 时，Rolldown 会为这一步生成映射。它会使用该 MagicString 的 `hires` 选项；如果未设置该选项，则使用 `"boundary"`。使用 `"boundary"` 时，该映射与映射链中的其他映射组合后，输出 source map 仍会保留列位置和名称。使用 `hires: false` 时，这一步生成的映射更小、生成更快，因为它的分段更少。使用 `hires: true` 时，这一步生成的映射更大，生成速度也更慢。输出 source map 中的位置通常与使用 `"boundary"` 时相同，因为 Rolldown 在打印模块和 chunk 时生成的映射会在 token 起始位置包含分段，而 `"boundary"` 会在每个单词开头，以及每个不是字母、数字或 `_` 的字符（例如 `"`、`[` 或 `!`）处包含分段。在 `renderChunk` 中，`hires: true` 还可能使输出 source map 更大。
 
-在进行任何编辑之前，MagicString 的文本是一个片段。一次编辑可以将一个片段拆分为更多片段。在片段内部进行空插入也会拆分该片段。`hires: false` 的映射只在以下字符处包含分段：
+MagicString 初始时包含一个文本片段。一次编辑可以拆分一个片段。如果在片段内部插入空字符串，MagicString 会拆分该片段。
 
-- 每个片段的第一个字符。
-- 片段中每个换行符后的第一个字符。
-- 每个非空替换的第一个字符。
+对于 `hires: false`，source map 会按照以下规则包含分段。换行符为 `\n`。
 
-在片段中，换行符没有分段。插入的文本没有分段。
+- 对于未编辑的片段，映射会在其中每一行的第一个非换行字符处包含一个分段。如果该片段从某一行的中间开始，这条规则同样适用。
+- 对于 `addSourcemapLocation()` 注册的每个索引，如果它位于未编辑片段中的非换行字符上，映射会为其包含一个分段。
+- 映射会在替换文本的每一行开头包含一个分段。每个分段都指向原始源代码中被替换范围的起点。
+
+映射不会为插入的文本包含任何分段。
 
 当 Rolldown 组合映射时，一个位置会解析到其所在行中位于该位置或其之前的最后一个分段。如果该位置位于其所在行的第一个分段之前，则会解析到该第一个分段。如果其所在行没有任何分段，则该位置没有映射。
 
