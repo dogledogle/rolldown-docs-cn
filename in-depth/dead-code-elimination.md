@@ -253,10 +253,12 @@ export default {
   plugins: [
     {
       name: 'my-plugin',
-      resolveId(source) {
+      async resolveId(source, importer) {
         if (source === 'my-pure-module') {
+          const resolved = await this.resolve(source, importer, { skipSelf: true });
+          if (resolved === null) return null;
           return {
-            id: source,
+            ...resolved,
             moduleSideEffects: false,
           };
         }
@@ -271,9 +273,9 @@ Rolldown 会按以下顺序检查这些来源，以确定模块的副作用：
 
 1. `transform` 钩子返回的 `moduleSideEffects`
 2. `load` 钩子返回的 `moduleSideEffects`
-3. `resolveId` 钩子返回的 `moduleSideEffects`
+3. `resolveId` 钩子返回的 `moduleSideEffects`，取自首次加载该模块时的解析结果
 4. [`treeshake.moduleSideEffects`](https://rolldown.rs/reference/InputOptions.treeshake#modulesideeffects)，当该选项能为模块给出结论时
-5. 针对打包模块，`package.json` 中的 `sideEffects` 字段
+5. 针对打包模块，`package.json` 中的 `sideEffects` 字段。仅当该模块由 Rolldown 自身的解析器解析时，Rolldown 才会使用此字段。当 `resolveId` 钩子返回 Rolldown 解析器给出的 `this.resolve` 结果时，也属于这种情况。当钩子返回自己的 id（例如虚拟模块）时，Rolldown 不会使用该字段
 6. 针对打包模块的静态分析，以及 Rolldown 对外部模块默认的副作用假设
 
 选项的默认值 `true`、未匹配任何规则，以及回调返回 `undefined` 的情况，都会继续交由后续来源处理。钩子返回 `moduleSideEffects: true` 时，会将打包模块直接交给静态分析，绕过该选项和包元数据。
