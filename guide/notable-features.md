@@ -62,6 +62,7 @@ Rolldown 默认按照 TypeScript 和 Node.js 的行为解析模块，无需使�
 ## Inject
 
 - 通过 [`transform.inject`](https://rolldown.rs/reference/InputOptions.transform#inject) 选项配置。
+- 如需仅对部分模块生效，可使用内置的 [`injectPlugin`](/builtin-plugins/inject) 并通过 `include`/`exclude` 进行限制。
 
 此功能可使用模块导出的特定值填充全局变量。它等同于 [`@rollup/plugin-inject`](https://github.com/rollup/plugins/tree/master/packages/inject)，在概念上也与 [esbuild 的 `inject` 选项](https://esbuild.github.io/api/#inject) 相似。
 
