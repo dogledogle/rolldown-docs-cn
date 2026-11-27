@@ -56,6 +56,18 @@ ROLLDOWN_WORKER_THREADS=2 RAYON_NUM_THREADS=2 npm run build
 
 如果可能，优先在构建机的原生架构上运行构建。降低并发度后构建成功本身并不能确定挂起的原因；报告此类问题时，请附上确切的依赖版本、容器镜像、模拟器版本、CPU 限制以及复现步骤。
 
+#### 构建后的内存
+
+当 Rolldown 处于空闲状态时，会将不再使用的内存归还给操作系统。这一过程会在最后一次构建结束或最后一次输出收集完成 0.5 秒后发生，并且绝不会在构建运行期间启动。下一次构建会从操作系统重新取回这部分内存，这会消耗一些 CPU 时间。
+
+`ROLLDOWN_MEMORY_RECLAIM_DELAY` 可以更改这一行为。将其设为数字即可指定空闲时间（单位为毫秒），默认值为 500。设为 `off` 会关闭清理。
+
+```sh
+ROLLDOWN_MEMORY_RECLAIM_DELAY=off npm run build
+```
+
+请在启动进程前进行设置。该设置仅在 Linux、macOS、Windows、FreeBSD 和 Android 上有效。
+
 ### 插件
 
 插件可以扩展 Rolldown 的功能，但也可能带来性能开销。要查看 `resolveId`、`load`、`transform` 和 `renderChunk` 的插件耗时，请开启[构建报告](/in-depth/build-report)并查看其中的 `timing.md`。
