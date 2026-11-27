@@ -90,6 +90,10 @@ console.log(import_foo.value);
 
 生成的输出要求 Node 版本支持 `import.meta.dirname` 和 `import.meta.filename`。这两个属性从 Node 20.11.0 起可用，并且只存在于本地的 `file:` 模块中。
 
+### UMD 兼容性
+
+当 Rolldown 包装一个引用了未声明 `define` 的 CommonJS 模块时，会向包装器中添加 `var define;`。该局部绑定初始值为 `undefined`，并会遮蔽由 RequireJS 等 AMD 加载器提供的任何全局 `define`。这样，打包后的 UMD 依赖便会走 CommonJS 分支并设置 `module.exports`。
+
 ## 注意事项
 
 ### `require` 外部模块
